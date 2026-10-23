@@ -225,7 +225,7 @@ export default function App() {
       <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-emerald-500 flex items-center justify-center font-black text-white shadow-md shadow-blue-900/30">
+            <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-blue-600 to-emerald-500 flex items-center justify-center font-black text-white shadow-md shadow-blue-900/30">
               S²
             </div>
             <div>
@@ -245,7 +245,7 @@ export default function App() {
 
           {/* Test Scenario Selector */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400 hidden md:inline flex items-center gap-1">
+            <span className="text-xs text-slate-400  md:inline flex items-center gap-1">
               <Layers className="w-3.5 h-3.5" />
               Scenario:
             </span>
@@ -320,7 +320,7 @@ export default function App() {
       {/* Main Content Area */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
         {/* Scenario Header Card */}
-        <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+        <div className="bg-linear-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="text-xs text-blue-400 font-semibold uppercase tracking-wider">
               Active Group
