@@ -1,0 +1,218 @@
+{
+  "members": [
+    { "id": "m1", "groupId": "g-mixed", "name": "Riya", "upiId": "riya@okhdfc", "active": true },
+    { "id": "m2", "groupId": "g-mixed", "name": "Arjun", "upiId": "arjun@oksbi", "active": true },
+    { "id": "m3", "groupId": "g-mixed", "name": "Meera", "upiId": "meera@icici", "active": true },
+    { "id": "m4", "groupId": "g-mixed", "name": "Kabir", "upiId": "kabir@paytm", "active": true },
+    { "id": "m5", "groupId": "g-mixed", "name": "Vikram", "upiId": "vikram@axisbank", "active": true }
+  ],
+  "expenses": [
+    {
+      "id": "exp-1",
+      "groupId": "g-mixed",
+      "description": "Highway Breakfast",
+      "date": "2026-10-18",
+      "payerId": "m1",
+      "amountPaise": 150000,
+      "splitMode": "equal",
+      "memberShares": [
+        { "memberId": "m1", "amountPaise": 30000 },
+        { "memberId": "m2", "amountPaise": 30000 },
+        { "memberId": "m3", "amountPaise": 30000 },
+        { "memberId": "m4", "amountPaise": 30000 },
+        { "memberId": "m5", "amountPaise": 30000 }
+      ],
+      "items": [],
+      "taxLines": [],
+      "serviceChargePaise": 0,
+      "discountPaise": 0,
+      "createdAt": "2026-10-18T08:30:00Z"
+    },
+    {
+      "id": "exp-2",
+      "groupId": "g-mixed",
+      "description": "Fuel Refill 1",
+      "date": "2026-10-18",
+      "payerId": "m2",
+      "amountPaise": 400000,
+      "splitMode": "equal",
+      "memberShares": [
+        { "memberId": "m1", "amountPaise": 80000 },
+        { "memberId": "m2", "amountPaise": 80000 },
+        { "memberId": "m3", "amountPaise": 80000 },
+        { "memberId": "m4", "amountPaise": 80000 },
+        { "memberId": "m5", "amountPaise": 80000 }
+      ],
+      "items": [],
+      "taxLines": [],
+      "serviceChargePaise": 0,
+      "discountPaise": 0,
+      "createdAt": "2026-10-18T11:00:00Z"
+    },
+    {
+      "id": "exp-3",
+      "groupId": "g-mixed",
+      "description": "Supermarket Groceries & Snacks",
+      "date": "2026-10-18",
+      "payerId": "m3",
+      "amountPaise": 250000,
+      "splitMode": "equal",
+      "memberShares": [
+        { "memberId": "m1", "amountPaise": 50000 },
+        { "memberId": "m2", "amountPaise": 50000 },
+        { "memberId": "m3", "amountPaise": 50000 },
+        { "memberId": "m4", "amountPaise": 50000 },
+        { "memberId": "m5", "amountPaise": 50000 }
+      ],
+      "items": [],
+      "taxLines": [],
+      "serviceChargePaise": 0,
+      "discountPaise": 0,
+      "createdAt": "2026-10-18T16:00:00Z"
+    },
+    {
+      "id": "exp-4",
+      "groupId": "g-mixed",
+      "description": "Villa Booking Advance",
+      "date": "2026-10-19",
+      "payerId": "m4",
+      "amountPaise": 1000000,
+      "splitMode": "equal",
+      "memberShares": [
+        { "memberId": "m1", "amountPaise": 200000 },
+        { "memberId": "m2", "amountPaise": 200000 },
+        { "memberId": "m3", "amountPaise": 200000 },
+        { "memberId": "m4", "amountPaise": 200000 },
+        { "memberId": "m5", "amountPaise": 200000 }
+      ],
+      "items": [],
+      "taxLines": [],
+      "serviceChargePaise": 0,
+      "discountPaise": 0,
+      "createdAt": "2026-10-19T10:00:00Z"
+    },
+    {
+      "id": "exp-5",
+      "groupId": "g-mixed",
+      "description": "Scuba Diving Tickets (3 pax)",
+      "date": "2026-10-19",
+      "payerId": "m5",
+      "amountPaise": 600000,
+      "splitMode": "itemized",
+      "memberShares": [
+        { "memberId": "m1", "amountPaise": 200000 },
+        { "memberId": "m2", "amountPaise": 200000 },
+        { "memberId": "m5", "amountPaise": 200000 }
+      ],
+      "items": [],
+      "taxLines": [],
+      "serviceChargePaise": 0,
+      "discountPaise": 0,
+      "createdAt": "2026-10-19T14:30:00Z"
+    },
+    {
+      "id": "exp-6",
+      "groupId": "g-mixed",
+      "description": "Seafood Lunch",
+      "date": "2026-10-19",
+      "payerId": "m1",
+      "amountPaise": 320000,
+      "splitMode": "equal",
+      "memberShares": [
+        { "memberId": "m1", "amountPaise": 64000 },
+        { "memberId": "m2", "amountPaise": 64000 },
+        { "memberId": "m3", "amountPaise": 64000 },
+        { "memberId": "m4", "amountPaise": 64000 },
+        { "memberId": "m5", "amountPaise": 64000 }
+      ],
+      "items": [],
+      "taxLines": [],
+      "serviceChargePaise": 0,
+      "discountPaise": 0,
+      "createdAt": "2026-10-19T16:00:00Z"
+    },
+    {
+      "id": "exp-7",
+      "groupId": "g-mixed",
+      "description": "Highway Tolls",
+      "date": "2026-10-20",
+      "payerId": "m2",
+      "amountPaise": 75000,
+      "splitMode": "equal",
+      "memberShares": [
+        { "memberId": "m1", "amountPaise": 15000 },
+        { "memberId": "m2", "amountPaise": 15000 },
+        { "memberId": "m3", "amountPaise": 15000 },
+        { "memberId": "m4", "amountPaise": 15000 },
+        { "memberId": "m5", "amountPaise": 15000 }
+      ],
+      "items": [],
+      "taxLines": [],
+      "serviceChargePaise": 0,
+      "discountPaise": 0,
+      "createdAt": "2026-10-20T09:00:00Z"
+    },
+    {
+      "id": "exp-8",
+      "groupId": "g-mixed",
+      "description": "Night Club Entry",
+      "date": "2026-10-20",
+      "payerId": "m3",
+      "amountPaise": 500000,
+      "splitMode": "itemized",
+      "memberShares": [
+        { "memberId": "m2", "amountPaise": 125000 },
+        { "memberId": "m3", "amountPaise": 125000 },
+        { "memberId": "m4", "amountPaise": 125000 },
+        { "memberId": "m5", "amountPaise": 125000 }
+      ],
+      "items": [],
+      "taxLines": [],
+      "serviceChargePaise": 0,
+      "discountPaise": 0,
+      "createdAt": "2026-10-20T22:00:00Z"
+    },
+    {
+      "id": "exp-9",
+      "groupId": "g-mixed",
+      "description": "Souvenirs & Sweets",
+      "date": "2026-10-21",
+      "payerId": "m4",
+      "amountPaise": 180000,
+      "splitMode": "equal",
+      "memberShares": [
+        { "memberId": "m1", "amountPaise": 36000 },
+        { "memberId": "m2", "amountPaise": 36000 },
+        { "memberId": "m3", "amountPaise": 36000 },
+        { "memberId": "m4", "amountPaise": 36000 },
+        { "memberId": "m5", "amountPaise": 36000 }
+      ],
+      "items": [],
+      "taxLines": [],
+      "serviceChargePaise": 0,
+      "discountPaise": 0,
+      "createdAt": "2026-10-21T11:00:00Z"
+    },
+    {
+      "id": "exp-10",
+      "groupId": "g-mixed",
+      "description": "Airport Drop Cabs",
+      "date": "2026-10-21",
+      "payerId": "m5",
+      "amountPaise": 240000,
+      "splitMode": "equal",
+      "memberShares": [
+        { "memberId": "m1", "amountPaise": 48000 },
+        { "memberId": "m2", "amountPaise": 48000 },
+        { "memberId": "m3", "amountPaise": 48000 },
+        { "memberId": "m4", "amountPaise": 48000 },
+        { "memberId": "m5", "amountPaise": 48000 }
+      ],
+      "items": [],
+      "taxLines": [],
+      "serviceChargePaise": 0,
+      "discountPaise": 0,
+      "createdAt": "2026-10-21T17:00:00Z"
+    }
+  ]
+}

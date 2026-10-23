@@ -1,0 +1,42 @@
+{
+  "group": {
+    "id": "group-test-01",
+    "name": "Goa Trip",
+    "createdAt": "2026-10-20T10:00:00Z",
+    "updatedAt": "2026-10-20T10:00:00Z"
+  },
+  "members": [
+    {
+      "id": "member-riya",
+      "groupId": "group-test-01",
+      "name": "Riya",
+      "color": "#ec4899",
+      "upiId": "riya@okhdfcbank",
+      "active": true
+    },
+    {
+      "id": "member-arjun",
+      "groupId": "group-test-01",
+      "name": "Arjun",
+      "color": "#3b82f6",
+      "upiId": "arjun@oksbi",
+      "active": true
+    },
+    {
+      "id": "member-meera",
+      "groupId": "group-test-01",
+      "name": "Meera",
+      "color": "#10b981",
+      "upiId": "meera@icici",
+      "active": true
+    },
+    {
+      "id": "member-kabir",
+      "groupId": "group-test-01",
+      "name": "Kabir",
+      "color": "#f59e0b",
+      "upiId": "kabir@paytm",
+      "active": true
+    }
+  ]
+}
