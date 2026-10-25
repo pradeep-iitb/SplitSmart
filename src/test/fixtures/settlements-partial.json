@@ -1,0 +1,22 @@
+{
+  "settlements": [
+    {
+      "id": "settle-1",
+      "groupId": "g-mixed",
+      "fromMemberId": "m1",
+      "toMemberId": "m4",
+      "amountPaise": 100000,
+      "settledAt": "2026-10-22T10:00:00Z",
+      "note": "Partial settlement for Villa"
+    },
+    {
+      "id": "settle-2",
+      "groupId": "g-mixed",
+      "fromMemberId": "m2",
+      "toMemberId": "m5",
+      "amountPaise": 50000,
+      "settledAt": "2026-10-22T11:30:00Z",
+      "note": "Scuba partial"
+    }
+  ]
+}

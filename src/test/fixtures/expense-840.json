@@ -1,0 +1,44 @@
+{
+  "id": "expense-840-fixture",
+  "groupId": "group-test-01",
+  "description": "Beach Shack Dinner",
+  "date": "2026-10-21",
+  "payerId": "member-riya",
+  "amountPaise": 84000,
+  "splitMode": "equal",
+  "memberShares": [
+    { "memberId": "member-riya", "amountPaise": 21000 },
+    { "memberId": "member-arjun", "amountPaise": 21000 },
+    { "memberId": "member-meera", "amountPaise": 21000 },
+    { "memberId": "member-kabir", "amountPaise": 21000 }
+  ],
+  "items": [
+    {
+      "id": "item-1",
+      "name": "Paneer Butter Masala",
+      "quantity": 2,
+      "unitPricePaise": 28000,
+      "lineTotalPaise": 56000,
+      "assignedMemberIds": ["member-riya", "member-arjun", "member-meera", "member-kabir"],
+      "category": "Food",
+      "ocrConfidence": 95
+    },
+    {
+      "id": "item-2",
+      "name": "Garlic Naan",
+      "quantity": 4,
+      "unitPricePaise": 6000,
+      "lineTotalPaise": 24000,
+      "assignedMemberIds": ["member-riya", "member-arjun", "member-meera", "member-kabir"],
+      "category": "Food",
+      "ocrConfidence": 92
+    }
+  ],
+  "taxLines": [
+    { "label": "CGST 2.5%", "amountPaise": 2000 },
+    { "label": "SGST 2.5%", "amountPaise": 2000 }
+  ],
+  "serviceChargePaise": 0,
+  "discountPaise": 0,
+  "createdAt": "2026-10-21T20:30:00Z"
+}
