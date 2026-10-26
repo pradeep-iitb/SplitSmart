@@ -19,6 +19,12 @@ import { SettlementHistoryList } from './features/settlement/components/Settleme
 import { AnalyticsDashboard } from './features/settlement/components/AnalyticsDashboard';
 import { ExportPanel } from './features/settlement/components/ExportPanel';
 
+// Member 3 (Split Engine & Expenses) Components
+import { SplitStudio } from './features/split/components/SplitStudio';
+import { ManualExpenseModal } from './features/split/components/ManualExpenseModal';
+import { RecurringExpenseManager } from './features/split/components/RecurringExpenseManager';
+import { RoundingDebuggerCard } from './features/split/components/RoundingDebuggerCard';
+
 // Import Fixtures
 import group4Fixture from './test/fixtures/group-4.json';
 import expense840Fixture from './test/fixtures/expense-840.json';
@@ -34,13 +40,24 @@ import {
   PlusCircle,
   Receipt,
   Layers,
+  Calculator,
+  Scale,
+  Repeat,
 } from 'lucide-react';
 
-type TabType = 'settlement' | 'analytics' | 'export' | 'algorithm';
+type TabType =
+  | 'split-studio'
+  | 'rounding'
+  | 'recurring'
+  | 'settlement'
+  | 'analytics'
+  | 'export'
+  | 'algorithm';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<TabType>('settlement');
+  const [activeTab, setActiveTab] = useState<TabType>('split-studio');
   const [selectedScenario, setSelectedScenario] = useState<string>('mixed-payers');
+  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
 
   // Active state
   const [group, setGroup] = useState<Group>(() => ({
@@ -233,19 +250,19 @@ export default function App() {
                 <h1 className="font-bold text-lg text-slate-100 tracking-tight">
                   SplitSmart
                 </h1>
-                <span className="text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full uppercase">
-                  Member 4
+                <span className="text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-full uppercase">
+                  Member 3 & 4
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 hidden sm:block">
-                Balances, Optimal Debt Simplification & UPI Settle-up
+                Expense Split Engine, Hamilton-Hare Rounding, Balances & Debt Simplification
               </p>
             </div>
           </div>
 
           {/* Test Scenario Selector */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400  md:inline flex items-center gap-1">
+            <span className="text-xs text-slate-400 md:inline flex items-center gap-1">
               <Layers className="w-3.5 h-3.5" />
               Scenario:
             </span>
@@ -265,6 +282,45 @@ export default function App() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex overflow-x-auto gap-2 border-t border-slate-800/60 no-scrollbar">
           <button
             type="button"
+            onClick={() => setActiveTab('split-studio')}
+            className={`flex items-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+              activeTab === 'split-studio'
+                ? 'border-blue-500 text-blue-400'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Calculator className="w-4 h-4" />
+            <span>Split Studio (M3)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('rounding')}
+            className={`flex items-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+              activeTab === 'rounding'
+                ? 'border-emerald-500 text-emerald-400'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Scale className="w-4 h-4" />
+            <span>Rounding Engine (M3)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('recurring')}
+            className={`flex items-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+              activeTab === 'recurring'
+                ? 'border-purple-500 text-purple-400'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Repeat className="w-4 h-4" />
+            <span>Recurring Schedules (M3)</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab('settlement')}
             className={`flex items-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'settlement'
@@ -273,7 +329,7 @@ export default function App() {
             }`}
           >
             <Wallet className="w-4 h-4" />
-            <span>Balances & Settle-Up</span>
+            <span>Balances & Settle-Up (M4)</span>
           </button>
 
           <button
@@ -286,7 +342,7 @@ export default function App() {
             }`}
           >
             <BarChart3 className="w-4 h-4" />
-            <span>Spending Analytics</span>
+            <span>Spending Analytics (M4)</span>
           </button>
 
           <button
@@ -299,7 +355,7 @@ export default function App() {
             }`}
           >
             <Share2 className="w-4 h-4" />
-            <span>Export & Share</span>
+            <span>Export & Share (M4)</span>
           </button>
 
           <button
@@ -312,7 +368,7 @@ export default function App() {
             }`}
           >
             <Cpu className="w-4 h-4" />
-            <span>Algorithm Deep-Dive</span>
+            <span>Algorithm Deep-Dive (M4)</span>
           </button>
         </div>
       </header>
@@ -336,11 +392,11 @@ export default function App() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setShowAddExpense(!showAddExpense)}
+              onClick={() => setIsManualModalOpen(true)}
               className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium shadow-sm transition-colors"
             >
               <PlusCircle className="w-3.5 h-3.5" />
-              <span>Add Custom Expense</span>
+              <span>Add Manual Expense (PS 6)</span>
             </button>
 
             <button
@@ -419,6 +475,31 @@ export default function App() {
               </button>
             </div>
           </form>
+        )}
+
+        {/* Tab M3: Split Studio (PS Points 9 & 10) */}
+        {activeTab === 'split-studio' && (
+          <SplitStudio
+            members={members}
+            onSaveExpense={(newExp) => setExpenses((prev) => [...prev, newExp])}
+          />
+        )}
+
+        {/* Tab M3: Hamilton-Hare Rounding & Conservation (PS Point 11) */}
+        {activeTab === 'rounding' && (
+          <RoundingDebuggerCard members={members} />
+        )}
+
+        {/* Tab M3: Recurring Expenses & Automation (PS Point 19) */}
+        {activeTab === 'recurring' && (
+          <RecurringExpenseManager
+            members={members}
+            groupId={group.id}
+            existingExpenses={expenses}
+            onExpensesMaterialized={(newExps) =>
+              setExpenses((prev) => [...prev, ...newExps])
+            }
+          />
         )}
 
         {/* Tab 1: Balances & Settlement */}
@@ -531,10 +612,10 @@ export default function App() {
 
       {/* Footer */}
       <footer className="border-t border-slate-800 bg-slate-900/60 py-4 px-6 text-center text-xs text-slate-500">
-        SplitSmart · Web Brawl GC 2026 · Member 4: Balances & Debt Simplification · Client-Side Offline First
+        SplitSmart · Web Brawl GC 2026 · Member 3: Expense Split Engine & Member 4: Balances & Optimal Settlement · 100% Client-Side
       </footer>
 
-      {/* Live UPI Payment Modal */}
+      {/* Live UPI Payment Modal (M4) */}
       {activeUpiPayment && (
         <UpiPaymentModal
           payment={activeUpiPayment}
@@ -545,6 +626,15 @@ export default function App() {
           onUpdatePayeeUpiId={handleUpdatePayeeUpiId}
         />
       )}
+
+      {/* Manual Expense Modal (M3 - PS Point 6) */}
+      <ManualExpenseModal
+        isOpen={isManualModalOpen}
+        onClose={() => setIsManualModalOpen(false)}
+        members={members}
+        groupId={group.id}
+        onSaveExpense={(newExp) => setExpenses((prev) => [...prev, newExp])}
+      />
     </div>
   );
 }
