@@ -222,8 +222,8 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
                 Split Calculation Studio
               </h2>
             </div>
-            <p className="text-xs text-slate-400 mt-1">
-              PS Points 9, 10 & 11 • Test all 5 split modes, proportional taxes, discounts & Hamilton-Hare rounding
+            <p className="text-xs sm:text-sm text-slate-400 mt-1">
+              Live calculation across all 5 split modes with proportional taxes, discounts & exact rounding
             </p>
           </div>
 
@@ -299,8 +299,8 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
 
         {/* Mode Selector Tabs */}
         <div className="mt-6 pt-5 border-t border-slate-800">
-          <label className="block text-xs font-medium text-slate-400 mb-2">
-            Select Split Mode (PS Point 9)
+          <label className="block text-xs sm:text-sm font-semibold text-slate-300 mb-2.5">
+            Select Split Mode
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
             {[
@@ -509,9 +509,9 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
       {splitMode === 'itemized' && (
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-5">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-              <ListOrdered className="w-4 h-4 text-emerald-400" />
-              Receipt Items & Assignment (PS Point 8 & 10)
+            <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
+              <ListOrdered className="w-5 h-5 text-emerald-400" />
+              Receipt Line Items & Member Assignment
             </h3>
             <button
               onClick={() => {

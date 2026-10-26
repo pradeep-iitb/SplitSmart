@@ -163,8 +163,8 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
                 Recurring Expenses Engine
               </h2>
             </div>
-            <p className="text-xs text-slate-400 mt-1">
-              PS Point 19 • Automated recurring schedules, deterministic ID occurrence materialization & idempotency
+            <p className="text-xs sm:text-sm text-slate-400 mt-1">
+              Automated recurring schedules, deterministic occurrence materialization & guaranteed idempotency
             </p>
           </div>
 

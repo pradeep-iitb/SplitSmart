@@ -133,8 +133,8 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
               <Receipt className="w-5 h-5" />
             </span>
             <div>
-              <h2 className="text-lg font-bold text-slate-100">Add Manual Expense</h2>
-              <p className="text-xs text-slate-400">PS Point 6 • Without receipt OCR</p>
+              <h2 className="text-xl font-bold text-slate-100">Add Manual Expense</h2>
+              <p className="text-xs sm:text-sm text-slate-400">Record a non-receipt expense with flexible group split</p>
             </div>
           </div>
           <button

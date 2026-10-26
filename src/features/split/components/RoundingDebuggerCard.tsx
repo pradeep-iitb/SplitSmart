@@ -36,7 +36,7 @@ export const RoundingDebuggerCard: React.FC<RoundingDebuggerCardProps> = ({
         stableIds: activeIds,
         weights: [1, 1, 1],
         names: ['Arjun', 'Meera', 'Riya'],
-        description: 'PS Point 11 Benchmark: ₹100 split 3 ways yields [₹33.34, ₹33.33, ₹33.33] using stable ID tie break (arjun < meera < riya).',
+        description: 'Odd-Paisa Benchmark: ₹100 split 3 ways yields [₹33.34, ₹33.33, ₹33.33] using stable ID tie break (arjun < meera < riya).',
       };
     }
 
@@ -96,8 +96,8 @@ export const RoundingDebuggerCard: React.FC<RoundingDebuggerCardProps> = ({
                 Hamilton-Hare Rounding & Conservation Engine
               </h2>
             </div>
-            <p className="text-xs text-slate-400 mt-1">
-              PS Point 11 • Deterministic largest fractional remainder allocation with ascending stable-ID tie-breaking
+            <p className="text-xs sm:text-sm text-slate-400 mt-1">
+              Deterministic largest fractional remainder allocation with ascending stable-ID tie-breaking
             </p>
           </div>
 

@@ -239,37 +239,32 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-blue-600 to-emerald-500 flex items-center justify-center font-black text-white shadow-md shadow-blue-900/30">
+      <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-sm">
+        <div className="max-w-[1500px] w-full mx-auto px-6 sm:px-8 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-11 h-11 rounded-2xl bg-linear-to-tr from-blue-600 to-emerald-500 flex items-center justify-center font-black text-xl text-white shadow-lg shadow-blue-900/30">
               S²
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="font-bold text-lg text-slate-100 tracking-tight">
-                  SplitSmart
-                </h1>
-                <span className="text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-full uppercase">
-                  Member 3 & 4
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">
-                Expense Split Engine, Hamilton-Hare Rounding, Balances & Debt Simplification
+              <h1 className="font-extrabold text-2xl text-slate-100 tracking-tight">
+                SplitSmart
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-400 hidden sm:block">
+                Intelligent Group Expense Splitting, Fair Allocations & Instant Settlement
               </p>
             </div>
           </div>
 
           {/* Test Scenario Selector */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400 md:inline flex items-center gap-1">
-              <Layers className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-slate-400 md:inline flex items-center gap-1.5">
+              <Layers className="w-4 h-4 text-blue-400" />
               Scenario:
             </span>
             <select
               value={selectedScenario}
               onChange={(e) => loadScenario(e.target.value)}
-              className="bg-slate-800 border border-slate-700 text-xs rounded-xl px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-blue-500 cursor-pointer"
+              className="bg-slate-800 border border-slate-700 text-sm font-medium rounded-xl px-3.5 py-2 text-slate-200 focus:outline-none focus:border-blue-500 cursor-pointer shadow-sm"
             >
               <option value="mixed-payers">5 Members · 10 Mixed Expenses</option>
               <option value="group-4">4 Members · Goa Trip (Riya ₹840)</option>
@@ -279,124 +274,124 @@ export default function App() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex overflow-x-auto gap-2 border-t border-slate-800/60 no-scrollbar">
+        <div className="max-w-[1500px] w-full mx-auto px-6 sm:px-8 flex items-center overflow-x-auto gap-1 sm:gap-3 border-t border-slate-800/80 no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab('split-studio')}
-            className={`flex items-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2.5 py-3.5 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'split-studio'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-blue-500 text-blue-400 bg-blue-500/5'
+                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
             }`}
           >
-            <Calculator className="w-4 h-4" />
-            <span>Split Studio (M3)</span>
+            <Calculator className="w-4.5 h-4.5" />
+            <span>Split Studio</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('rounding')}
-            className={`flex items-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2.5 py-3.5 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'rounding'
-                ? 'border-emerald-500 text-emerald-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-emerald-500 text-emerald-400 bg-emerald-500/5'
+                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
             }`}
           >
-            <Scale className="w-4 h-4" />
-            <span>Rounding Engine (M3)</span>
+            <Scale className="w-4.5 h-4.5" />
+            <span>Rounding Engine</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('recurring')}
-            className={`flex items-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2.5 py-3.5 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'recurring'
-                ? 'border-purple-500 text-purple-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-purple-500 text-purple-400 bg-purple-500/5'
+                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
             }`}
           >
-            <Repeat className="w-4 h-4" />
-            <span>Recurring Schedules (M3)</span>
+            <Repeat className="w-4.5 h-4.5" />
+            <span>Recurring Schedules</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('settlement')}
-            className={`flex items-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2.5 py-3.5 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'settlement'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-blue-500 text-blue-400 bg-blue-500/5'
+                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
             }`}
           >
-            <Wallet className="w-4 h-4" />
-            <span>Balances & Settle-Up (M4)</span>
+            <Wallet className="w-4.5 h-4.5" />
+            <span>Balances & Settlement</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('analytics')}
-            className={`flex items-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2.5 py-3.5 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'analytics'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-blue-500 text-blue-400 bg-blue-500/5'
+                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
             }`}
           >
-            <BarChart3 className="w-4 h-4" />
-            <span>Spending Analytics (M4)</span>
+            <BarChart3 className="w-4.5 h-4.5" />
+            <span>Spending Analytics</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('export')}
-            className={`flex items-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2.5 py-3.5 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'export'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-blue-500 text-blue-400 bg-blue-500/5'
+                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
             }`}
           >
-            <Share2 className="w-4 h-4" />
-            <span>Export & Share (M4)</span>
+            <Share2 className="w-4.5 h-4.5" />
+            <span>Export & Share</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('algorithm')}
-            className={`flex items-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2.5 py-3.5 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'algorithm'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-blue-500 text-blue-400 bg-blue-500/5'
+                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
             }`}
           >
-            <Cpu className="w-4 h-4" />
-            <span>Algorithm Deep-Dive (M4)</span>
+            <Cpu className="w-4.5 h-4.5" />
+            <span>Algorithm Deep-Dive</span>
           </button>
         </div>
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+      <main className="flex-1 max-w-[1500px] w-full mx-auto px-6 sm:px-8 py-8 space-y-8">
         {/* Scenario Header Card */}
-        <div className="bg-linear-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+        <div className="bg-linear-to-r from-slate-900 via-slate-850 to-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-sm">
           <div>
-            <div className="text-xs text-blue-400 font-semibold uppercase tracking-wider">
+            <div className="text-xs text-blue-400 font-bold uppercase tracking-wider mb-1">
               Active Group
             </div>
-            <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
+            <h2 className="text-2xl font-black text-slate-100 flex items-center gap-3">
               <span>{group.name}</span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 font-normal">
+              <span className="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 font-medium border border-slate-700/50">
                 {members.length} members · {expenses.length} expenses
               </span>
             </h2>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setIsManualModalOpen(true)}
-              className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium shadow-sm transition-colors"
+              className="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold shadow-md shadow-blue-900/20 transition-all cursor-pointer"
             >
-              <PlusCircle className="w-3.5 h-3.5" />
-              <span>Add Manual Expense (PS 6)</span>
+              <PlusCircle className="w-4 h-4" />
+              <span>Add Expense</span>
             </button>
 
             <button
@@ -611,8 +606,8 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-900/60 py-4 px-6 text-center text-xs text-slate-500">
-        SplitSmart · Web Brawl GC 2026 · Member 3: Expense Split Engine & Member 4: Balances & Optimal Settlement · 100% Client-Side
+      <footer className="border-t border-slate-800 bg-slate-900/60 py-6 px-8 text-center text-sm text-slate-500">
+        SplitSmart · Client-Side Group Expense Splitting, Debt Simplification & Instant UPI Settlement
       </footer>
 
       {/* Live UPI Payment Modal (M4) */}
