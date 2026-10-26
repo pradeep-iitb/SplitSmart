@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type {
   Expense,
   Group,
@@ -25,6 +25,14 @@ import { ManualExpenseModal } from './features/split/components/ManualExpenseMod
 import { RecurringExpenseManager } from './features/split/components/RecurringExpenseManager';
 import { RoundingDebuggerCard } from './features/split/components/RoundingDebuggerCard';
 
+// Member 5 (State, Persistence & Sharing) Components & Store
+import { GroupManagerModal } from './features/groups/components/GroupManagerModal';
+import { MemberManagementModal } from './features/groups/components/MemberManagementModal';
+import { BackupShareModal } from './features/groups/components/BackupShareModal';
+import { useOfflineStatus } from './hooks/useOfflineStatus';
+import { useGroupStore } from './store/groupStore';
+import { decodeGroupFromUrlHash } from './features/sharing/sharingService';
+
 // Import Fixtures
 import group4Fixture from './test/fixtures/group-4.json';
 import expense840Fixture from './test/fixtures/expense-840.json';
@@ -43,6 +51,9 @@ import {
   Calculator,
   Scale,
   Repeat,
+  FolderOpen,
+  Users,
+  WifiOff,
 } from 'lucide-react';
 
 type TabType =
@@ -58,8 +69,34 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('split-studio');
   const [selectedScenario, setSelectedScenario] = useState<string>('mixed-payers');
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
+  const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
 
-  // Active state
+  // Member 5: IndexedDB Zustand Store & Offline hook
+  const {
+    groups,
+    activeGroupId,
+    activeGroup: storeGroup,
+    members: storeMembers,
+    expenses: storeExpenses,
+    settlements: storeSettlements,
+    init: initStore,
+    switchGroup,
+    createGroup,
+    renameGroup,
+    deleteGroup,
+    addMember,
+    updateMember,
+    removeMember,
+    saveExpense: storeSaveExpense,
+    recordSettlement: storeRecordSettlement,
+    undoSettlement: storeUndoSettlement,
+  } = useGroupStore();
+
+  const { isOffline } = useOfflineStatus();
+
+  // Active state fallback
   const [group, setGroup] = useState<Group>(() => ({
     id: 'g-mixed',
     name: 'Goa Friends Vacation',
@@ -78,6 +115,32 @@ export default function App() {
   const [settlements, setSettlements] = useState<RecordedSettlement[]>(
     () => partialSettlementsFixture.settlements as RecordedSettlement[]
   );
+
+  // Initialize IndexedDB and check URL hash on mount (PS Point 14 & 17)
+  useEffect(() => {
+    (async () => {
+      if (typeof window !== 'undefined' && window.location.hash && window.location.hash.includes('share=')) {
+        const importedId = await decodeGroupFromUrlHash(window.location.hash);
+        if (importedId) {
+          window.location.hash = '';
+          await initStore();
+          await switchGroup(importedId);
+          return;
+        }
+      }
+      await initStore();
+    })();
+  }, []);
+
+  // Synchronize from IndexedDB store whenever active group or records update
+  useEffect(() => {
+    if (storeGroup) {
+      setGroup(storeGroup);
+      setMembers(storeMembers);
+      setExpenses(storeExpenses);
+      setSettlements(storeSettlements);
+    }
+  }, [storeGroup, storeMembers, storeExpenses, storeSettlements]);
 
   // Active modal state
   const [activeUpiPayment, setActiveUpiPayment] = useState<SuggestedPayment | null>(null);
@@ -170,27 +233,43 @@ export default function App() {
   const detailedBalances = calculateDetailedBalances(members, expenses, settlements);
   const suggestions = suggestSettlements(balances);
 
-  // Settlement recording actions
-  const handleRecordSettlement = (payment: SuggestedPayment, note = 'Settled via SplitSmart') => {
+  // Settlement recording actions with IndexedDB persistence
+  const handleRecordSettlement = async (payment: SuggestedPayment, note = 'Settled via SplitSmart') => {
     const recorded = createRecordedSettlement(payment, {
       groupId: group.id,
       note,
     });
     setSettlements((prev) => [...prev, recorded]);
+    if (storeGroup && storeGroup.id === group.id) {
+      await storeRecordSettlement(recorded);
+    }
   };
 
-  const handleUndoSettlement = (settlementId: string) => {
+  const handleUndoSettlement = async (settlementId: string) => {
     setSettlements((prev) => prev.filter((s) => s.id !== settlementId));
+    if (storeGroup && storeGroup.id === group.id) {
+      await storeUndoSettlement(settlementId);
+    }
   };
 
-  const handleUpdatePayeeUpiId = (memberId: string, newUpiId: string) => {
+  const handleUpdatePayeeUpiId = async (memberId: string, newUpiId: string) => {
     setMembers((prev) =>
       prev.map((m) => (m.id === memberId ? { ...m, upiId: newUpiId } : m))
     );
+    if (storeGroup && storeGroup.id === group.id) {
+      await updateMember(memberId, { upiId: newUpiId });
+    }
+  };
+
+  const handleSaveExpense = async (newExp: Expense) => {
+    setExpenses((prev) => [...prev, newExp]);
+    if (storeGroup && storeGroup.id === group.id) {
+      await storeSaveExpense(newExp);
+    }
   };
 
   // Add custom manual expense
-  const handleAddManualExpense = (e: React.FormEvent) => {
+  const handleAddManualExpense = async (e: React.FormEvent) => {
     e.preventDefault();
     const rupees = parseFloat(newExpenseRupees);
     if (!newExpenseDesc || isNaN(rupees) || rupees <= 0 || !newExpensePayerId) return;
@@ -222,7 +301,7 @@ export default function App() {
       createdAt: new Date().toISOString(),
     };
 
-    setExpenses((prev) => [...prev, newExpense]);
+    await handleSaveExpense(newExpense);
     setNewExpenseDesc('');
     setNewExpenseRupees('');
     setShowAddExpense(false);
@@ -242,9 +321,11 @@ export default function App() {
       <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-sm">
         <div className="max-w-[1500px] w-full mx-auto px-6 sm:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-11 h-11 rounded-2xl bg-linear-to-tr from-blue-600 to-emerald-500 flex items-center justify-center font-black text-xl text-white shadow-lg shadow-blue-900/30">
-              S²
-            </div>
+            <img
+              src="/Images/SplitSmart Neon Receipt Logo.png"
+              alt="SplitSmart Logo"
+              className="w-12 h-12 object-contain rounded-xl drop-shadow-[0_0_15px_rgba(59,130,246,0.5)] shrink-0"
+            />
             <div>
               <h1 className="font-extrabold text-2xl text-slate-100 tracking-tight">
                 SplitSmart
@@ -381,14 +462,47 @@ export default function App() {
               <span className="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 font-medium border border-slate-700/50">
                 {members.length} members · {expenses.length} expenses
               </span>
+              {isOffline && (
+                <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium">
+                  <WifiOff className="w-3.5 h-3.5" />
+                  Offline Mode
+                </span>
+              )}
             </h2>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setIsGroupModalOpen(true)}
+              className="inline-flex items-center gap-2 py-2 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-sm font-semibold transition-all cursor-pointer"
+            >
+              <FolderOpen className="w-4 h-4 text-blue-400" />
+              <span>Switch Group</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsMemberModalOpen(true)}
+              className="inline-flex items-center gap-2 py-2 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-sm font-semibold transition-all cursor-pointer"
+            >
+              <Users className="w-4 h-4 text-emerald-400" />
+              <span>Members</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsBackupModalOpen(true)}
+              className="inline-flex items-center gap-2 py-2 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-sm font-semibold transition-all cursor-pointer"
+            >
+              <Share2 className="w-4 h-4 text-purple-400" />
+              <span>Backup & Share</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setIsManualModalOpen(true)}
-              className="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold shadow-md shadow-blue-900/20 transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 py-2 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold shadow-md shadow-blue-900/20 transition-all cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Add Expense</span>
@@ -398,7 +512,7 @@ export default function App() {
               type="button"
               onClick={() => loadScenario(selectedScenario)}
               title="Reset current fixture"
-              className="p-1.5 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+              className="p-2 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
@@ -472,11 +586,11 @@ export default function App() {
           </form>
         )}
 
-        {/* Tab M3: Split Studio (PS Points 9 & 10) */}
+        {/* Split Studio */}
         {activeTab === 'split-studio' && (
           <SplitStudio
             members={members}
-            onSaveExpense={(newExp) => setExpenses((prev) => [...prev, newExp])}
+            onSaveExpense={handleSaveExpense}
           />
         )}
 
@@ -622,13 +736,62 @@ export default function App() {
         />
       )}
 
-      {/* Manual Expense Modal (M3 - PS Point 6) */}
+      {/* Manual Expense Modal */}
       <ManualExpenseModal
         isOpen={isManualModalOpen}
         onClose={() => setIsManualModalOpen(false)}
         members={members}
         groupId={group.id}
-        onSaveExpense={(newExp) => setExpenses((prev) => [...prev, newExp])}
+        onSaveExpense={handleSaveExpense}
+      />
+
+      {/* Group Manager Modal (PS Point 1 & 14) */}
+      <GroupManagerModal
+        isOpen={isGroupModalOpen}
+        onClose={() => setIsGroupModalOpen(false)}
+        groups={groups}
+        activeGroupId={activeGroupId}
+        onSelectGroup={async (id) => {
+          await switchGroup(id);
+          setIsGroupModalOpen(false);
+        }}
+        onCreateGroup={async (name) => {
+          return await createGroup(name);
+        }}
+        onRenameGroup={async (id, name) => {
+          await renameGroup(id, name);
+        }}
+        onDeleteGroup={async (id) => {
+          await deleteGroup(id);
+        }}
+      />
+
+      {/* Member Management Modal (PS Point 1) */}
+      <MemberManagementModal
+        isOpen={isMemberModalOpen}
+        onClose={() => setIsMemberModalOpen(false)}
+        groupName={group.name}
+        members={members}
+        onAddMember={async (name, options) => {
+          return await addMember(name, options);
+        }}
+        onUpdateMember={async (id, patch) => {
+          await updateMember(id, patch);
+        }}
+        onRemoveMember={async (id) => {
+          await removeMember(id);
+        }}
+      />
+
+      {/* Backup & Share Modal (PS Point 14, 17, 18) */}
+      <BackupShareModal
+        isOpen={isBackupModalOpen}
+        onClose={() => setIsBackupModalOpen(false)}
+        group={group}
+        onImportSuccess={async (importedId) => {
+          await initStore();
+          await switchGroup(importedId);
+        }}
       />
     </div>
   );
