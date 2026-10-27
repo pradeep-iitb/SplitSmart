@@ -54,6 +54,35 @@ describe('parseReceipt', () => {
     const p = parseReceipt(fromPlainText(T.wrapped));
     expect(p.items[0]).toMatchObject({ name: 'Paneer Tikka Roll', quantity: 2, totalPaise: 18000 });
   });
+
+  it('handles Food Avenue real receipt with address noise and OCR artifacts', () => {
+    const text = `THE FOOD AVENUE
+Multi Cuisine Restaurant
+Shop No. 12, Horizon Complex, IIT Bombay,
+Powai, Mumbai - 400076
+Tel: 022-2576 1234
+Bill No : 8421
+Date : 26-Oct-2026
+il Margherita Pizza (L) il 380.00 380.00
+2 Double Masala Maggi 2 180.00 360.00
+8! Cold Coffee 3 120.00 360.00
+4 Cheese Garlic Bread 1 160.00 160.00
+Subtotal 1,260.00
+Service Charge (5%) 63.00
+CGST (2.5%) 33.08
+SGST (2.5%) 33.08
+Total (₹) 1,389.00`;
+    const p = parseReceipt(fromPlainText(text));
+    expect(p.items.map(i => i.name)).toEqual([
+      'Margherita Pizza (L)',
+      'Double Masala Maggi',
+      'Cold Coffee',
+      'Cheese Garlic Bread'
+    ]);
+    expect(p.serviceChargePaise).toBe(6300);
+    expect(p.taxPaise).toBe(6616); // 33.08 + 33.08
+    expect(p.detectedTotalPaise).toBe(138900);
+  });
 });
 
 describe('validateTotals', () => {

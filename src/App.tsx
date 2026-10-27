@@ -22,6 +22,7 @@ import { ExportPanel } from './features/settlement/components/ExportPanel';
 // Member 3 (Split Engine & Expenses) Components
 import { SplitStudio } from './features/split/components/SplitStudio';
 import { ManualExpenseModal } from './features/split/components/ManualExpenseModal';
+import { ReceiptScanModal } from './features/split/components/ReceiptScanModal';
 import { RecurringExpenseManager } from './features/split/components/RecurringExpenseManager';
 import { RoundingDebuggerCard } from './features/split/components/RoundingDebuggerCard';
 
@@ -54,6 +55,7 @@ import {
   FolderOpen,
   Users,
   WifiOff,
+  Camera,
 } from 'lucide-react';
 
 type TabType =
@@ -69,6 +71,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('split-studio');
   const [selectedScenario, setSelectedScenario] = useState<string>('mixed-payers');
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
+  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
   const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
@@ -510,6 +513,15 @@ export default function App() {
 
             <button
               type="button"
+              onClick={() => setIsScanModalOpen(true)}
+              className="inline-flex items-center gap-2 py-2 px-4 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-sm font-semibold shadow-md shadow-emerald-900/20 transition-all cursor-pointer"
+            >
+              <Camera className="w-4 h-4" />
+              <span>Scan Receipt</span>
+            </button>
+
+            <button
+              type="button"
               onClick={() => loadScenario(selectedScenario)}
               title="Reset current fixture"
               className="p-2 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
@@ -744,6 +756,21 @@ export default function App() {
         groupId={group.id}
         onSaveExpense={handleSaveExpense}
       />
+
+      {/* Smart OCR Receipt Scanner Modal */}
+      {isScanModalOpen && (
+        <ReceiptScanModal
+          isOpen={isScanModalOpen}
+          onClose={() => setIsScanModalOpen(false)}
+          members={members}
+          groupId={group.id}
+          onSaveExpense={handleSaveExpense}
+          onOpenInSplitStudio={() => {
+            setActiveTab('split-studio');
+            setIsScanModalOpen(false);
+          }}
+        />
+      )}
 
       {/* Group Manager Modal (PS Point 1 & 14) */}
       <GroupManagerModal

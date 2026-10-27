@@ -55,15 +55,15 @@ const RE = {
   totalExclude: /\btotal\s*(?:qty|quantity|items?|item\s*count|pcs|units)\b|\bqty\s*total\b|\bno\.?\s*of\s*items\b/i,
   taxTotal: /\btotal\s*(?:gst|tax|vat)\b|\b(?:gst|tax)\s*total\b/i,
   total: /^\W*(?:total|ttl|tot)\b/i,
-  tax: /\b(?:[cs]\.?\s?gst|igst|utgst|gst|vat|sales\s*tax|service\s*tax|tax(?:es)?|cess)\b/i,
-  service: /\b(?:service\s*(?:charge|chg|fee)s?|serv\.?\s*(?:charge|chg)|s\.?\s*charge|svc\s*(?:charge|chg)?|packing|packaging|container|delivery\s*(?:charge|fee)s?|convenience\s*fee|platform\s*fee)\b/i,
+  tax: /\b(?:[cs]\.?\s?gst|igst|utgst|gst|vat|sales\s*tax|tax(?:es)?|cess)\b/i,
+  service: /\b(?:service\s*(?:charge|chg|fee|tax)?s?|serv\.?\s*(?:charge|chg)|s\.?\s*charge|svc\s*(?:charge|chg)?|packing|packaging|container|delivery\s*(?:charge|fee)s?|convenience\s*fee|platform\s*fee)\b/i,
   discount: /\b(?:discount|disc|promo|coupon|rebate)\b/i,
   payment: /\b(?:cash|card|upi|paytm|gpay|phonepe|visa|mastercard|tendered?|change|balance|paid|payment|received|refund|tips?)\b/i,
   meta: /\b(?:invoice|inv|bill\s*(?:no|number|#)|order\s*(?:no|number|id|#)|table|tbl|token|kot|cashier|waiter|steward|date|time|phone|ph|tel|mob|email|www|https?|thank(?:s|\s*you)?|visit|welcome|feedback|customer|pax|covers?|terminal|txn|rrn|auth|dine\s*in|take\s*away|takeaway)\b|@|\.com\b|\.in\b|^\W*(?:sr|sl|s)\.?\s*no\b|\bitem\s+qty\b|\bqty\s+(?:rate|price|amt)\b/i,
   date: /\b\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}\b/,
   time: /\b\d{1,2}:\d{2}(?::\d{2})?\s*(?:am|pm)?\b/i,
   phone: /\b\d{10,}\b|\+\d[\d\s-]{8,}|\b\d{3,5}[\s-]\d{6,8}\b/,
-  address: /\b(?:road|rd|street|nagar|colony|sector|opp|opposite|near|behind|pincode|pin\s*code|plot|bldg|building|complex|lane|highway|hwy|dist|district)\b/i,
+  address: /\b(?:road|rd|street|nagar|colony|sector|opp|opposite|near|behind|pincode|pin\s*code|plot|bldg|building|complex|lane|highway|hwy|dist|district|floor|shop|tower|plaza|mall|market|bazaar|iit|campus|horizon)\b|\b[1-9]\d{5}\b|\b(?:mumbai|bombay|powai|delhi|bengaluru|bangalore|pune|hyderabad|chennai|kolkata|ahmedabad|jaipur|noida|gurgaon|gurugram|thane|maharashtra|karnataka|gujarat|india)\b/i,
 };
 
 function classify(t: string): Kind {
@@ -75,8 +75,8 @@ function classify(t: string): Kind {
   if (RE.savingsInfo.test(t) || RE.totalExclude.test(t)) return 'noise';
   if (RE.taxTotal.test(t)) return 'taxTotal';
   if (RE.total.test(t)) return 'total';
+  if (RE.service.test(t)) return 'service'; // check service before tax
   if (RE.tax.test(t)) return 'tax';
-  if (RE.service.test(t)) return 'service';
   if (RE.discount.test(t)) return 'discount';
   if (RE.payment.test(t) || RE.meta.test(t) || RE.date.test(t) || RE.time.test(t) || RE.phone.test(t) || RE.address.test(t)) return 'noise';
   if ((t.match(/,/g) || []).length >= 2 && !/\d[.,]\d{2}$/.test(t)) return 'noise'; // address-like
@@ -97,7 +97,7 @@ function normalizeLine(raw: string): string {
 /** Peel up to 3 price-like tokens off the end of a line ([qty] [rate] total). Everything left of them is the name. */
 function splitTail(text: string): { nameTokens: string[]; raws: string[] } {
   const toks = text.split(' ').filter(Boolean);
-  while (toks.length > 1 && /^[A-Za-z*#]$/.test(toks[toks.length - 1])) toks.pop(); // tax-code markers ("T", "A")
+  while (toks.length > 1 && /^[A-Za-z*#|!]$/.test(toks[toks.length - 1])) toks.pop(); // tax-code markers or stray borders ("T", "A", "i", "|")
   const raws: string[] = [];
   let i = toks.length;
   while (i > 0 && raws.length < 3) {
@@ -146,13 +146,17 @@ function titleCase(s: string): string {
 }
 
 function cleanName(s: string): string {
-  return titleCase(
-    s.replace(/^\d{1,3}[.)]\s*/, '')       // serial number "1." / "2)"
-     .replace(/^\d{4,}\s+/, '')            // item / HSN code
-     .replace(/[:;,\-–.]+$/, '')
-     .replace(/\s+/g, ' ')
-     .trim(),
-  );
+  const cleaned = s
+    .replace(/^[\s|!.,;:–-]+|[\s|!.,;:–-]+$/g, '')
+    .replace(/^(?:[|!iIl1]{1,3}|\d{1,3}|[8B][!|])[.)\s]+/, '') // serial numbers like "1.", "il ", "8! "
+    .replace(/^\d{4,}\s+/, '') // item / HSN code
+    .replace(/\s+[|!iIl1*#]{1,3}$/, '') // trailing OCR artifacts like " i" or " il"
+    .replace(/^[|!iIl1*#]{1,3}\s+/, '') // leading OCR artifacts
+    .replace(/[:;,\-–.]+$/, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return titleCase(cleaned);
 }
 
 // ───────────────────────── confidence ─────────────────────────
