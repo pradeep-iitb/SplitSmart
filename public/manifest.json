@@ -1,0 +1,17 @@
+{
+  "name": "SplitSmart — Group Expense & Settle-Up",
+  "short_name": "SplitSmart",
+  "description": "Zero-backend receipt-to-settlement group expense manager with offline IndexedDB storage",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/Images/SplitSmart Neon Receipt Logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

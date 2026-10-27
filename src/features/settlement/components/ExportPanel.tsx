@@ -77,13 +77,10 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({
       {/* Top Banner */}
       <div className="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-1">
-          <Share2 className="w-4 h-4 text-blue-400" />
-          <h3 className="font-semibold text-slate-100 text-base">
+          <Share2 className="w-5 h-5 text-blue-400" />
+          <h3 className="font-bold text-slate-100 text-lg">
             Export & Report Generator
           </h3>
-          <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-            PS Point 20
-          </span>
         </div>
         <p className="text-xs text-slate-400">
           Export full group financial records as standard CSVs (Excel & Sheets compatible with UTF-8 BOM) or copy formatted summaries for WhatsApp/email.

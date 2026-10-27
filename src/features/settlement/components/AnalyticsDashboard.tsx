@@ -53,57 +53,57 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   return (
     <div className="space-y-6">
       {/* 4 Metric Tiles */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
             <span>Total Group Spend</span>
-            <Wallet className="w-4 h-4 text-emerald-400" />
+            <Wallet className="w-5 h-5 text-emerald-400" />
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-slate-100">
+          <div className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
             {formatPaise(analytics.totalSpentPaise)}
           </div>
-          <div className="text-xs text-slate-400 mt-1">
+          <div className="text-sm text-slate-400 mt-1.5">
             Across <span className="font-semibold text-slate-200">{analytics.expenseCount}</span> expenses
           </div>
         </div>
 
-        <div className="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">
+        <div className="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
             <span>Average / Member</span>
-            <Users className="w-4 h-4 text-blue-400" />
+            <Users className="w-5 h-5 text-blue-400" />
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-slate-100">
+          <div className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
             {formatPaise(analytics.averagePerMemberPaise)}
           </div>
-          <div className="text-xs text-slate-400 mt-1">
+          <div className="text-sm text-slate-400 mt-1.5">
             For {members.length} participants
           </div>
         </div>
 
-        <div className="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">
+        <div className="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
             <span>Top Category</span>
-            <Tag className="w-4 h-4 text-amber-400" />
+            <Tag className="w-5 h-5 text-amber-400" />
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-amber-400">
+          <div className="text-2xl sm:text-3xl font-extrabold text-amber-400 tracking-tight">
             {analytics.topCategory || 'N/A'}
           </div>
-          <div className="text-xs text-slate-400 mt-1">
+          <div className="text-sm text-slate-400 mt-1.5">
             {analytics.categoryBreakdown[0]
               ? `${(analytics.categoryBreakdown[0].percentageBasisPoints / 100).toFixed(1)}% of total`
               : 'No categories'}
           </div>
         </div>
 
-        <div className="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">
+        <div className="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
             <span>Timeline Span</span>
-            <Calendar className="w-4 h-4 text-violet-400" />
+            <Calendar className="w-5 h-5 text-violet-400" />
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-slate-100">
-            {analytics.spendingByDate.length} <span className="text-sm font-normal text-slate-400">days</span>
+          <div className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
+            {analytics.spendingByDate.length} <span className="text-base font-normal text-slate-400">days</span>
           </div>
-          <div className="text-xs text-slate-400 mt-1">
+          <div className="text-sm text-slate-400 mt-1.5">
             Active spending records
           </div>
         </div>
@@ -113,13 +113,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
       <div className="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <PieChart className="w-4 h-4 text-emerald-400" />
-            <h3 className="font-semibold text-slate-100 text-base">
+            <PieChart className="w-5 h-5 text-emerald-400" />
+            <h3 className="font-bold text-slate-100 text-lg">
               Spending by Category
             </h3>
-            <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              PS Point 16
-            </span>
           </div>
           <span className="text-xs text-slate-400">
             {analytics.categoryBreakdown.length} active categories
