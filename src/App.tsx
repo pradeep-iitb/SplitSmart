@@ -20,9 +20,10 @@ import { AnalyticsDashboard } from './features/settlement/components/AnalyticsDa
 import { ExportPanel } from './features/settlement/components/ExportPanel';
 
 // Member 3 (Split Engine & Expenses) Components
-import { SplitStudio } from './features/split/components/SplitStudio';
+import { SplitStudio, type SplitStudioDraft } from './features/split/components/SplitStudio';
 import { ManualExpenseModal } from './features/split/components/ManualExpenseModal';
 import { ReceiptScanModal } from './features/split/components/ReceiptScanModal';
+import { ExpenseHistoryList } from './features/split/components/ExpenseHistoryList';
 import { RecurringExpenseManager } from './features/split/components/RecurringExpenseManager';
 import { RoundingDebuggerCard } from './features/split/components/RoundingDebuggerCard';
 
@@ -56,13 +57,16 @@ import {
   Users,
   WifiOff,
   Camera,
+  CheckCircle2,
+  X,
 } from 'lucide-react';
 
 type TabType =
   | 'split-studio'
+  | 'expenses'
+  | 'settlement'
   | 'rounding'
   | 'recurring'
-  | 'settlement'
   | 'analytics'
   | 'export'
   | 'algorithm';
@@ -75,6 +79,15 @@ export default function App() {
   const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
+  const [splitStudioDraft, setSplitStudioDraft] = useState<SplitStudioDraft | null>(null);
+  const [successToast, setSuccessToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (successToast) {
+      const timer = setTimeout(() => setSuccessToast(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [successToast]);
 
   // Member 5: IndexedDB Zustand Store & Offline hook
   const {
@@ -266,9 +279,27 @@ export default function App() {
 
   const handleSaveExpense = async (newExp: Expense) => {
     setExpenses((prev) => [...prev, newExp]);
-    if (storeGroup && storeGroup.id === group.id) {
-      await storeSaveExpense(newExp);
+    try {
+      if (storeGroup && storeGroup.id === group.id) {
+        await storeSaveExpense(newExp);
+      }
+    } catch (err) {
+      console.warn('Could not persist expense to IndexedDB:', err);
     }
+    setSuccessToast(`Expense "${newExp.description}" recorded successfully!`);
+    setActiveTab('expenses');
+  };
+
+  const handleDeleteExpense = async (expenseId: string) => {
+    setExpenses((prev) => prev.filter((e) => e.id !== expenseId));
+    try {
+      if (storeGroup && storeGroup.id === group.id) {
+        await useGroupStore.getState().deleteExpense(expenseId);
+      }
+    } catch (err) {
+      console.warn('Could not delete expense from IndexedDB:', err);
+    }
+    setSuccessToast('Expense deleted and balances recalculated.');
   };
 
   // Add custom manual expense
@@ -322,7 +353,7 @@ export default function App() {
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased">
       {/* Top Navbar */}
       <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-sm">
-        <div className="max-w-[1500px] w-full mx-auto px-6 sm:px-8 h-20 flex items-center justify-between">
+        <div className="max-w-[1500px] w-full mx-auto px-4 sm:px-8 min-h-[4.5rem] py-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-4">
             <img
               src="/Images/SplitSmart Neon Receipt Logo.png"
@@ -358,104 +389,120 @@ export default function App() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="max-w-[1500px] w-full mx-auto px-6 sm:px-8 flex items-center overflow-x-auto gap-1 sm:gap-3 border-t border-slate-800/80 no-scrollbar">
+        <div className="max-w-[1500px] w-full mx-auto px-4 sm:px-6 lg:px-8 flex items-center overflow-x-auto gap-1 sm:gap-2 border-t border-slate-800/80 no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab('split-studio')}
-            className={`flex items-center gap-2.5 py-3.5 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 py-3 px-3.5 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'split-studio'
                 ? 'border-blue-500 text-blue-400 bg-blue-500/5'
                 : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
             }`}
           >
-            <Calculator className="w-4.5 h-4.5" />
+            <Calculator className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             <span>Split Studio</span>
           </button>
 
           <button
             type="button"
+            onClick={() => setActiveTab('expenses')}
+            className={`flex items-center gap-2 py-3 px-3.5 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
+              activeTab === 'expenses'
+                ? 'border-emerald-500 text-emerald-400 bg-emerald-500/5'
+                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+            }`}
+          >
+            <Receipt className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+            <span>Expenses</span>
+            <span className="text-[11px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60 font-semibold">
+              {expenses.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('settlement')}
+            className={`flex items-center gap-2 py-3 px-3.5 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
+              activeTab === 'settlement'
+                ? 'border-blue-500 text-blue-400 bg-blue-500/5'
+                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+            }`}
+          >
+            <Wallet className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+            <span>Balances & Settlement</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab('rounding')}
-            className={`flex items-center gap-2.5 py-3.5 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 py-3 px-3.5 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'rounding'
                 ? 'border-emerald-500 text-emerald-400 bg-emerald-500/5'
                 : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
             }`}
           >
-            <Scale className="w-4.5 h-4.5" />
+            <Scale className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             <span>Rounding Engine</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('recurring')}
-            className={`flex items-center gap-2.5 py-3.5 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 py-3 px-3.5 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'recurring'
                 ? 'border-purple-500 text-purple-400 bg-purple-500/5'
                 : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
             }`}
           >
-            <Repeat className="w-4.5 h-4.5" />
+            <Repeat className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             <span>Recurring Schedules</span>
           </button>
 
           <button
             type="button"
-            onClick={() => setActiveTab('settlement')}
-            className={`flex items-center gap-2.5 py-3.5 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
-              activeTab === 'settlement'
-                ? 'border-blue-500 text-blue-400 bg-blue-500/5'
-                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-            }`}
-          >
-            <Wallet className="w-4.5 h-4.5" />
-            <span>Balances & Settlement</span>
-          </button>
-
-          <button
-            type="button"
             onClick={() => setActiveTab('analytics')}
-            className={`flex items-center gap-2.5 py-3.5 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 py-3 px-3.5 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'analytics'
                 ? 'border-blue-500 text-blue-400 bg-blue-500/5'
                 : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
             }`}
           >
-            <BarChart3 className="w-4.5 h-4.5" />
+            <BarChart3 className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             <span>Spending Analytics</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('export')}
-            className={`flex items-center gap-2.5 py-3.5 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 py-3 px-3.5 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'export'
                 ? 'border-blue-500 text-blue-400 bg-blue-500/5'
                 : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
             }`}
           >
-            <Share2 className="w-4.5 h-4.5" />
+            <Share2 className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             <span>Export & Share</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('algorithm')}
-            className={`flex items-center gap-2.5 py-3.5 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 py-3 px-3.5 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'algorithm'
                 ? 'border-blue-500 text-blue-400 bg-blue-500/5'
                 : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
             }`}
           >
-            <Cpu className="w-4.5 h-4.5" />
+            <Cpu className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             <span>Algorithm Deep-Dive</span>
           </button>
         </div>
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-[1500px] w-full mx-auto px-6 sm:px-8 py-8 space-y-8">
+      <main className="flex-1 max-w-[1500px] w-full mx-auto px-3.5 sm:px-8 py-4 sm:py-8 space-y-6 sm:space-y-8">
         {/* Scenario Header Card */}
-        <div className="bg-linear-to-r from-slate-900 via-slate-850 to-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-sm">
+        <div className="bg-linear-to-r from-slate-900 via-slate-850 to-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-sm">
           <div>
             <div className="text-xs text-blue-400 font-bold uppercase tracking-wider mb-1">
               Active Group
@@ -603,6 +650,19 @@ export default function App() {
           <SplitStudio
             members={members}
             onSaveExpense={handleSaveExpense}
+            initialDraft={splitStudioDraft}
+            onClearDraft={() => setSplitStudioDraft(null)}
+          />
+        )}
+
+        {/* Group Expenses List */}
+        {activeTab === 'expenses' && (
+          <ExpenseHistoryList
+            expenses={expenses}
+            members={members}
+            onDeleteExpense={handleDeleteExpense}
+            onOpenScanModal={() => setIsScanModalOpen(true)}
+            onOpenManualModal={() => setIsManualModalOpen(true)}
           />
         )}
 
@@ -765,11 +825,27 @@ export default function App() {
           members={members}
           groupId={group.id}
           onSaveExpense={handleSaveExpense}
-          onOpenInSplitStudio={() => {
+          onOpenInSplitStudio={(draft) => {
+            setSplitStudioDraft(draft);
             setActiveTab('split-studio');
             setIsScanModalOpen(false);
           }}
         />
+      )}
+
+      {/* Toast Notification */}
+      {successToast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-emerald-600 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-xs sm:text-sm font-semibold animate-in slide-in-from-bottom-5 duration-200 border border-emerald-400/40">
+          <CheckCircle2 className="w-5 h-5 text-white shrink-0" />
+          <span>{successToast}</span>
+          <button
+            type="button"
+            onClick={() => setSuccessToast(null)}
+            className="ml-2 text-emerald-200 hover:text-white p-1 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       )}
 
       {/* Group Manager Modal (PS Point 1 & 14) */}

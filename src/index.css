@@ -31,3 +31,15 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #334155;
 }
+
+/* Hide number input stepper spin buttons across Chrome, Safari, Edge and Firefox */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield !important;
+  appearance: textfield !important;
+}

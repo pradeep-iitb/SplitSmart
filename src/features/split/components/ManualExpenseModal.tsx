@@ -257,7 +257,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
             <label className="block text-slate-300 font-medium mb-1">
               Split Mode
             </label>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {[
                 { id: 'equal', label: 'Equal', icon: Divide },
                 { id: 'exact', label: 'Exact', icon: Coins },
@@ -315,7 +315,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
           {splitMode === 'exact' && (
             <div className="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3 space-y-2">
               <span className="font-semibold text-slate-300">Exact Amounts per Member:</span>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {selectedMemberIds.map((id) => {
                   const m = members.find((x) => x.id === id);
                   return (
@@ -341,7 +341,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
           {splitMode === 'percentage' && (
             <div className="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3 space-y-2">
               <span className="font-semibold text-slate-300">Percentages (basis points: 2500 = 25%):</span>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {selectedMemberIds.map((id) => {
                   const m = members.find((x) => x.id === id);
                   return (
@@ -370,7 +370,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
           {splitMode === 'shares' && (
             <div className="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3 space-y-2">
               <span className="font-semibold text-slate-300">Relative Ratio Weights (e.g. 1, 2):</span>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {selectedMemberIds.map((id) => {
                   const m = members.find((x) => x.id === id);
                   return (

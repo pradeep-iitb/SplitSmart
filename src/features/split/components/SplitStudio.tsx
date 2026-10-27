@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { Expense, Member, ReceiptItem, SplitMode } from '../../../types/domain';
 import {
   calculateDetailedItemizedSplit,
@@ -20,16 +20,30 @@ import {
   Coins,
 } from 'lucide-react';
 
+export interface SplitStudioDraft {
+  description: string;
+  items: ReceiptItem[];
+  taxLines: Array<{ label: string; amountPaise: number }>;
+  serviceChargeRupees: string;
+  discountRupees: string;
+  totalRupees: string;
+  payerId: string;
+}
+
 interface SplitStudioProps {
   members: Member[];
   onSaveExpense?: (expense: Expense) => void;
   initialTotalRupees?: number;
+  initialDraft?: SplitStudioDraft | null;
+  onClearDraft?: () => void;
 }
 
 export const SplitStudio: React.FC<SplitStudioProps> = ({
   members,
   onSaveExpense,
   initialTotalRupees = 840,
+  initialDraft,
+  onClearDraft,
 }) => {
   const [description, setDescription] = useState('Dinner at Fisherman\'s Wharf');
   const [totalRupees, setTotalRupees] = useState<string>(initialTotalRupees.toString());
@@ -38,6 +52,22 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(
     members.map((m) => m.id)
   );
+
+  // Load draft from receipt scanner if present
+  useEffect(() => {
+    if (initialDraft) {
+      if (initialDraft.description) setDescription(initialDraft.description);
+      if (initialDraft.totalRupees) setTotalRupees(initialDraft.totalRupees);
+      if (initialDraft.payerId) setPayerId(initialDraft.payerId);
+      if (initialDraft.items && initialDraft.items.length > 0) {
+        setItems(initialDraft.items);
+        setSplitMode('itemized');
+      }
+      if (initialDraft.taxLines) setTaxLines(initialDraft.taxLines);
+      if (initialDraft.serviceChargeRupees) setServiceChargeRupees(initialDraft.serviceChargeRupees);
+      if (initialDraft.discountRupees) setDiscountRupees(initialDraft.discountRupees);
+    }
+  }, [initialDraft]);
 
   // Exact mode state
   const [exactAmountsRupees, setExactAmountsRupees] = useState<Record<string, string>>({});
@@ -206,6 +236,7 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
     };
 
     onSaveExpense(newExp);
+    onClearDraft?.();
   };
 
   return (

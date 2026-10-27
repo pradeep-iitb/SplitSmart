@@ -137,7 +137,7 @@ export const BackupShareModal: React.FC<BackupShareModalProps> = ({
         </div>
 
         {/* Sub-tab selection */}
-        <div className="flex border-b border-slate-800 px-6 bg-slate-950/40">
+        <div className="flex overflow-x-auto no-scrollbar border-b border-slate-800 px-4 sm:px-6 bg-slate-950/40">
           {[
             { id: 'url', label: '1-Click Share Link', icon: Link },
             { id: 'export', label: 'Export Backup JSON', icon: Download },
