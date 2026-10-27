@@ -6,6 +6,7 @@ import {
 } from '../splitEngine';
 import { validateSplitInput } from '../validation';
 import { formatPaise } from '../../settlement/balances';
+import { MemberAvatar } from '../../groups/components/MemberAvatar';
 import {
   Calculator,
   CheckCircle2,
@@ -389,11 +390,8 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
                       : 'bg-slate-900/40 border-slate-800 text-slate-500 line-through'
                   }`}
                 >
-                  <span
-                    className="w-2.5 h-2.5 rounded-full"
-                    style={{ backgroundColor: m.color || '#3b82f6' }}
-                  />
-                  {m.name}
+                  <MemberAvatar member={m} size="xs" />
+                  <span>{m.name}</span>
                 </button>
               );
             })}
@@ -652,13 +650,14 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
                             )
                           );
                         }}
-                        className={`text-[10px] px-2 py-0.5 rounded-full border transition-all ${
+                        className={`text-[10px] pl-1 pr-2 py-0.5 rounded-full border flex items-center gap-1 transition-all ${
                           isAssigned
                             ? 'bg-blue-600/20 border-blue-500/60 text-blue-300 font-semibold'
                             : 'bg-slate-900/60 border-slate-700 text-slate-500'
                         }`}
                       >
-                        {m?.name || mId}
+                        <MemberAvatar member={m} size="xs" />
+                        <span>{m?.name || mId}</span>
                       </button>
                     );
                   })}
@@ -783,11 +782,8 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
                 className="bg-slate-800/80 border border-slate-700/60 rounded-xl p-3.5 space-y-2 relative overflow-hidden"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full"
-                      style={{ backgroundColor: m?.color || '#3b82f6' }}
-                    />
+                  <div className="flex items-center gap-2">
+                    <MemberAvatar member={m} size="sm" />
                     <span className="text-xs font-bold text-slate-200">
                       {m?.name || memberId}
                     </span>

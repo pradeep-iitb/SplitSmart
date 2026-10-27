@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Member, MemberBalance, SuggestedPayment } from '../../../types/domain';
 import { formatPaise } from '../balances';
+import { MemberAvatar } from '../../groups/components/MemberAvatar';
 import {
   compareDebtAlgorithms,
   suggestSettlementsWithDetails,
@@ -136,19 +137,9 @@ export const DebtSimplificationCard: React.FC<DebtSimplificationCardProps> = ({
                   {/* Top: Parties and Amount */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div
-                        className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shadow"
-                        style={{ backgroundColor: payer?.color || '#ef4444' }}
-                      >
-                        {payerName.charAt(0)}
-                      </div>
+                      <MemberAvatar member={payer} name={payerName} size="md" />
                       <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                      <div
-                        className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shadow"
-                        style={{ backgroundColor: payee?.color || '#10b981' }}
-                      >
-                        {payeeName.charAt(0)}
-                      </div>
+                      <MemberAvatar member={payee} name={payeeName} size="md" />
                     </div>
 
                     <div className="text-right">

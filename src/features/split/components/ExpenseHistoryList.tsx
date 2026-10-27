@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import type { Expense, Member } from '../../../types/domain';
 import { formatPaise } from '../../settlement/balances';
+import { MemberAvatar } from '../../groups/components/MemberAvatar';
 import {
   Receipt,
   Search,
   Calendar,
-  User,
   Trash2,
   ChevronDown,
   ChevronUp,
@@ -204,7 +204,7 @@ export const ExpenseHistoryList: React.FC<ExpenseHistoryListProps> = ({
                         </span>
                         <span>•</span>
                         <span className="flex items-center gap-1.5">
-                          <User className="w-3.5 h-3.5 text-slate-500" />
+                          <MemberAvatar member={payer} size="xs" />
                           <span>Paid by</span>
                           <span className="font-medium text-slate-200">
                             {payer ? payer.name : 'Unknown member'}
@@ -321,10 +321,7 @@ export const ExpenseHistoryList: React.FC<ExpenseHistoryListProps> = ({
                               className="bg-slate-900 border border-slate-800/80 rounded-xl p-2.5 flex items-center justify-between text-xs"
                             >
                               <div className="flex items-center gap-2 min-w-0 pr-2">
-                                <span
-                                  className="w-2.5 h-2.5 rounded-full shrink-0"
-                                  style={{ backgroundColor: m?.color || '#3b82f6' }}
-                                />
+                                <MemberAvatar member={m} size="xs" />
                                 <span className="font-medium text-slate-200 truncate">
                                   {m ? m.name : share.memberId}
                                 </span>

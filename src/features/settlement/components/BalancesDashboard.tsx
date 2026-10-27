@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Member, MemberBalanceBreakdown } from '../../../types/domain';
 import { formatPaise } from '../balances';
+import { MemberAvatar } from '../../groups/components/MemberAvatar';
 import { ChevronDown, ChevronUp, ArrowUpRight, ArrowDownLeft, ShieldCheck } from 'lucide-react';
 
 interface BalancesDashboardProps {
@@ -115,15 +116,12 @@ export const BalancesDashboard: React.FC<BalancesDashboardProps> = ({
                   className="px-5 py-3.5 flex items-center justify-between cursor-pointer select-none"
                 >
                   <div className="flex items-center gap-3">
-                    <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm"
-                      style={{
-                        backgroundColor: member?.color || '#3b82f6',
-                        color: '#ffffff',
-                      }}
-                    >
-                      {name.charAt(0).toUpperCase()}
-                    </div>
+                    <MemberAvatar
+                      member={member}
+                      name={name}
+                      size="lg"
+                      className="border-2 border-slate-700/80 shadow-sm"
+                    />
                     <div>
                       <div className="font-medium text-slate-100 text-sm flex items-center gap-2">
                         <span>{name}</span>

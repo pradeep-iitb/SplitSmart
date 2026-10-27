@@ -30,6 +30,7 @@ import { RoundingDebuggerCard } from './features/split/components/RoundingDebugg
 // Member 5 (State, Persistence & Sharing) Components & Store
 import { GroupManagerModal } from './features/groups/components/GroupManagerModal';
 import { MemberManagementModal } from './features/groups/components/MemberManagementModal';
+import { MemberAvatar } from './features/groups/components/MemberAvatar';
 import { BackupShareModal } from './features/groups/components/BackupShareModal';
 import { useOfflineStatus } from './hooks/useOfflineStatus';
 import { useGroupStore } from './store/groupStore';
@@ -45,7 +46,6 @@ import {
   Wallet,
   BarChart3,
   Share2,
-  Cpu,
   RefreshCw,
   PlusCircle,
   Receipt,
@@ -68,8 +68,7 @@ type TabType =
   | 'rounding'
   | 'recurring'
   | 'analytics'
-  | 'export'
-  | 'algorithm';
+  | 'export';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('split-studio');
@@ -389,7 +388,7 @@ export default function App() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="max-w-[1500px] w-full mx-auto px-4 sm:px-6 lg:px-8 flex items-center overflow-x-auto gap-1 sm:gap-2 border-t border-slate-800/80 no-scrollbar">
+        <div className="max-w-[1500px] w-full mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-start sm:justify-center overflow-x-auto gap-1 sm:gap-2 border-t border-slate-800/80 no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab('split-studio')}
@@ -483,19 +482,6 @@ export default function App() {
             <Share2 className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             <span>Export & Share</span>
           </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('algorithm')}
-            className={`flex items-center gap-2 py-3 px-3.5 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
-              activeTab === 'algorithm'
-                ? 'border-blue-500 text-blue-400 bg-blue-500/5'
-                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-            }`}
-          >
-            <Cpu className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-            <span>Algorithm Deep-Dive</span>
-          </button>
         </div>
       </header>
 
@@ -509,8 +495,13 @@ export default function App() {
             </div>
             <h2 className="text-2xl font-black text-slate-100 flex items-center gap-3">
               <span>{group.name}</span>
-              <span className="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 font-medium border border-slate-700/50">
-                {members.length} members · {expenses.length} expenses
+              <span className="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 font-medium border border-slate-700/50 flex items-center gap-1.5">
+                <span className="flex -space-x-1.5 overflow-hidden">
+                  {members.slice(0, 5).map((m) => (
+                    <MemberAvatar key={m.id} member={m} size="xs" showRing className="ring-slate-900" />
+                  ))}
+                </span>
+                <span>{members.length} members · {expenses.length} expenses</span>
               </span>
               {isOffline && (
                 <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium">
@@ -721,73 +712,6 @@ export default function App() {
             suggestions={suggestions}
             settlements={settlements}
           />
-        )}
-
-        {/* Tab 4: Algorithm Deep-Dive */}
-        {activeTab === 'algorithm' && (
-          <div className="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 space-y-6 shadow-sm">
-            <div className="flex items-center gap-2">
-              <Cpu className="w-5 h-5 text-blue-400" />
-              <h3 className="font-bold text-slate-100 text-lg">
-                Debt Simplification Algorithm: Exact NP-Hard vs. Greedy
-              </h3>
-            </div>
-
-            <div className="text-xs text-slate-300 space-y-3 leading-relaxed">
-              <p>
-                The problem of finding the <strong>global minimum number of transactions</strong> to settle debts among $N$ individuals with net balances summing to zero is mathematically equivalent to the <strong>Maximum Disjoint Zero-Sum Subsets Problem</strong>, which is known to be <strong>NP-hard</strong>.
-              </p>
-
-              <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-700/60 space-y-2">
-                <div className="font-semibold text-emerald-400 text-sm">
-                  Mathematical Theorem:
-                </div>
-                <p>
-                  Any group of m participants whose net balances sum to zero can be settled among themselves in exactly m - 1 transactions.
-                  If the set of N non-zero balance participants can be partitioned into k disjoint non-empty subsets S₁, S₂, ..., Sₖ such that each sum is 0, then the minimum number of transactions is:
-                </p>
-                <div className="font-mono text-center text-sm font-bold text-slate-100 py-1 bg-slate-950 rounded-lg">
-                  T_min = N - k
-                </div>
-                <p>
-                  Therefore, minimizing transactions is equivalent to <strong>maximizing k</strong> (the number of independent zero-sum groups).
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <h4 className="font-semibold text-slate-200 text-sm">
-                  Why Standard Greedy Heuristic is Suboptimal:
-                </h4>
-                <p>
-                  Greedy cash flow pairing matches the largest creditor with the largest debtor first. While greedy runs in O(N log N) and takes at most N - 1 transactions, it frequently destroys zero-sum subsets!
-                </p>
-                <p className="font-mono bg-slate-900 p-3 rounded-lg text-slate-300">
-                  Example Scenario (Scenario 3 in top selector):<br />
-                  Creditors: Alice (+₹400), Bob (+₹300)<br />
-                  Debtors: Charlie (-₹300), Dave (-₹200), Eve (-₹200)<br />
-                  • <strong>Exact DP Algorithm</strong> recognizes that {'{'}Bob: +300, Charlie: -300{'}'} is a zero-sum subset (1 transfer), and {'{'}Alice: +400, Dave: -200, Eve: -200{'}'} is another zero-sum subset (2 transfers). Total = <strong>3 transfers</strong>.<br />
-                  • <strong>Greedy Heuristic</strong> pairs largest Alice (+400) with largest Charlie (-300) first, taking <strong>4 transfers</strong>!
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <h4 className="font-semibold text-slate-200 text-sm">
-                  Our Implementation Architecture:
-                </h4>
-                <ul className="list-disc pl-5 space-y-1 text-slate-400">
-                  <li>
-                    <strong className="text-slate-200">Exact Bitmask DP (N ≤ 16)</strong>: Solves the NP-hard partition problem in milliseconds with zero perceptible UI latency.
-                  </li>
-                  <li>
-                    <strong className="text-slate-200">Greedy Fallback (N &gt; 16)</strong>: Automatically switches to the fast greedy matching if group size exceeds computational limits.
-                  </li>
-                  <li>
-                    <strong className="text-slate-200">Integer Paise Conservation</strong>: All calculations run on integer paise to eliminate floating-point imprecision.
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
         )}
       </main>
 

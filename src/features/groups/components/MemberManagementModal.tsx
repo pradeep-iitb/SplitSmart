@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Member } from '../../../types/domain';
+import { MemberAvatar, AVATAR_OPTIONS } from './MemberAvatar';
 import {
   X,
   UserPlus,
@@ -14,23 +15,10 @@ interface MemberManagementModalProps {
   onClose: () => void;
   groupName: string;
   members: Member[];
-  onAddMember: (name: string, options?: { color?: string; upiId?: string }) => Promise<Member>;
+  onAddMember: (name: string, options?: { color?: string; avatarDataUrl?: string; upiId?: string }) => Promise<Member>;
   onUpdateMember: (memberId: string, patch: Partial<Member>) => Promise<void>;
   onRemoveMember: (memberId: string) => Promise<void>;
 }
-
-const PRESET_COLORS = [
-  '#3b82f6', // blue
-  '#10b981', // emerald
-  '#f59e0b', // amber
-  '#8b5cf6', // purple
-  '#ec4899', // pink
-  '#06b6d4', // cyan
-  '#f97316', // orange
-  '#14b8a6', // teal
-  '#e11d48', // rose
-  '#6366f1', // indigo
-];
 
 export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
   isOpen,
@@ -42,7 +30,7 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
   onRemoveMember,
 }) => {
   const [newName, setNewName] = useState('');
-  const [newColor, setNewColor] = useState(PRESET_COLORS[0]);
+  const [newAvatar, setNewAvatar] = useState(AVATAR_OPTIONS[0]);
   const [newUpiId, setNewUpiId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -50,7 +38,7 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
   const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editUpiId, setEditUpiId] = useState('');
-  const [editColor, setEditColor] = useState('');
+  const [editAvatar, setEditAvatar] = useState(AVATAR_OPTIONS[0]);
 
   if (!isOpen) return null;
 
@@ -61,11 +49,13 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
     try {
       setIsSubmitting(true);
       await onAddMember(newName.trim(), {
-        color: newColor,
+        avatarDataUrl: newAvatar,
         upiId: newUpiId.trim() || undefined,
       });
       setNewName('');
       setNewUpiId('');
+      // Cycle to next avatar default
+      setNewAvatar(AVATAR_OPTIONS[(members.length + 1) % AVATAR_OPTIONS.length]);
     } finally {
       setIsSubmitting(false);
     }
@@ -75,7 +65,7 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
     setEditingMemberId(member.id);
     setEditName(member.name);
     setEditUpiId(member.upiId || '');
-    setEditColor(member.color || PRESET_COLORS[0]);
+    setEditAvatar(member.avatarDataUrl || AVATAR_OPTIONS[0]);
   };
 
   const handleSaveEdit = async (memberId: string) => {
@@ -83,7 +73,7 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
     await onUpdateMember(memberId, {
       name: editName.trim(),
       upiId: editUpiId.trim() || undefined,
-      color: editColor,
+      avatarDataUrl: editAvatar,
     });
     setEditingMemberId(null);
   };
@@ -131,18 +121,22 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
           </div>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs text-slate-400 mr-1">Color:</span>
-              {PRESET_COLORS.slice(0, 6).map((c) => (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-slate-400 mr-1">Avatar:</span>
+              {AVATAR_OPTIONS.map((avatarPath, idx) => (
                 <button
-                  key={c}
+                  key={avatarPath}
                   type="button"
-                  onClick={() => setNewColor(c)}
-                  className={`w-6 h-6 rounded-full transition-all ${
-                    newColor === c ? 'ring-2 ring-white scale-110' : 'opacity-70 hover:opacity-100'
+                  onClick={() => setNewAvatar(avatarPath)}
+                  className={`w-8 h-8 rounded-full transition-all overflow-hidden p-0.5 border cursor-pointer ${
+                    newAvatar === avatarPath
+                      ? 'border-emerald-400 ring-2 ring-emerald-400/50 scale-110 shadow-md shadow-emerald-500/20'
+                      : 'border-slate-700 opacity-60 hover:opacity-100 hover:border-slate-500'
                   }`}
-                  style={{ backgroundColor: c }}
-                />
+                  title={`Avatar ${idx + 1}`}
+                >
+                  <img src={avatarPath} alt={`Avatar ${idx + 1}`} className="w-full h-full rounded-full object-cover" />
+                </button>
               ))}
             </div>
 
@@ -189,17 +183,21 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
                       />
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        {PRESET_COLORS.slice(0, 6).map((c) => (
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {AVATAR_OPTIONS.map((avatarPath, idx) => (
                           <button
-                            key={c}
+                            key={avatarPath}
                             type="button"
-                            onClick={() => setEditColor(c)}
-                            className={`w-5 h-5 rounded-full ${
-                              editColor === c ? 'ring-2 ring-white scale-110' : 'opacity-70'
+                            onClick={() => setEditAvatar(avatarPath)}
+                            className={`w-7 h-7 rounded-full transition-all overflow-hidden p-0.5 border cursor-pointer ${
+                              editAvatar === avatarPath
+                                ? 'border-emerald-400 ring-2 ring-emerald-400/50 scale-110'
+                                : 'border-slate-700 opacity-60 hover:opacity-100'
                             }`}
-                            style={{ backgroundColor: c }}
-                          />
+                            title={`Avatar ${idx + 1}`}
+                          >
+                            <img src={avatarPath} alt={`Avatar ${idx + 1}`} className="w-full h-full rounded-full object-cover" />
+                          </button>
                         ))}
                       </div>
                       <div className="flex gap-1">
@@ -221,12 +219,7 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
                 ) : (
                   <>
                     <div className="flex items-center gap-3">
-                      <div
-                        className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-white shadow-sm"
-                        style={{ backgroundColor: member.color || '#3b82f6' }}
-                      >
-                        {member.name.substring(0, 1).toUpperCase()}
-                      </div>
+                      <MemberAvatar member={member} size="lg" className="border-2 border-slate-700/80 shadow-sm" />
                       <div>
                         <div className="flex items-center gap-2">
                           <h4 className="text-sm font-bold text-slate-100">{member.name}</h4>

@@ -131,12 +131,16 @@ export async function addMember(
       ? crypto.randomUUID()
       : `m-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 
+  const avatarDataUrl =
+    options?.avatarDataUrl ||
+    `/Images/Avatar${(existingMembers.length % 8) + 1}.png`;
+
   const member: Member = {
     id,
     groupId,
     name: cleanName,
     color,
-    avatarDataUrl: options?.avatarDataUrl,
+    avatarDataUrl,
     upiId: options?.upiId?.trim() || undefined,
     active: true,
   };

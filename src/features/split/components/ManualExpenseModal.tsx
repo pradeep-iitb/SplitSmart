@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { Category, Expense, Member, SplitMode } from '../../../types/domain';
 import { createManualExpense } from '../manualExpense';
 import { formatPaise } from '../../settlement/balances';
+import { MemberAvatar } from '../../groups/components/MemberAvatar';
 import {
   X,
   PlusCircle,
@@ -298,13 +299,14 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
                     key={m.id}
                     type="button"
                     onClick={() => toggleParticipant(m.id)}
-                    className={`px-2.5 py-1 rounded-lg border text-xs transition-all ${
+                    className={`px-2.5 py-1 rounded-lg border text-xs flex items-center gap-1.5 transition-all ${
                       isSelected
                         ? 'bg-blue-600/20 border-blue-500 text-blue-300'
                         : 'bg-slate-800/40 border-slate-700 text-slate-500 line-through'
                     }`}
                   >
-                    {m.name}
+                    <MemberAvatar member={m} size="xs" />
+                    <span>{m.name}</span>
                   </button>
                 );
               })}
@@ -320,6 +322,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
                   const m = members.find((x) => x.id === id);
                   return (
                     <div key={id} className="flex items-center gap-1.5">
+                      <MemberAvatar member={m} size="xs" />
                       <span className="w-16 truncate text-slate-400">{m?.name || id}:</span>
                       <input
                         type="number"
@@ -346,6 +349,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
                   const m = members.find((x) => x.id === id);
                   return (
                     <div key={id} className="flex items-center gap-1.5">
+                      <MemberAvatar member={m} size="xs" />
                       <span className="w-16 truncate text-slate-400">{m?.name || id}:</span>
                       <input
                         type="number"
@@ -375,6 +379,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
                   const m = members.find((x) => x.id === id);
                   return (
                     <div key={id} className="flex items-center gap-1.5">
+                      <MemberAvatar member={m} size="xs" />
                       <span className="w-16 truncate text-slate-400">{m?.name || id}:</span>
                       <input
                         type="number"

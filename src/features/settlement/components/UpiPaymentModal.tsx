@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { Member, SuggestedPayment } from '../../../types/domain';
 import { formatPaise } from '../balances';
 import { createUpiUri, generateQrCodeDataUrl, isValidUpiId } from '../upi';
+import { MemberAvatar } from '../../groups/components/MemberAvatar';
 import { X, QrCode, Check, Copy, ExternalLink, CreditCard, AlertCircle } from 'lucide-react';
 
 interface UpiPaymentModalProps {
@@ -108,8 +109,11 @@ export const UpiPaymentModal: React.FC<UpiPaymentModalProps> = ({
             <div className="text-3xl font-extrabold text-emerald-400 mt-0.5">
               {formatPaise(payment.amountPaise)}
             </div>
-            <div className="text-xs text-slate-400 mt-1">
-              Paying to <span className="font-semibold text-slate-200">{payee.name}</span>
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <MemberAvatar member={payee} size="sm" />
+              <span className="text-xs text-slate-300">
+                Paying to <strong className="font-semibold text-slate-100">{payee.name}</strong>
+              </span>
             </div>
           </div>
 
