@@ -68,16 +68,16 @@ export const BalancesDashboard: React.FC<BalancesDashboardProps> = ({
 
         <div className="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4">
           <div className="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">
-            <span>Mathematical Invariant</span>
+            <span>Ledger Status</span>
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="text-2xl font-bold text-slate-100 flex items-center gap-1.5">
-            <span>Σ Balances = 0</span>
+            <span>{totalNetDiscrepancy === 0 ? 'Fully Balanced' : 'Unbalanced'}</span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
             {totalNetDiscrepancy === 0 ? (
               <span className="text-emerald-400 flex items-center gap-1">
-                ✓ Exact to 1 paisa (0.00 discrepancy)
+                ✓ Zero discrepancy across all members
               </span>
             ) : (
               <span className="text-rose-400">

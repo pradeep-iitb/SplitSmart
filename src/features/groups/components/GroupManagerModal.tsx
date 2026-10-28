@@ -18,6 +18,7 @@ interface GroupManagerModalProps {
   onCreateGroup: (name: string) => Promise<Group>;
   onRenameGroup: (groupId: string, name: string) => Promise<void>;
   onDeleteGroup: (groupId: string) => Promise<void>;
+  onResetDemoData?: () => Promise<void>;
 }
 
 export const GroupManagerModal: React.FC<GroupManagerModalProps> = ({
@@ -29,6 +30,7 @@ export const GroupManagerModal: React.FC<GroupManagerModalProps> = ({
   onCreateGroup,
   onRenameGroup,
   onDeleteGroup,
+  onResetDemoData,
 }) => {
   const [newGroupName, setNewGroupName] = useState('');
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
@@ -193,6 +195,24 @@ export const GroupManagerModal: React.FC<GroupManagerModalProps> = ({
               </div>
             );
           })}
+        </div>
+        {/* Clean Data Action */}
+        <div className="p-4 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between">
+          <span className="text-xs text-slate-400">
+            Reset to pristine demo data?
+          </span>
+          {onResetDemoData && (
+            <button
+              type="button"
+              onClick={async () => {
+                await onResetDemoData();
+                onClose();
+              }}
+              className="text-xs text-purple-400 hover:text-purple-300 font-semibold px-3 py-1.5 rounded-lg border border-purple-500/30 hover:border-purple-500/60 transition-colors cursor-pointer"
+            >
+              Load Clean 5-Expense Dataset
+            </button>
+          )}
         </div>
       </div>
     </div>

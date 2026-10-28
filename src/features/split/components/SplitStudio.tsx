@@ -46,7 +46,7 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
   initialDraft,
   onClearDraft,
 }) => {
-  const [description, setDescription] = useState('Dinner at Fisherman\'s Wharf');
+  const [description, setDescription] = useState(initialDraft?.description || '');
   const [totalRupees, setTotalRupees] = useState<string>(initialTotalRupees.toString());
   const [payerId, setPayerId] = useState<string>(members[0]?.id || '');
   const [splitMode, setSplitMode] = useState<SplitMode>('equal');
@@ -255,32 +255,19 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
               </h2>
             </div>
             <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              Live calculation across all 5 split modes with proportional taxes, discounts & exact rounding
+              Customize how expenses are divided with accurate shares and tax handling
             </p>
           </div>
 
-          {/* Invariant status badge */}
-          <div
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold ${
-              invariantSatisfied
-                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
-            }`}
-          >
-            {invariantSatisfied ? (
-              <>
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Paisa Invariant Satisfied: {formatPaise(sumSharesPaise)}</span>
-              </>
-            ) : (
-              <>
-                <AlertTriangle className="w-4 h-4" />
-                <span>
-                  Discrepancy: {formatPaise(Math.abs(totalPaise - sumSharesPaise))}
-                </span>
-              </>
-            )}
-          </div>
+          {/* Alert only if discrepancy */}
+          {!invariantSatisfied && (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold bg-rose-500/10 text-rose-400 border-rose-500/30">
+              <AlertTriangle className="w-4 h-4" />
+              <span>
+                Discrepancy: {formatPaise(Math.abs(totalPaise - sumSharesPaise))}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Basic Input Parameters */}

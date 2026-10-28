@@ -442,26 +442,26 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                 </div>
               )}
 
-              {/* Live Scanning Progress */}
+              {/* Live Scanning Progress - Steady, non-dimming card */}
               {isScanning && (
-                <div className="p-5 rounded-2xl bg-blue-600/10 border border-blue-500/30 space-y-3 animate-pulse">
+                <div className="p-5 rounded-2xl bg-slate-900/95 border border-purple-500/40 shadow-[0_0_25px_rgba(147,51,234,0.15)] space-y-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="font-semibold text-blue-300 flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-blue-400 animate-spin" />
-                      {scanProgress?.message || 'Processing receipt image...'}
+                    <span className="font-semibold text-slate-100 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-purple-400 animate-spin shrink-0" />
+                      <span>{scanProgress?.message || 'Processing receipt image...'}</span>
                     </span>
-                    <span className="text-blue-400 font-bold">
+                    <span className="text-purple-400 font-bold font-mono">
                       {Math.round((scanProgress?.overall ?? 0.5) * 100)}%
                     </span>
                   </div>
                   <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
                     <div
-                      className="h-full bg-linear-to-r from-blue-500 to-emerald-400 transition-all duration-300"
+                      className="h-full bg-gradient-to-r from-purple-500 via-indigo-500 to-emerald-400 transition-all duration-300 rounded-full"
                       style={{ width: `${Math.round((scanProgress?.overall ?? 0.5) * 100)}%` }}
                     />
                   </div>
                   <p className="text-xs text-slate-400">
-                    Runs 100% locally in your browser via Tesseract.js Web Workers.
+                    Runs locally in your browser via OCR Web Worker.
                   </p>
                 </div>
               )}
