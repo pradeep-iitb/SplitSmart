@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import type {
   Expense,
   Group,
-  RecordedSettlement,
   SuggestedPayment,
 } from './types/domain';
 import {
@@ -42,10 +41,8 @@ import {
   FolderOpen,
   Users,
   WifiOff,
-  Camera,
   CheckCircle2,
   X,
-  PlusCircle,
   Share2,
   Sparkles,
   Receipt,
@@ -133,7 +130,6 @@ export default function App() {
     expenses,
     settlements,
     recurringTemplates,
-    isLoading,
     init: initStore,
     switchGroup,
     createGroup,
@@ -231,12 +227,6 @@ export default function App() {
   const payerMember = activeUpiPayment
     ? members.find((m) => m.id === activeUpiPayment.fromMemberId)
     : undefined;
-
-  // Navigation Items definitions for the SINGLE floating navbar
-  const landingNavItems: NavItem[] = [
-    { id: 'features', label: 'Features' },
-    { id: 'precision', label: 'Precision' },
-  ];
 
   const appNavItems: NavItem[] = [
     { id: 'split-studio', label: 'Studio', icon: <Sparkles className="w-3.5 h-3.5" /> },

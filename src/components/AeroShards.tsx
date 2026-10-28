@@ -1141,7 +1141,7 @@ export default function AeroShards({
       cleanups.push(() => ro.disconnect());
 
       const count = Math.min(240, Math.max(110, Math.round(s.count / 5)));
-      const shards = Array.from({ length: count }, (_, i) => {
+      const shards = Array.from({ length: count }, () => {
         const z = Math.random();
         return {
           progress: Math.random(),
@@ -1206,7 +1206,7 @@ export default function AeroShards({
         ctx.fillRect(0, 0, width, height);
 
         // Floating survey markers (+)
-        if (s.markers !== 'none') {
+        if (s.markers >= 0) {
           for (const m of markers) {
             const alpha = 0.15 + 0.3 * Math.sin(clock * m.speed + m.phase);
             if (alpha <= 0.05) continue;
