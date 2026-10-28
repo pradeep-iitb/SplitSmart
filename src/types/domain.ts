@@ -56,6 +56,7 @@ export interface Expense {
   id: ID;
   groupId: ID;
   description: string;
+  category?: Category | string;
   date: ISODate;
   payerId: ID;                        // v1: exactly ONE payer per expense
   amountPaise: Paise;                 // confirmed authoritative total

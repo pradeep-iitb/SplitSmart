@@ -9,7 +9,6 @@ import { formatPaise } from '../../settlement/balances';
 import { MemberAvatar } from '../../groups/components/MemberAvatar';
 import {
   Calculator,
-  CheckCircle2,
   AlertTriangle,
   Users,
   Percent,
