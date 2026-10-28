@@ -1301,7 +1301,25 @@ export default function AeroShards({
     };
 
     const start = async () => {
-      if (typeof navigator === 'undefined' || !('gpu' in navigator)) {
+      // Mobile optimization: use lightweight 60 FPS canvas fallback on smartphones & mobile devices
+      const isMobileDevice =
+        typeof window !== 'undefined' &&
+        (window.innerWidth < 768 ||
+          /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+          (navigator.maxTouchPoints > 1 && window.innerWidth < 1024));
+
+      if (isMobileDevice || typeof navigator === 'undefined' || !('gpu' in navigator)) {
+        startFallback();
+        return;
+      }
+      // Mobile optimization: use lightweight 60 FPS canvas fallback on smartphones & mobile devices
+      const isMobileDevice =
+        typeof window !== 'undefined' &&
+        (window.innerWidth < 768 ||
+          /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+          (navigator.maxTouchPoints > 1 && window.innerWidth < 1024));
+
+      if (isMobileDevice || typeof navigator === 'undefined' || !('gpu' in navigator)) {
         startFallback();
         return;
       }
