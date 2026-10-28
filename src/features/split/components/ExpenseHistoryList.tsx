@@ -73,22 +73,22 @@ export const ExpenseHistoryList: React.FC<ExpenseHistoryListProps> = ({
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header & Stats Banner */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="liquid-glass-card rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="p-2 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30">
               <Receipt className="w-5 h-5" />
             </span>
-            <h2 className="text-xl font-bold text-slate-100">
+            <h2 className="text-xl font-heading font-black text-white">
               Group Expenses & Receipts
             </h2>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 font-semibold border border-blue-500/20">
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-300 font-mono-numbers font-semibold border border-blue-500/20">
               {expenses.length} Records
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-300 mt-1 font-body">
             Total recorded spend across all group members:{' '}
-            <span className="font-bold text-slate-100">{formatPaise(totalGroupSpendPaise)}</span>
+            <span className="font-black text-white font-mono-numbers text-base">{formatPaise(totalGroupSpendPaise)}</span>
           </p>
         </div>
 
@@ -171,7 +171,7 @@ export const ExpenseHistoryList: React.FC<ExpenseHistoryListProps> = ({
             return (
               <div
                 key={exp.id}
-                className="bg-slate-900 border border-slate-800 hover:border-slate-700/80 rounded-2xl overflow-hidden shadow-sm transition-all"
+                className="liquid-glass-card rounded-2xl overflow-hidden shadow-sm transition-all hover:border-white/20"
               >
                 {/* Expense Card Header */}
                 <div

@@ -32,55 +32,55 @@ export const BalancesDashboard: React.FC<BalancesDashboardProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Top summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">
+      {/* Top summary cards with Liquid Glass & Distinct Typography */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        <div className="liquid-glass-card rounded-2xl p-4 sm:p-5">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-display font-bold uppercase tracking-wider mb-1">
             <span>Creditors (Gets Back)</span>
             <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
           </div>
-          <div className="text-2xl font-bold text-emerald-400">
+          <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono-numbers">
             {creditors.length} <span className="text-sm font-normal text-slate-400">people</span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
             Total owed to them:{' '}
-            <span className="font-semibold text-slate-200">
+            <span className="font-bold text-white font-mono-numbers">
               {formatPaise(creditors.reduce((s, c) => s + c.netBalancePaise, 0))}
             </span>
           </p>
         </div>
 
-        <div className="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">
+        <div className="liquid-glass-card rounded-2xl p-4 sm:p-5">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-display font-bold uppercase tracking-wider mb-1">
             <span>Debtors (Owes Money)</span>
             <span className="w-2 h-2 rounded-full bg-rose-400"></span>
           </div>
-          <div className="text-2xl font-bold text-rose-400">
+          <div className="text-2xl sm:text-3xl font-black text-rose-400 font-mono-numbers">
             {debtors.length} <span className="text-sm font-normal text-slate-400">people</span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
             Total to pay:{' '}
-            <span className="font-semibold text-slate-200">
+            <span className="font-bold text-white font-mono-numbers">
               {formatPaise(Math.abs(debtors.reduce((s, d) => s + d.netBalancePaise, 0)))}
             </span>
           </p>
         </div>
 
-        <div className="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">
-            <span>Mathematical Invariant</span>
+        <div className="liquid-glass-card rounded-2xl p-4 sm:p-5">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-display font-bold uppercase tracking-wider mb-1">
+            <span>Ledger Status</span>
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-2xl font-bold text-slate-100 flex items-center gap-1.5">
-            <span>Σ Balances = 0</span>
+          <div className="text-2xl sm:text-3xl font-black text-slate-100 flex items-center gap-1.5 font-heading">
+            <span>{totalNetDiscrepancy === 0 ? 'Fully Balanced' : 'Unbalanced'}</span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
             {totalNetDiscrepancy === 0 ? (
               <span className="text-emerald-400 flex items-center gap-1">
-                ✓ Exact to 1 paisa (0.00 discrepancy)
+                ✓ Zero discrepancy across all members
               </span>
             ) : (
-              <span className="text-rose-400">
+              <span className="text-rose-400 font-mono-numbers">
                 Discrepancy: {formatPaise(totalNetDiscrepancy)}
               </span>
             )}

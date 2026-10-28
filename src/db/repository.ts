@@ -6,6 +6,7 @@ import type {
   Member,
   RecordedSettlement,
 } from '../types/domain';
+import type { RecurringExpenseTemplate } from '../features/split/types';
 import mixedPayersFixture from '../test/fixtures/expenses-mixed-payers.json';
 import partialSettlementsFixture from '../test/fixtures/settlements-partial.json';
 
@@ -281,6 +282,172 @@ export async function listSettlements(
 /**
  * Seeds initial group and expenses into IndexedDB if database is currently empty.
  */
+
+export async function cleanupDuplicateExpenses(customDb: SplitSmartDatabase = db): Promise<void> {
+  const allExpenses = await customDb.expenses.toArray();
+  const seen = new Set<string>();
+  const toDelete: string[] = [];
+
+  for (const exp of allExpenses) {
+    // Deduplicate by normalized description and amount in paise
+    const key = `${exp.description.trim().toLowerCase()}-${exp.amountPaise}`;
+    if (seen.has(key)) {
+      toDelete.push(exp.id);
+    } else {
+      seen.add(key);
+    }
+  }
+
+  if (toDelete.length > 0) {
+    await customDb.expenses.bulkDelete(toDelete);
+  }
+}
+
+export async function resetToCleanTripData(customDb: SplitSmartDatabase = db): Promise<void> {
+  const defaultGroupId = 'g-mixed';
+  const cleanMembers: Member[] = [
+    { id: 'm1', groupId: defaultGroupId, name: 'Riya', upiId: 'riya@okhdfc', active: true },
+    { id: 'm2', groupId: defaultGroupId, name: 'Arjun', upiId: 'arjun@oksbi', active: true },
+    { id: 'm3', groupId: defaultGroupId, name: 'Meera', upiId: 'meera@icici', active: true },
+    { id: 'm4', groupId: defaultGroupId, name: 'Kabir', upiId: 'kabir@paytm', active: true },
+    { id: 'm5', groupId: defaultGroupId, name: 'Vikram', upiId: 'vikram@axisbank', active: true },
+  ];
+
+  const cleanExpenses: Expense[] = [
+    {
+      id: 'exp-breakfast',
+      groupId: defaultGroupId,
+      description: 'Highway Breakfast & Chai',
+      category: 'Food & Dining',
+      date: '2026-10-18',
+      payerId: 'm1',
+      amountPaise: 150000,
+      splitMode: 'equal',
+      memberShares: [
+        { memberId: 'm1', amountPaise: 30000 },
+        { memberId: 'm2', amountPaise: 30000 },
+        { memberId: 'm3', amountPaise: 30000 },
+        { memberId: 'm4', amountPaise: 30000 },
+        { memberId: 'm5', amountPaise: 30000 },
+      ],
+      items: [],
+      taxLines: [],
+      serviceChargePaise: 0,
+      discountPaise: 0,
+      createdAt: '2026-10-18T08:30:00Z',
+    },
+    {
+      id: 'exp-fuel',
+      groupId: defaultGroupId,
+      description: 'Fuel Refill 1',
+      category: 'Transportation',
+      date: '2026-10-18',
+      payerId: 'm2',
+      amountPaise: 400000,
+      splitMode: 'equal',
+      memberShares: [
+        { memberId: 'm1', amountPaise: 80000 },
+        { memberId: 'm2', amountPaise: 80000 },
+        { memberId: 'm3', amountPaise: 80000 },
+        { memberId: 'm4', amountPaise: 80000 },
+        { memberId: 'm5', amountPaise: 80000 },
+      ],
+      items: [],
+      taxLines: [],
+      serviceChargePaise: 0,
+      discountPaise: 0,
+      createdAt: '2026-10-18T11:00:00Z',
+    },
+    {
+      id: 'exp-groceries',
+      groupId: defaultGroupId,
+      description: 'Supermarket Groceries & Snacks',
+      category: 'Supplies',
+      date: '2026-10-18',
+      payerId: 'm3',
+      amountPaise: 250000,
+      splitMode: 'equal',
+      memberShares: [
+        { memberId: 'm1', amountPaise: 50000 },
+        { memberId: 'm2', amountPaise: 50000 },
+        { memberId: 'm3', amountPaise: 50000 },
+        { memberId: 'm4', amountPaise: 50000 },
+        { memberId: 'm5', amountPaise: 50000 },
+      ],
+      items: [],
+      taxLines: [],
+      serviceChargePaise: 0,
+      discountPaise: 0,
+      createdAt: '2026-10-18T16:00:00Z',
+    },
+    {
+      id: 'exp-villa',
+      groupId: defaultGroupId,
+      description: 'Villa Booking Advance',
+      category: 'Lodging',
+      date: '2026-10-19',
+      payerId: 'm4',
+      amountPaise: 1000000,
+      splitMode: 'equal',
+      memberShares: [
+        { memberId: 'm1', amountPaise: 200000 },
+        { memberId: 'm2', amountPaise: 200000 },
+        { memberId: 'm3', amountPaise: 200000 },
+        { memberId: 'm4', amountPaise: 200000 },
+        { memberId: 'm5', amountPaise: 200000 },
+      ],
+      items: [],
+      taxLines: [],
+      serviceChargePaise: 0,
+      discountPaise: 0,
+      createdAt: '2026-10-19T10:00:00Z',
+    },
+    {
+      id: 'exp-scuba',
+      groupId: defaultGroupId,
+      description: 'Scuba Diving & Watersports',
+      category: 'Activities',
+      date: '2026-10-19',
+      payerId: 'm5',
+      amountPaise: 600000,
+      splitMode: 'equal',
+      memberShares: [
+        { memberId: 'm1', amountPaise: 120000 },
+        { memberId: 'm2', amountPaise: 120000 },
+        { memberId: 'm3', amountPaise: 120000 },
+        { memberId: 'm4', amountPaise: 120000 },
+        { memberId: 'm5', amountPaise: 120000 },
+      ],
+      items: [],
+      taxLines: [],
+      serviceChargePaise: 0,
+      discountPaise: 0,
+      createdAt: '2026-10-19T14:30:00Z',
+    },
+  ];
+
+  await customDb.transaction(
+    'rw',
+    [customDb.groups, customDb.members, customDb.expenses, customDb.settlements],
+    async () => {
+      const existingGroup = await customDb.groups.get(defaultGroupId);
+      if (!existingGroup) {
+        await customDb.groups.add({
+          id: defaultGroupId,
+          name: 'Goa Friends Vacation',
+          createdAt: '2026-10-18T00:00:00Z',
+          updatedAt: '2026-10-23T00:00:00Z',
+        });
+      }
+      await customDb.members.where('groupId').equals(defaultGroupId).delete();
+      await customDb.members.bulkAdd(cleanMembers);
+      await customDb.expenses.where('groupId').equals(defaultGroupId).delete();
+      await customDb.expenses.bulkAdd(cleanExpenses);
+      await customDb.settlements.where('groupId').equals(defaultGroupId).delete();
+    }
+  );
+}
+
 export async function seedInitialDataIfEmpty(customDb: SplitSmartDatabase = db): Promise<void> {
   const count = await customDb.groups.count();
   if (count > 0) return;
@@ -295,12 +462,68 @@ export async function seedInitialDataIfEmpty(customDb: SplitSmartDatabase = db):
 
   await customDb.transaction(
     'rw',
-    [customDb.groups, customDb.members, customDb.expenses, customDb.settlements],
+    [customDb.groups, customDb.members, customDb.expenses, customDb.settlements, customDb.recurringTemplates],
     async () => {
       await customDb.groups.add(defaultGroup);
       await customDb.members.bulkAdd(mixedPayersFixture.members as Member[]);
       await customDb.expenses.bulkAdd(mixedPayersFixture.expenses as Expense[]);
       await customDb.settlements.bulkAdd(partialSettlementsFixture.settlements as RecordedSettlement[]);
+      await customDb.recurringTemplates.bulkAdd([
+        {
+          id: 'tpl-wifi-fiber',
+          groupId: defaultGroupId,
+          description: 'High-speed Fiber Wi-Fi Recharge',
+          category: 'Utilities',
+          amountPaise: 80000,
+          payerId: (mixedPayersFixture.members[0] as Member).id,
+          splitMode: 'equal',
+          participantIds: (mixedPayersFixture.members as Member[]).map((m) => m.id),
+          frequency: 'monthly',
+          startDate: '2026-09-01',
+          dayOfMonth: 1,
+          active: true,
+          lastMaterializedDate: '2026-09-01',
+          createdAt: '2026-09-01T00:00:00Z',
+        },
+        {
+          id: 'tpl-apartment-maint',
+          groupId: defaultGroupId,
+          description: 'Society Maintenance & Water',
+          category: 'Utilities',
+          amountPaise: 240000,
+          payerId: (mixedPayersFixture.members[1] as Member).id,
+          splitMode: 'equal',
+          participantIds: (mixedPayersFixture.members as Member[]).map((m) => m.id),
+          frequency: 'monthly',
+          startDate: '2026-10-01',
+          dayOfMonth: 5,
+          active: true,
+          lastMaterializedDate: '2026-10-05',
+          createdAt: '2026-10-01T00:00:00Z',
+        },
+      ]);
     }
   );
 }
+
+export async function listRecurringTemplates(
+  groupId: ID,
+  customDb: SplitSmartDatabase = db
+): Promise<RecurringExpenseTemplate[]> {
+  return await customDb.recurringTemplates.where('groupId').equals(groupId).toArray();
+}
+
+export async function saveRecurringTemplate(
+  template: RecurringExpenseTemplate,
+  customDb: SplitSmartDatabase = db
+): Promise<void> {
+  await customDb.recurringTemplates.put(template);
+}
+
+export async function deleteRecurringTemplate(
+  templateId: ID,
+  customDb: SplitSmartDatabase = db
+): Promise<void> {
+  await customDb.recurringTemplates.delete(templateId);
+}
+

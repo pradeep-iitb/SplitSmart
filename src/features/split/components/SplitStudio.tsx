@@ -46,7 +46,7 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
   initialDraft,
   onClearDraft,
 }) => {
-  const [description, setDescription] = useState('Dinner at Fisherman\'s Wharf');
+  const [description, setDescription] = useState(initialDraft?.description || '');
   const [totalRupees, setTotalRupees] = useState<string>(initialTotalRupees.toString());
   const [payerId, setPayerId] = useState<string>(members[0]?.id || '');
   const [splitMode, setSplitMode] = useState<SplitMode>('equal');
@@ -243,44 +243,31 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
   return (
     <div className="space-y-6">
       {/* Header & Mode Switcher */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-800">
+      <div className="liquid-glass-card rounded-2xl p-5 shadow-xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-white/10">
           <div>
             <div className="flex items-center gap-2">
               <span className="p-2 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30">
                 <Calculator className="w-5 h-5" />
               </span>
-              <h2 className="text-xl font-bold text-slate-100">
+              <h2 className="text-xl font-heading font-black text-white">
                 Split Calculation Studio
               </h2>
             </div>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              Live calculation across all 5 split modes with proportional taxes, discounts & exact rounding
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 font-body">
+              Customize how expenses are divided with accurate shares and tax handling
             </p>
           </div>
 
-          {/* Invariant status badge */}
-          <div
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold ${
-              invariantSatisfied
-                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
-            }`}
-          >
-            {invariantSatisfied ? (
-              <>
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Paisa Invariant Satisfied: {formatPaise(sumSharesPaise)}</span>
-              </>
-            ) : (
-              <>
-                <AlertTriangle className="w-4 h-4" />
-                <span>
-                  Discrepancy: {formatPaise(Math.abs(totalPaise - sumSharesPaise))}
-                </span>
-              </>
-            )}
-          </div>
+          {/* Alert only if discrepancy */}
+          {!invariantSatisfied && (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold bg-rose-500/10 text-rose-400 border-rose-500/30">
+              <AlertTriangle className="w-4 h-4" />
+              <span>
+                Discrepancy: {formatPaise(Math.abs(totalPaise - sumSharesPaise))}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Basic Input Parameters */}

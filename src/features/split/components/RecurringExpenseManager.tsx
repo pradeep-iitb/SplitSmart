@@ -20,53 +20,25 @@ interface RecurringExpenseManagerProps {
   members: Member[];
   groupId: string;
   existingExpenses: Expense[];
-  onExpensesMaterialized?: (newExpenses: Expense[]) => void;
+  templates: RecurringExpenseTemplate[];
+  onSaveTemplate: (template: RecurringExpenseTemplate) => Promise<void>;
+  onDeleteTemplate: (templateId: string) => Promise<void>;
+  onMaterializeExpenses: (newExpenses: Expense[], updatedTemplates: RecurringExpenseTemplate[]) => Promise<void>;
 }
 
 export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = ({
   members,
   groupId,
   existingExpenses,
-  onExpensesMaterialized,
+  templates,
+  onSaveTemplate,
+  onDeleteTemplate,
+  onMaterializeExpenses,
 }) => {
-  // Preset default recurring templates
-  const [templates, setTemplates] = useState<RecurringExpenseTemplate[]>([
-    {
-      id: 'tpl-wifi-fiber',
-      groupId,
-      description: 'High-speed Fiber Wi-Fi Recharge',
-      category: 'Utilities',
-      amountPaise: 80000, // ₹800.00
-      payerId: members[0]?.id || '',
-      splitMode: 'equal',
-      participantIds: members.map((m) => m.id),
-      frequency: 'monthly',
-      startDate: '2026-09-01',
-      dayOfMonth: 1,
-      active: true,
-      lastMaterializedDate: '2026-09-01',
-      createdAt: '2026-09-01T00:00:00Z',
-    },
-    {
-      id: 'tpl-apartment-maint',
-      groupId,
-      description: 'Society Maintenance & Water',
-      category: 'Utilities',
-      amountPaise: 240000, // ₹2,400.00
-      payerId: members[1]?.id || members[0]?.id || '',
-      splitMode: 'equal',
-      participantIds: members.map((m) => m.id),
-      frequency: 'monthly',
-      startDate: '2026-10-01',
-      dayOfMonth: 5,
-      active: true,
-      lastMaterializedDate: '2026-10-05',
-      createdAt: '2026-10-01T00:00:00Z',
-    },
-  ]);
-
-  // Simulation date state (defaults to today or end of October)
-  const [simulationDate, setSimulationDate] = useState('2026-11-05');
+  // Simulation date state (defaults to today)
+  const [simulationDate, setSimulationDate] = useState(() =>
+    new Date().toISOString().substring(0, 10)
+  );
   const [materializationLog, setMaterializationLog] = useState<{
     count: number;
     message: string;
@@ -82,22 +54,19 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
   const [newFrequency, setNewFrequency] = useState<RecurrenceFrequency>('monthly');
   const [newDayOfMonth, setNewDayOfMonth] = useState<number>(1);
 
-  const handleSimulateMaterialization = () => {
+  const handleSimulateMaterialization = async () => {
     const { newExpenses, updatedTemplates } = materializeDueRecurringExpenses(
       templates,
       existingExpenses,
       simulationDate
     );
 
-    setTemplates(updatedTemplates);
+    await onMaterializeExpenses(newExpenses, updatedTemplates);
 
     if (newExpenses.length > 0) {
-      if (onExpensesMaterialized) {
-        onExpensesMaterialized(newExpenses);
-      }
       setMaterializationLog({
         count: newExpenses.length,
-        message: `Successfully materialized ${newExpenses.length} recurring expense(s) up to ${simulationDate}`,
+        message: `Generated ${newExpenses.length} recurring expense(s) up to ${simulationDate}`,
         items: newExpenses.map(
           (e) => `${e.description} • ${formatPaise(e.amountPaise)} on ${e.date}`
         ),
@@ -106,14 +75,14 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
     } else {
       setMaterializationLog({
         count: 0,
-        message: `No new occurrences due up to ${simulationDate}. (Idempotency verified: zero duplicate expenses created)`,
+        message: `All recurring expenses up to ${simulationDate} are already up to date.`,
         items: [],
         timestamp: new Date().toLocaleTimeString(),
       });
     }
   };
 
-  const handleAddTemplate = (e: React.FormEvent) => {
+  const handleAddTemplate = async (e: React.FormEvent) => {
     e.preventDefault();
     const rupees = parseFloat(newRupees);
     if (!newDesc || isNaN(rupees) || rupees <= 0) return;
@@ -124,7 +93,7 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
       description: newDesc,
       category: 'Utilities',
       amountPaise: Math.round(rupees * 100),
-      payerId: newPayerId,
+      payerId: newPayerId || members[0]?.id || '',
       splitMode: 'equal',
       participantIds: members.map((m) => m.id),
       frequency: newFrequency,
@@ -134,19 +103,20 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
       createdAt: new Date().toISOString(),
     };
 
-    setTemplates([...templates, newTpl]);
+    await onSaveTemplate(newTpl);
     setShowNewForm(false);
     setNewDesc('');
   };
 
-  const toggleTemplateActive = (id: string) => {
-    setTemplates(
-      templates.map((t) => (t.id === id ? { ...t, active: !t.active } : t))
-    );
+  const toggleTemplateActive = async (tpl: RecurringExpenseTemplate) => {
+    await onSaveTemplate({
+      ...tpl,
+      active: !tpl.active,
+    });
   };
 
-  const deleteTemplate = (id: string) => {
-    setTemplates(templates.filter((t) => t.id !== id));
+  const deleteTemplate = async (id: string) => {
+    await onDeleteTemplate(id);
   };
 
   return (
@@ -160,29 +130,29 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
                 <Repeat className="w-5 h-5" />
               </span>
               <h2 className="text-xl font-bold text-slate-100">
-                Recurring Expenses Engine
+                Recurring Expenses
               </h2>
             </div>
             <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              Automated recurring schedules, deterministic occurrence materialization & guaranteed idempotency
+              Automate repeating shared bills like Wi-Fi, rent, subscriptions, and utilities
             </p>
           </div>
 
           <button
             onClick={() => setShowNewForm(!showNewForm)}
-            className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-purple-900/30"
+            className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-purple-900/30 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Add Recurring Schedule
           </button>
         </div>
 
-        {/* Simulator controls */}
+        {/* Check controls */}
         <div className="mt-5 pt-4 border-t border-slate-800 bg-slate-950/60 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="text-xs text-slate-300 font-semibold flex items-center gap-1.5">
               <Clock className="w-4 h-4 text-purple-400" />
-              Simulate Opening App On Date:
+              Check Due Expenses Up To:
             </span>
             <input
               type="date"
@@ -194,10 +164,10 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
 
           <button
             onClick={handleSimulateMaterialization}
-            className="px-4 py-2 rounded-xl bg-linear-to-r from-purple-600 to-blue-600 hover:opacity-90 text-white text-xs font-bold flex items-center gap-2 shadow-md"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90 text-white text-xs font-bold flex items-center gap-2 shadow-md cursor-pointer"
           >
             <Play className="w-3.5 h-3.5 fill-white" />
-            Trigger Materialization Check
+            Check & Add Due Bills
           </button>
         </div>
 
@@ -218,9 +188,9 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
               <span className="text-[10px] opacity-75">{materializationLog.timestamp}</span>
             </div>
             {materializationLog.items.length > 0 && (
-              <ul className="list-disc list-inside space-y-1 text-[11px] opacity-90 pl-2">
-                {materializationLog.items.map((item, idx) => (
-                  <li key={idx}>{item}</li>
+              <ul className="list-disc list-inside space-y-1 text-[11px] opacity-90 pl-1">
+                {materializationLog.items.map((it, idx) => (
+                  <li key={idx}>{it}</li>
                 ))}
               </ul>
             )}
@@ -228,44 +198,64 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
         )}
       </div>
 
-      {/* New Template Form */}
+      {/* New Schedule Modal / Inline Form */}
       {showNewForm && (
         <form
           onSubmit={handleAddTemplate}
-          className="bg-slate-900 border border-purple-500/40 rounded-2xl p-5 shadow-lg space-y-4 text-xs animate-fade-in"
+          className="bg-slate-900 border border-purple-500/40 rounded-2xl p-5 shadow-xl space-y-4 animate-in fade-in duration-200"
         >
-          <h3 className="text-sm font-bold text-slate-100">Create New Recurring Schedule</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label className="block text-slate-400 mb-1 font-medium">Description</label>
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 className="font-semibold text-sm text-purple-300 flex items-center gap-2">
+              <Plus className="w-4 h-4" /> Create Recurring Schedule
+            </h3>
+            <button
+              type="button"
+              onClick={() => setShowNewForm(false)}
+              className="text-xs text-slate-400 hover:text-slate-200"
+            >
+              Cancel
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div className="sm:col-span-2">
+              <label className="block text-xs text-slate-400 mb-1 font-medium">
+                Description
+              </label>
               <input
                 type="text"
-                required
+                placeholder="e.g. Netflix Subscription, Maid, Cook"
                 value={newDesc}
                 onChange={(e) => setNewDesc(e.target.value)}
-                placeholder="e.g. Netflix 4K Plan"
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-slate-100"
+                required
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-purple-500"
               />
             </div>
 
             <div>
-              <label className="block text-slate-400 mb-1 font-medium">Amount (₹)</label>
+              <label className="block text-xs text-slate-400 mb-1 font-medium">
+                Amount (₹)
+              </label>
               <input
                 type="number"
                 step="0.01"
-                required
+                min="0.01"
+                placeholder="649.00"
                 value={newRupees}
                 onChange={(e) => setNewRupees(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 font-semibold"
+                required
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 font-semibold focus:outline-none focus:border-purple-500"
               />
             </div>
 
             <div>
-              <label className="block text-slate-400 mb-1 font-medium">Payer</label>
+              <label className="block text-xs text-slate-400 mb-1 font-medium">
+                Payer
+              </label>
               <select
                 value={newPayerId}
                 onChange={(e) => setNewPayerId(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-slate-100"
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-purple-500 cursor-pointer"
               >
                 {members.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -276,46 +266,46 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-slate-400 mb-1 font-medium">Frequency</label>
+              <label className="block text-xs text-slate-400 mb-1 font-medium">
+                Frequency
+              </label>
               <select
                 value={newFrequency}
-                onChange={(e) => setNewFrequency(e.target.value as RecurrenceFrequency)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-slate-100"
+                onChange={(e) =>
+                  setNewFrequency(e.target.value as RecurrenceFrequency)
+                }
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-purple-500 cursor-pointer"
               >
-                <option value="monthly">Monthly</option>
                 <option value="weekly">Weekly</option>
-                <option value="daily">Daily</option>
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="yearly">Yearly</option>
               </select>
             </div>
 
             {newFrequency === 'monthly' && (
               <div>
-                <label className="block text-slate-400 mb-1 font-medium">Day of Month (1-31)</label>
+                <label className="block text-xs text-slate-400 mb-1 font-medium">
+                  Day of Month (1-31)
+                </label>
                 <input
                   type="number"
                   min="1"
                   max="31"
                   value={newDayOfMonth}
-                  onChange={(e) => setNewDayOfMonth(parseInt(e.target.value, 10) || 1)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-slate-100"
+                  onChange={(e) => setNewDayOfMonth(parseInt(e.target.value) || 1)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-purple-500"
                 />
               </div>
             )}
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={() => setShowNewForm(false)}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-400"
-            >
-              Cancel
-            </button>
+          <div className="flex justify-end pt-2">
             <button
               type="submit"
-              className="px-4 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold"
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-semibold shadow-md cursor-pointer"
             >
               Save Schedule
             </button>
@@ -324,71 +314,74 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
       )}
 
       {/* Templates List */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
-        <h3 className="text-sm font-bold text-slate-200">
-          Configured Recurring Templates ({templates.length})
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {templates.map((tpl) => {
-            const payer = members.find((m) => m.id === tpl.payerId);
-            return (
-              <div
-                key={tpl.id}
-                className={`border rounded-xl p-4 space-y-3 transition-all ${
-                  tpl.active
-                    ? 'bg-slate-800/70 border-slate-700/80'
-                    : 'bg-slate-900/40 border-slate-800 opacity-60'
-                }`}
-              >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {templates.map((tpl) => {
+          const payer = members.find((m) => m.id === tpl.payerId);
+          return (
+            <div
+              key={tpl.id}
+              className={`bg-slate-900 border rounded-2xl p-5 shadow-sm flex flex-col justify-between gap-4 transition-all ${
+                tpl.active
+                  ? 'border-slate-800 hover:border-slate-700'
+                  : 'border-slate-800/50 opacity-60'
+              }`}
+            >
+              <div>
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <h4 className="text-sm font-bold text-slate-100">{tpl.description}</h4>
-                    <span className="text-[11px] text-purple-400 font-semibold flex items-center gap-1 mt-0.5">
-                      <Calendar className="w-3 h-3" />
+                    <span className="text-[11px] font-semibold text-purple-400 bg-purple-500/10 px-2.5 py-0.5 rounded-full border border-purple-500/20">
                       {formatRecurrenceLabel(tpl)}
                     </span>
+                    <h3 className="text-base font-bold text-slate-100 mt-2">
+                      {tpl.description}
+                    </h3>
                   </div>
+
                   <div className="text-right">
-                    <div className="text-base font-black text-emerald-400">
+                    <div className="text-lg font-black text-slate-100">
                       {formatPaise(tpl.amountPaise)}
                     </div>
-                    <span className="text-[10px] text-slate-400">
-                      Payer: {payer?.name || tpl.payerId}
-                    </span>
+                    <div className="text-[11px] text-slate-400">
+                      Paid by <span className="text-slate-200">{payer?.name || 'Someone'}</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-slate-700/40 text-xs">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => toggleTemplateActive(tpl.id)}
-                      className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border ${
-                        tpl.active
-                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                          : 'bg-slate-800 text-slate-500 border-slate-700'
-                      }`}
-                    >
-                      {tpl.active ? 'Active' : 'Paused'}
-                    </button>
-                    {tpl.lastMaterializedDate && (
-                      <span className="text-[10px] text-slate-500">
-                        Last created: {tpl.lastMaterializedDate}
-                      </span>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={() => deleteTemplate(tpl.id)}
-                    className="text-slate-500 hover:text-rose-400 p-1"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                <div className="mt-3 text-xs text-slate-400 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                  <span>
+                    Last recorded:{' '}
+                    {tpl.lastMaterializedDate ? tpl.lastMaterializedDate : 'Never'}
+                  </span>
                 </div>
               </div>
-            );
-          })}
-        </div>
+
+              {/* Actions Footer */}
+              <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => toggleTemplateActive(tpl)}
+                  className={`text-xs font-medium px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
+                    tpl.active
+                      ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+                      : 'border-slate-700 bg-slate-800 text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {tpl.active ? 'Active' : 'Paused'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => deleteTemplate(tpl.id)}
+                  className="text-xs text-rose-400 hover:text-rose-300 p-1.5 rounded-lg hover:bg-rose-500/10 transition-colors cursor-pointer"
+                  title="Delete schedule"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

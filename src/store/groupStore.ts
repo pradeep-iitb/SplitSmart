@@ -33,8 +33,12 @@ interface GroupStoreState {
   deleteExpense: (expenseId: string) => Promise<void>;
   recordSettlement: (payment: RecordedSettlement) => Promise<void>;
   undoSettlement: (settlementId: string) => Promise<void>;
+  saveRecurringTemplate: (template: RecurringExpenseTemplate) => Promise<void>;
+  deleteRecurringTemplate: (templateId: string) => Promise<void>;
+  materializeRecurringExpenses: (newExpenses: Expense[], updatedTemplates: RecurringExpenseTemplate[]) => Promise<void>;
   exportJson: () => Promise<string>;
   importJson: (jsonString: string) => Promise<string>;
+  resetCleanDemoData: () => Promise<void>;
 }
 
 export const useGroupStore = create<GroupStoreState>((set, get) => ({
@@ -52,6 +56,7 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       await repo.seedInitialDataIfEmpty();
+      await repo.cleanupDuplicateExpenses();
 
       const allGroups = await repo.listGroups();
       if (allGroups.length === 0) {
@@ -63,6 +68,7 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
       const members = await repo.listMembers(active.id);
       const expenses = await repo.listExpenses(active.id);
       const settlements = await repo.listSettlements(active.id);
+      const recurringTemplates = await repo.listRecurringTemplates(active.id);
 
       set({
         groups: allGroups,
@@ -71,6 +77,7 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
         members,
         expenses,
         settlements,
+        recurringTemplates,
         isLoading: false,
       });
     } catch (err: unknown) {
@@ -90,6 +97,7 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
       const members = await repo.listMembers(groupId);
       const expenses = await repo.listExpenses(groupId);
       const settlements = await repo.listSettlements(groupId);
+      const recurringTemplates = await repo.listRecurringTemplates(groupId);
 
       set({
         activeGroupId: groupId,
@@ -97,6 +105,7 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
         members,
         expenses,
         settlements,
+        recurringTemplates,
         isLoading: false,
       });
     } catch (err: unknown) {
@@ -219,10 +228,56 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
     }
   },
 
+  saveRecurringTemplate: async (template: RecurringExpenseTemplate) => {
+    await repo.saveRecurringTemplate(template);
+    const activeId = get().activeGroupId;
+    if (activeId) {
+      const templates = await repo.listRecurringTemplates(activeId);
+      set({ recurringTemplates: templates });
+    }
+  },
+
+  deleteRecurringTemplate: async (templateId: string) => {
+    await repo.deleteRecurringTemplate(templateId);
+    const activeId = get().activeGroupId;
+    if (activeId) {
+      const templates = await repo.listRecurringTemplates(activeId);
+      set({ recurringTemplates: templates });
+    }
+  },
+
+  materializeRecurringExpenses: async (newExpenses: Expense[], updatedTemplates: RecurringExpenseTemplate[]) => {
+    for (const exp of newExpenses) {
+      await repo.saveExpense(exp);
+    }
+    for (const tpl of updatedTemplates) {
+      await repo.saveRecurringTemplate(tpl);
+    }
+    const activeId = get().activeGroupId;
+    if (activeId) {
+      const expenses = await repo.listExpenses(activeId);
+      const recurringTemplates = await repo.listRecurringTemplates(activeId);
+      set({ expenses, recurringTemplates });
+    }
+  },
+
   exportJson: async () => {
     const activeId = get().activeGroupId;
     if (!activeId) throw new Error('No active group to export.');
     return await exportGroupJson(activeId);
+  },
+
+  resetCleanDemoData: async () => {
+    try {
+      set({ isLoading: true, error: null });
+      await repo.resetToCleanTripData();
+      await get().init();
+    } catch (err: unknown) {
+      set({
+        error: err instanceof Error ? err.message : 'Failed to reset clean demo data.',
+        isLoading: false,
+      });
+    }
   },
 
   importJson: async (jsonString: string) => {
