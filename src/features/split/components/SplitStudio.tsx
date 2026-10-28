@@ -243,18 +243,18 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
   return (
     <div className="space-y-6">
       {/* Header & Mode Switcher */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-800">
+      <div className="liquid-glass-card rounded-2xl p-5 shadow-xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-white/10">
           <div>
             <div className="flex items-center gap-2">
               <span className="p-2 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30">
                 <Calculator className="w-5 h-5" />
               </span>
-              <h2 className="text-xl font-bold text-slate-100">
+              <h2 className="text-xl font-heading font-black text-white">
                 Split Calculation Studio
               </h2>
             </div>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1">
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 font-body">
               Customize how expenses are divided with accurate shares and tax handling
             </p>
           </div>

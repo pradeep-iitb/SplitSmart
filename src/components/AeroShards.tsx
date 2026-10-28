@@ -1104,8 +1104,207 @@ export default function AeroShards({
       onErrorRef.current?.(error instanceof Error ? error : new Error(String(error)));
     };
 
+    const startFallback = () => {
+      if (disposed) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const s = settingsRef.current;
+      const shardRgb = [
+        Math.round(s.shard[0] * 255),
+        Math.round(s.shard[1] * 255),
+        Math.round(s.shard[2] * 255)
+      ];
+      const accentRgb = [
+        Math.round(s.accent[0] * 255),
+        Math.round(s.accent[1] * 255),
+        Math.round(s.accent[2] * 255)
+      ];
+
+      let width = container.clientWidth || 360;
+      let height = container.clientHeight || 600;
+
+      const resize = () => {
+        if (!container) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        width = container.clientWidth;
+        height = container.clientHeight;
+        canvas.width = Math.max(1, Math.round(width * dpr));
+        canvas.height = Math.max(1, Math.round(height * dpr));
+        ctx.resetTransform();
+        ctx.scale(dpr, dpr);
+      };
+
+      resize();
+      const ro = new ResizeObserver(resize);
+      ro.observe(container);
+      cleanups.push(() => ro.disconnect());
+
+      const count = Math.min(240, Math.max(110, Math.round(s.count / 5)));
+      const shards = Array.from({ length: count }, (_, i) => {
+        const z = Math.random();
+        return {
+          progress: Math.random(),
+          speed: (0.05 + Math.random() * 0.08) * (0.5 + z * 0.7) * s.speed,
+          lane: (Math.random() - 0.5) * 1.5,
+          size: (14 + Math.random() * 20) * (0.5 + z * 1.1) * s.shardSize,
+          yaw: Math.random() * Math.PI * 2,
+          yawSpeed: (Math.random() - 0.5) * 2.2,
+          pitch: Math.random() * Math.PI * 2,
+          pitchSpeed: (Math.random() - 0.5) * 1.8,
+          z,
+          tint: Math.random(),
+          flutterPhase: Math.random() * Math.PI * 2
+        };
+      });
+
+      const markers = Array.from({ length: 18 }, () => ({
+        x: Math.random(),
+        y: Math.random(),
+        phase: Math.random() * Math.PI * 2,
+        speed: 1 + Math.random() * 2
+      }));
+
+      let lastTime = performance.now();
+      let clock = 0;
+      const pointer = [0.5, 0.5];
+      let hasPointer = false;
+
+      const onPointerMove = (e: PointerEvent) => {
+        const rect = container.getBoundingClientRect();
+        pointer[0] = (e.clientX - rect.left) / Math.max(1, rect.width);
+        pointer[1] = (e.clientY - rect.top) / Math.max(1, rect.height);
+        hasPointer = true;
+      };
+
+      window.addEventListener('pointermove', onPointerMove, { passive: true });
+      cleanups.push(() => window.removeEventListener('pointermove', onPointerMove));
+
+      const animate = (now: number) => {
+        if (disposed) return;
+        raf = requestAnimationFrame(animate);
+
+        const dt = Math.min(0.05, (now - lastTime) / 1000);
+        lastTime = now;
+        clock += dt;
+
+        ctx.clearRect(0, 0, width, height);
+
+        // Soft ambient violet/purple volumetric glow along ribbon flow
+        const ambientGrad = ctx.createRadialGradient(
+          width * 0.5,
+          height * 0.55,
+          width * 0.05,
+          width * 0.5,
+          height * 0.55,
+          width * 0.75
+        );
+        ambientGrad.addColorStop(0, `rgba(${accentRgb[0]}, ${accentRgb[1]}, ${accentRgb[2]}, 0.09)`);
+        ambientGrad.addColorStop(0.5, `rgba(${shardRgb[0]}, ${shardRgb[1]}, ${shardRgb[2]}, 0.04)`);
+        ambientGrad.addColorStop(1, 'rgba(7, 9, 14, 0)');
+        ctx.fillStyle = ambientGrad;
+        ctx.fillRect(0, 0, width, height);
+
+        // Floating survey markers (+)
+        if (s.markers !== 'none') {
+          for (const m of markers) {
+            const alpha = 0.15 + 0.3 * Math.sin(clock * m.speed + m.phase);
+            if (alpha <= 0.05) continue;
+            const mx = m.x * width;
+            const my = m.y * height + Math.sin(clock * 0.5 + m.phase) * 12;
+            ctx.strokeStyle = `rgba(${accentRgb[0]}, ${accentRgb[1]}, ${accentRgb[2]}, ${alpha.toFixed(2)})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(mx - 4, my);
+            ctx.lineTo(mx + 4, my);
+            ctx.moveTo(mx, my - 4);
+            ctx.lineTo(mx, my + 4);
+            ctx.stroke();
+          }
+        }
+
+        // Sort by depth so farther shards are drawn first
+        shards.sort((a, b) => a.z - b.z);
+
+        for (const shard of shards) {
+          shard.progress = (shard.progress + shard.speed * dt) % 1;
+          shard.yaw += shard.yawSpeed * dt;
+          shard.pitch += shard.pitchSpeed * dt;
+
+          const t = shard.progress;
+          const baseX = width * (-0.15 + t * 1.3);
+          const wave = Math.sin(t * Math.PI * 2.4 + clock * 0.75) * (height * 0.22);
+          const baseY = height * (0.85 - t * 0.7) + wave;
+
+          const laneOffset = shard.lane * (height * 0.28) * Math.sin(t * Math.PI);
+          let cx = baseX - laneOffset * 0.45;
+          let cy = baseY + laneOffset;
+
+          if (hasPointer && s.mouseInteraction) {
+            const px = pointer[0] * width;
+            const py = pointer[1] * height;
+            const dist = Math.hypot(cx - px, cy - py);
+            if (dist < 160) {
+              const push = (1 - dist / 160) * 30;
+              const angle = Math.atan2(cy - py, cx - px);
+              cx += Math.cos(angle) * push;
+              cy += Math.sin(angle) * push;
+            }
+          }
+
+          const edgeFade = Math.sin(t * Math.PI);
+          const alpha = edgeFade * (0.35 + shard.z * 0.55);
+          if (alpha <= 0.02) continue;
+
+          const cosY = Math.cos(shard.yaw);
+          const cosP = Math.cos(shard.pitch);
+          const r = shard.size * (0.6 + 0.4 * Math.abs(cosY));
+          const aspectY = 0.55 + 0.35 * Math.abs(cosP);
+
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(Math.sin(clock * 0.45 + shard.flutterPhase) * 0.35 + shard.yaw * 0.15);
+
+          ctx.beginPath();
+          ctx.moveTo(0, -r * aspectY * 1.25);
+          ctx.lineTo(r * 0.85, -r * 0.2);
+          ctx.lineTo(r * 0.5, r * aspectY);
+          ctx.lineTo(-r * 0.5, r * aspectY);
+          ctx.lineTo(-r * 0.85, -r * 0.2);
+          ctx.closePath();
+
+          const mix = shard.tint;
+          const rCol = Math.round(shardRgb[0] * (1 - mix) + accentRgb[0] * mix);
+          const gCol = Math.round(shardRgb[1] * (1 - mix) + accentRgb[1] * mix);
+          const bCol = Math.round(shardRgb[2] * (1 - mix) + accentRgb[2] * mix);
+
+          ctx.fillStyle = `rgba(${rCol}, ${gCol}, ${bCol}, ${(alpha * 0.65).toFixed(3)})`;
+          ctx.fill();
+
+          const rimAlpha = Math.min(1, alpha * 1.35);
+          ctx.strokeStyle = `rgba(235, 215, 255, ${(rimAlpha * (0.45 + 0.45 * Math.abs(cosY))).toFixed(3)})`;
+          ctx.lineWidth = 1 + (shard.z > 0.7 ? 0.6 : 0);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(0, -r * aspectY * 1.25);
+          ctx.lineTo(0, r * aspectY * 0.55);
+          ctx.strokeStyle = `rgba(255, 255, 255, ${(rimAlpha * 0.35).toFixed(3)})`;
+          ctx.lineWidth = 0.75;
+          ctx.stroke();
+
+          ctx.restore();
+        }
+      };
+
+      raf = requestAnimationFrame(animate);
+    };
+
     const start = async () => {
-      if (typeof navigator === 'undefined' || !('gpu' in navigator)) throw new Error('WebGPU is not available');
+      if (typeof navigator === 'undefined' || !('gpu' in navigator)) {
+        startFallback();
+        return;
+      }
       const instance = await init({ powerPreference: 'high-performance' });
       gpu = instance;
       if (disposed) {
@@ -2223,7 +2422,10 @@ export default function AeroShards({
       raf = requestAnimationFrame(tick);
     };
 
-    start().catch(fail);
+    start().catch((err) => {
+      console.warn('WebGPU init failed, using animated canvas fallback:', err);
+      startFallback();
+    });
 
     return () => {
       disposed = true;

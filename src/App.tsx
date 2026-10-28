@@ -47,6 +47,11 @@ import {
   X,
   PlusCircle,
   Share2,
+  Sparkles,
+  Receipt,
+  Scale,
+  Clock,
+  BarChart3,
 } from 'lucide-react';
 
 type TabType =
@@ -234,17 +239,17 @@ export default function App() {
   ];
 
   const appNavItems: NavItem[] = [
-    { id: 'split-studio', label: 'Studio' },
-    { id: 'expenses', label: 'Expenses', badge: expenses.length },
-    { id: 'settlement', label: 'Settlement', badge: suggestions.length > 0 ? suggestions.length : undefined },
-    { id: 'recurring', label: 'Recurring' },
-    { id: 'analytics', label: 'Analytics' },
-    { id: 'export', label: 'Share' },
+    { id: 'split-studio', label: 'Studio', icon: <Sparkles className="w-3.5 h-3.5" /> },
+    { id: 'expenses', label: 'Expenses', badge: expenses.length, icon: <Receipt className="w-3.5 h-3.5" /> },
+    { id: 'settlement', label: 'Settlement', badge: suggestions.length > 0 ? suggestions.length : undefined, icon: <Scale className="w-3.5 h-3.5" /> },
+    { id: 'recurring', label: 'Recurring', icon: <Clock className="w-3.5 h-3.5" /> },
+    { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="w-3.5 h-3.5" /> },
+    { id: 'export', label: 'Share', icon: <Share2 className="w-3.5 h-3.5" /> },
   ];
 
   return (
-    <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col antialiased relative selection:bg-purple-500/30">
-      {/* SINGLE FLOATING NAVBAR: In App Engine View only (Landing has its own compact GooeyNav) */}
+    <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col antialiased relative selection:bg-purple-500/30 w-full max-w-full overflow-x-clip">
+      {/* IMPROVED FLOATING NAVBAR: Matching Landing Page 75vw Liquid Glass with Responsive Mobile Menu */}
       {view === 'app' && (
         <FloatingNav
           items={appNavItems}
@@ -253,48 +258,10 @@ export default function App() {
             setActiveTab(id as TabType);
             window.location.hash = `#/app?tab=${id}`;
           }}
-          brandElement={
-            <button
-              type="button"
-              onClick={navigateToLanding}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer select-none"
-              title="Return to Landing Page"
-            >
-              <span>←</span>
-              <span className="hidden sm:inline">Home</span>
-            </button>
-          }
-          ctaElement={
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setIsScanModalOpen(true)}
-                className="px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-emerald-950/40 cursor-pointer whitespace-nowrap"
-                title="Scan Receipt"
-              >
-                <Camera className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Scan</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsManualModalOpen(true)}
-                className="p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
-                title="Add Expense"
-              >
-                <PlusCircle className="w-4 h-4 text-purple-400" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsGroupModalOpen(true)}
-                className="p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
-                title="Switch Group"
-              >
-                <FolderOpen className="w-4 h-4 text-blue-400" />
-              </button>
-            </div>
-          }
+          onReturnHome={navigateToLanding}
+          onOpenScan={() => setIsScanModalOpen(true)}
+          onOpenManual={() => setIsManualModalOpen(true)}
+          onOpenGroups={() => setIsGroupModalOpen(true)}
         />
       )}
 
@@ -308,19 +275,19 @@ export default function App() {
             members={members}
           />
         ) : (
-          <div className="flex-1 max-w-[1500px] w-full mx-auto px-3.5 sm:px-8 pt-24 pb-12 space-y-6">
-            {/* Active Group Context Bar (Engine view) */}
-            <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800/80 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-xl">
+          <div className="flex-1 max-w-[1500px] w-full max-w-full mx-auto px-3.5 sm:px-8 pt-24 pb-12 space-y-6 overflow-x-clip">
+            {/* Active Group Context Bar (Engine view with Liquid Glass & Distinct Typography) */}
+            <div className="liquid-glass-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-xl">
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2.5">
+                <h2 className="text-lg font-heading font-black text-white flex items-center gap-2.5">
                   <span>{group.name}</span>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-medium border border-slate-700/50 flex items-center gap-1.5">
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800/80 text-slate-300 font-display font-medium border border-white/10 flex items-center gap-1.5">
                     <span className="flex -space-x-1.5 overflow-hidden">
                       {members.slice(0, 5).map((m) => (
                         <MemberAvatar key={m.id} member={m} size="xs" showRing className="ring-slate-900" />
                       ))}
                     </span>
-                    <span>{members.length} members · {expenses.length} expenses</span>
+                    <span className="font-mono-numbers">{members.length} members · {expenses.length} expenses</span>
                   </span>
                 </h2>
 

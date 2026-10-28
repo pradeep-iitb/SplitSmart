@@ -336,8 +336,10 @@ const DecayCard = ({
       gl.uniform2f(uniforms.uSize, w, h);
       gl.uniform2f(uniforms.uImageSize, state.imageWidth, state.imageHeight);
       gl.uniform1f(uniforms.uUnit, unit);
-      gl.uniform1f(uniforms.uScale, state.level * s.intensity * 440);
-      gl.uniform1f(uniforms.uIdle, s.idle);
+      const currentLevel = state.hovered ? state.level : (state.level < 0.005 ? 0 : state.level);
+      gl.uniform1f(uniforms.uScale, currentLevel * s.intensity * 440);
+      const currentIdle = state.hovered ? s.idle : 0;
+      gl.uniform1f(uniforms.uIdle, currentIdle);
       gl.uniform1f(uniforms.uFrequency, s.frequency);
       gl.uniform1i(uniforms.uOctaves, s.octaves);
       gl.uniform1f(uniforms.uSeed, s.seed);
@@ -385,8 +387,17 @@ const DecayCard = ({
       const active = s.scope === 'card' ? state.hovered : true;
       let wanted = active ? clamp(speed / (2400 - 2100 * s.sensitivity), 0, 1) ** 2 : 0;
       if (state.hovered) wanted = Math.max(wanted, s.hoverDecay);
-      const tau = wanted > state.level ? 0.08 : s.recovery;
+      const tau = state.hovered ? (wanted > state.level ? 0.08 : s.recovery) : 0.15;
       state.level += (wanted - state.level) * (1 - Math.exp(-dt / tau));
+      if (!state.hovered && state.level < 0.003) {
+        state.level = 0;
+      }
+
+      if (!state.hovered && Math.abs(state.x) < 0.05 && Math.abs(state.y) < 0.05 && Math.abs(state.rotate) < 0.05) {
+        state.x = 0;
+        state.y = 0;
+        state.rotate = 0;
+      }
 
       root.style.transform = `translate3d(${state.x.toFixed(2)}px, ${state.y.toFixed(2)}px, 0) rotate(${state.rotate.toFixed(3)}deg)`;
 
@@ -395,7 +406,7 @@ const DecayCard = ({
         Math.abs(wanted - state.level) > 0.002 ||
         (state.level > 0.002 && s.flow > 0 && !reduce) ||
         speed > 1;
-      const animating = s.idle > 0 && !reduce;
+      const animating = state.hovered && s.idle > 0 && !reduce;
       tick = (tick + 1) % 2;
       if (settling || !animating || tick === 0) draw();
       calm = settling ? 0 : calm + dt;

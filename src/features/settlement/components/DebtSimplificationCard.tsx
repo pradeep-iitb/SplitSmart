@@ -84,35 +84,35 @@ export const DebtSimplificationCard: React.FC<DebtSimplificationCardProps> = ({
               return (
                 <div
                   key={`${suggestion.fromMemberId}-${suggestion.toMemberId}-${idx}`}
-                  className="bg-slate-800/90 border border-slate-700/70 hover:border-slate-600 rounded-xl p-3.5 flex flex-col justify-between gap-3 transition-colors shadow-sm"
+                  className="liquid-glass-card rounded-2xl p-4 flex flex-col justify-between gap-3.5 transition-all shadow-sm hover:border-white/20"
                 >
                   {/* Parties & Amount row */}
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <div className="flex items-center gap-1.5 shrink-0">
                         <MemberAvatar member={payer} name={payerName} size="sm" />
-                        <span className="font-medium text-slate-200 text-sm truncate max-w-[80px] sm:max-w-[100px]">
+                        <span className="font-heading font-bold text-slate-100 text-sm truncate max-w-[80px] sm:max-w-[100px]">
                           {payerName}
                         </span>
                       </div>
-                      <ArrowRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                      <ArrowRight className="w-3.5 h-3.5 text-purple-400 shrink-0" />
                       <div className="flex items-center gap-1.5 shrink-0">
                         <MemberAvatar member={payee} name={payeeName} size="sm" />
-                        <span className="font-medium text-slate-200 text-sm truncate max-w-[80px] sm:max-w-[100px]">
+                        <span className="font-heading font-bold text-slate-100 text-sm truncate max-w-[80px] sm:max-w-[100px]">
                           {payeeName}
                         </span>
                       </div>
                     </div>
 
                     <div className="text-right shrink-0">
-                      <div className="text-base font-bold text-slate-100">
+                      <div className="text-base sm:text-lg font-black text-white font-mono-numbers">
                         {formatPaise(suggestion.amountPaise)}
                       </div>
                     </div>
                   </div>
 
                   {/* Compact Action Buttons */}
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-700/40">
+                  <div className="flex items-center justify-end gap-2 pt-2.5 border-t border-white/10">
                     <button
                       type="button"
                       onClick={() => onOpenUpiModal(suggestion)}
