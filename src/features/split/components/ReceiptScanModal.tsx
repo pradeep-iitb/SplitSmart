@@ -22,6 +22,87 @@ import {
   HelpCircle,
 } from 'lucide-react';
 
+interface CurrencyInputProps {
+  valuePaise: number;
+  onChangePaise: (paise: number) => void;
+  allowNegative?: boolean;
+  className?: string;
+  placeholder?: string;
+  ariaLabel?: string;
+}
+
+const CurrencyInput: React.FC<CurrencyInputProps> = ({
+  valuePaise,
+  onChangePaise,
+  allowNegative = false,
+  className = '',
+  placeholder = '0.00',
+  ariaLabel,
+}) => {
+  const [isFocused, setIsFocused] = useState(false);
+  const [textValue, setTextValue] = useState('');
+
+  useEffect(() => {
+    if (!isFocused) {
+      setTextValue((valuePaise / 100).toFixed(2));
+    }
+  }, [valuePaise, isFocused]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/,/g, '');
+
+    if (raw === '' || (allowNegative && raw === '-')) {
+      setTextValue(raw);
+      onChangePaise(0);
+      return;
+    }
+
+    const regex = allowNegative ? /^-?\d*(\.\d{0,2})?$/ : /^\d*(\.\d{0,2})?$/;
+    if (!regex.test(raw)) {
+      return;
+    }
+
+    setTextValue(raw);
+    const parsed = parseFloat(raw);
+    if (!isNaN(parsed)) {
+      onChangePaise(Math.round(parsed * 100));
+    } else {
+      onChangePaise(0);
+    }
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsFocused(true);
+    setTextValue((valuePaise / 100).toFixed(2));
+    const target = e.target;
+    setTimeout(() => {
+      target.select();
+    }, 20);
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    setTextValue((valuePaise / 100).toFixed(2));
+  };
+
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      autoComplete="off"
+      autoCorrect="off"
+      spellCheck={false}
+      value={isFocused ? textValue : (valuePaise / 100).toFixed(2)}
+      onChange={handleChange}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      aria-label={ariaLabel}
+      className={className}
+    />
+  );
+};
+
 interface ReceiptScanModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -312,22 +393,22 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-3xl max-h-[92vh] overflow-hidden shadow-2xl flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-3xl max-h-[94dvh] sm:max-h-[92vh] overflow-hidden shadow-2xl flex flex-col">
         {/* Modal Header */}
-        <div className="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/95 backdrop-blur-md">
+        <div className="p-3.5 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/95 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-3">
-            <span className="p-2.5 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30">
-              <Camera className="w-5 h-5" />
+            <span className="p-2 sm:p-2.5 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30 shrink-0">
+              <Camera className="w-4 h-4 sm:w-5 sm:h-5" />
             </span>
             <div>
-              <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
+              <h2 className="text-base sm:text-xl font-bold text-slate-100 flex items-center gap-2 flex-wrap">
                 <span>Smart Receipt Scanner</span>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 font-semibold border border-blue-500/20">
+                <span className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 font-semibold border border-blue-500/20 shrink-0">
                   OCR Engine
                 </span>
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400">
+              <p className="text-xs sm:text-sm text-slate-400 truncate sm:whitespace-normal">
                 {step === 'capture'
                   ? 'Take a photo or upload a receipt to auto-extract items and charges'
                   : 'Review extracted items, charges, and verify calculated totals'}
@@ -337,14 +418,14 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors shrink-0 ml-1"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-3.5 sm:p-6 space-y-4 sm:space-y-6">
           {scanError && (
             <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
@@ -563,7 +644,7 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
               </div>
 
               {/* Expense Metadata Form */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1">Merchant / Title</label>
                   <input
@@ -571,7 +652,7 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                     value={merchant}
                     onChange={(e) => setMerchant(e.target.value)}
                     placeholder="Merchant or Description"
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -581,7 +662,7 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                       type="date"
                       value={expenseDate}
                       onChange={(e) => setExpenseDate(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -590,7 +671,7 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                   <select
                     value={payerId}
                     onChange={(e) => setPayerId(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 cursor-pointer"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-blue-500 cursor-pointer"
                   >
                     {members.map((m) => (
                       <option key={m.id} value={m.id}>
@@ -603,8 +684,8 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
 
               {/* Items Table */}
               <div className="border border-slate-800 rounded-2xl overflow-hidden bg-slate-850/60">
-                <div className="p-3.5 bg-slate-800/80 border-b border-slate-750 flex items-center justify-between">
-                  <span className="font-semibold text-slate-200 text-sm flex items-center gap-2">
+                <div className="p-3 sm:p-3.5 bg-slate-800/80 border-b border-slate-750 flex items-center justify-between">
+                  <span className="font-semibold text-slate-200 text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
                     <ShoppingBag className="w-4 h-4 text-blue-400" />
                     Detected Line Items ({items.length})
                   </span>
@@ -637,7 +718,7 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
 
                 <div className="divide-y divide-slate-800 max-h-[260px] overflow-y-auto">
                   {items.map((it, idx) => (
-                    <div key={it.id} className="p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm hover:bg-slate-800/40">
+                    <div key={it.id} className="p-2.5 sm:p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 text-sm hover:bg-slate-800/40">
                       {/* Left: Name & Category */}
                       <div className="flex-1 min-w-0">
                         <input
@@ -647,7 +728,7 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                             const val = e.target.value;
                             setItems((prev) => prev.map((item, i) => (i === idx ? { ...item, name: val } : item)));
                           }}
-                          className="bg-slate-800/60 border border-slate-700/60 rounded-lg px-2.5 py-1 font-medium text-slate-100 focus:border-blue-500 focus:outline-none w-full text-sm"
+                          className="bg-slate-800/60 border border-slate-700/60 rounded-lg px-2.5 py-1 font-medium text-slate-100 focus:border-blue-500 focus:outline-none w-full text-xs sm:text-sm"
                           placeholder="Item name"
                         />
                         <div className="flex items-center gap-2 mt-1.5">
@@ -676,13 +757,17 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                       </div>
 
                       {/* Right: Quantity, Price, Delete */}
-                      <div className="flex items-center gap-3 shrink-0">
+                      <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3 shrink-0 pt-1 sm:pt-0 border-t border-slate-800/40 sm:border-0">
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs text-slate-400">Qty:</span>
                           <input
                             type="number"
                             min="1"
                             value={it.quantity}
+                            onFocus={(e) => {
+                              const target = e.target;
+                              setTimeout(() => target.select(), 20);
+                            }}
                             onChange={(e) => {
                               const q = Math.max(1, parseInt(e.target.value, 10) || 1);
                               setItems((prev) =>
@@ -697,20 +782,15 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                                 )
                               );
                             }}
-                            className="w-14 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-100 text-center focus:border-blue-500 focus:outline-none"
+                            className="w-12 sm:w-14 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-100 text-center focus:border-blue-500 focus:outline-none"
                           />
                         </div>
 
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs text-slate-400">₹</span>
-                          <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            value={(it.totalPaise / 100).toFixed(2)}
-                            onChange={(e) => {
-                              const rupees = parseFloat(e.target.value) || 0;
-                              const paise = Math.round(rupees * 100);
+                          <CurrencyInput
+                            valuePaise={it.totalPaise}
+                            onChangePaise={(paise) => {
                               setItems((prev) =>
                                 prev.map((item, i) =>
                                   i === idx
@@ -723,7 +803,7 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                                 )
                               );
                             }}
-                            className="w-24 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs font-semibold text-slate-100 text-right focus:border-blue-500 focus:outline-none"
+                            className="w-20 sm:w-24 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs font-semibold text-slate-100 text-right focus:border-blue-500 focus:outline-none"
                           />
                         </div>
 
@@ -742,7 +822,7 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
               </div>
 
               {/* Charges & Breakdown Card */}
-              <div className="bg-slate-850 border border-slate-800 rounded-2xl p-4 space-y-3 text-sm">
+              <div className="bg-slate-850 border border-slate-800 rounded-2xl p-3.5 sm:p-4 space-y-3 text-sm">
                 <div className="flex justify-between items-center text-slate-400 text-xs">
                   <span>Items Subtotal:</span>
                   <span className="font-semibold text-slate-200">{formatRupees(itemsSumPaise)}</span>
@@ -770,28 +850,24 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                           const val = e.target.value;
                           setTaxLines((prev) => prev.map((item, idx) => (idx === i ? { ...item, label: val } : item)));
                         }}
-                        className="bg-slate-800 border border-slate-700/80 rounded-lg px-2 py-1 text-slate-300 w-36 focus:outline-none focus:border-blue-500"
+                        className="bg-slate-800 border border-slate-700/80 rounded-lg px-2.5 py-1 text-slate-200 flex-1 min-w-0 sm:w-36 sm:flex-none focus:outline-none focus:border-blue-500 text-xs"
                         placeholder="Tax label (e.g. CGST)"
                       />
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <span className="text-slate-400">₹</span>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={(t.amountPaise / 100).toFixed(2)}
-                          onChange={(e) => {
-                            const val = parseFloat(e.target.value) || 0;
+                        <CurrencyInput
+                          valuePaise={t.amountPaise}
+                          onChangePaise={(paise) => {
                             setTaxLines((prev) =>
-                              prev.map((item, idx) => (idx === i ? { ...item, amountPaise: Math.round(val * 100) } : item))
+                              prev.map((item, idx) => (idx === i ? { ...item, amountPaise: paise } : item))
                             );
                           }}
-                          className="bg-slate-800 border border-slate-700/80 rounded-lg px-2 py-1 text-slate-100 font-medium w-22 text-right focus:outline-none focus:border-blue-500"
+                          className="bg-slate-800 border border-slate-700/80 rounded-lg px-2 py-1 text-slate-100 font-medium w-20 sm:w-24 text-right focus:outline-none focus:border-blue-500 text-xs"
                         />
                         <button
                           type="button"
                           onClick={() => setTaxLines((prev) => prev.filter((_, idx) => idx !== i))}
-                          className="text-slate-500 hover:text-red-400 p-1"
+                          className="text-slate-500 hover:text-red-400 p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -805,18 +881,12 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                   {/* Service Charge */}
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-slate-400">Service Charge:</span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-slate-400">+₹</span>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={(serviceChargePaise / 100).toFixed(2)}
-                        onChange={(e) => {
-                          const val = parseFloat(e.target.value) || 0;
-                          setServiceChargePaise(Math.round(val * 100));
-                        }}
-                        className="bg-slate-800 border border-slate-700/80 rounded-lg px-2 py-1 text-slate-100 font-medium w-22 text-right focus:outline-none focus:border-blue-500"
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="text-slate-400 font-medium">+₹</span>
+                      <CurrencyInput
+                        valuePaise={serviceChargePaise}
+                        onChangePaise={(paise) => setServiceChargePaise(paise)}
+                        className="bg-slate-800 border border-slate-700/80 rounded-lg px-2 py-1 text-slate-100 font-medium w-20 sm:w-24 text-right focus:outline-none focus:border-blue-500 text-xs"
                       />
                     </div>
                   </div>
@@ -824,18 +894,12 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                   {/* Discount */}
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-emerald-400">Discount:</span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-emerald-400">-₹</span>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={(discountPaise / 100).toFixed(2)}
-                        onChange={(e) => {
-                          const val = parseFloat(e.target.value) || 0;
-                          setDiscountPaise(Math.round(val * 100));
-                        }}
-                        className="bg-slate-800 border border-slate-700/80 rounded-lg px-2 py-1 text-emerald-300 font-medium w-22 text-right focus:outline-none focus:border-blue-500"
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="text-emerald-400 font-medium">-₹</span>
+                      <CurrencyInput
+                        valuePaise={discountPaise}
+                        onChangePaise={(paise) => setDiscountPaise(paise)}
+                        className="bg-slate-800 border border-slate-700/80 rounded-lg px-2 py-1 text-emerald-300 font-medium w-20 sm:w-24 text-right focus:outline-none focus:border-blue-500 text-xs"
                       />
                     </div>
                   </div>
@@ -843,48 +907,38 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                   {/* Round Off */}
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-slate-400">Round Off:</span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-slate-400">₹</span>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={(roundOffPaise / 100).toFixed(2)}
-                        onChange={(e) => {
-                          const val = parseFloat(e.target.value) || 0;
-                          setRoundOffPaise(Math.round(val * 100));
-                        }}
-                        className="bg-slate-800 border border-slate-700/80 rounded-lg px-2 py-1 text-slate-100 font-medium w-22 text-right focus:outline-none focus:border-blue-500"
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="text-slate-400 font-medium">₹</span>
+                      <CurrencyInput
+                        valuePaise={roundOffPaise}
+                        allowNegative={true}
+                        onChangePaise={(paise) => setRoundOffPaise(paise)}
+                        className="bg-slate-800 border border-slate-700/80 rounded-lg px-2 py-1 text-slate-100 font-medium w-20 sm:w-24 text-right focus:outline-none focus:border-blue-500 text-xs"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Grand Total */}
-                <div className="border-t border-slate-800 pt-3 flex justify-between items-center text-base font-bold text-slate-100">
-                  <div>
+                <div className="border-t border-slate-800 pt-3 flex items-center justify-between text-base font-bold text-slate-100">
+                  <div className="min-w-0 pr-2">
                     <span>Grand Total:</span>
                     {detectedTotalPaise !== null && detectedTotalPaise !== calculatedGrandTotalPaise && (
                       <button
                         type="button"
                         onClick={() => setDetectedTotalPaise(calculatedGrandTotalPaise)}
-                        className="block text-[11px] font-normal text-blue-400 hover:underline cursor-pointer"
+                        className="block text-[11px] font-normal text-blue-400 hover:underline cursor-pointer truncate"
                       >
                         Sync with calculated ({formatRupees(calculatedGrandTotalPaise)})
                       </button>
                     )}
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xl text-blue-400">₹</span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={(finalGrandTotalPaise / 100).toFixed(2)}
-                      onChange={(e) => {
-                        const val = parseFloat(e.target.value) || 0;
-                        setDetectedTotalPaise(Math.round(val * 100));
-                      }}
-                      className="bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1 text-lg font-bold text-blue-400 w-28 text-right focus:outline-none focus:border-blue-500"
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-xl text-blue-400 font-bold">₹</span>
+                    <CurrencyInput
+                      valuePaise={finalGrandTotalPaise}
+                      onChangePaise={(paise) => setDetectedTotalPaise(paise)}
+                      className="bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1 text-lg font-bold text-blue-400 w-28 sm:w-32 text-right focus:outline-none focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -894,43 +948,46 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-5 border-t border-slate-800 bg-slate-900/95 flex items-center justify-between gap-3">
+        <div className="p-3 sm:p-5 border-t border-slate-800 bg-slate-900/95 shrink-0">
           {step === 'review' ? (
-            <>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-3">
+              {/* Primary action first on mobile (or on right for desktop) */}
               <button
                 type="button"
-                onClick={() => setStep('capture')}
-                className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition-colors cursor-pointer"
+                onClick={handleSaveAsExpense}
+                className="order-1 sm:order-2 w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-md shadow-blue-900/20 transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
               >
-                Back to Scan
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>Save as Group Expense</span>
               </button>
-              <div className="flex items-center gap-3">
+
+              {/* Secondary actions: Back to scan & Itemized Studio */}
+              <div className="order-2 sm:order-1 flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setStep('capture')}
+                  className="flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs sm:text-sm text-center transition-colors cursor-pointer whitespace-nowrap"
+                >
+                  Back to Scan
+                </button>
                 {onOpenInSplitStudio && (
                   <button
                     type="button"
                     onClick={handleTransferToSplitStudio}
-                    className="px-4 py-2.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-300 font-semibold text-sm transition-colors flex items-center gap-1.5 cursor-pointer"
+                    className="flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-300 font-semibold text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
                   >
                     <span>Itemized in Studio</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-3.5 h-3.5 shrink-0" />
                   </button>
                 )}
-                <button
-                  type="button"
-                  onClick={handleSaveAsExpense}
-                  className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-md shadow-blue-900/20 transition-all flex items-center gap-2 cursor-pointer"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Save as Group Expense</span>
-                </button>
               </div>
-            </>
+            </div>
           ) : (
             <div className="w-full flex justify-end">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition-colors cursor-pointer"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition-colors cursor-pointer"
               >
                 Close
               </button>
