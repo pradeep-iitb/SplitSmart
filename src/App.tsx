@@ -34,8 +34,10 @@ import { useGroupStore } from './store/groupStore';
 import { decodeGroupFromUrlHash } from './features/sharing/sharingService';
 
 // Modern Visual Components
-import { FloatingNav, type NavItem } from './components/FloatingNav';
-import { LandingPage } from './components/LandingPage';
+import { type NavItem } from './components/FloatingNav';
+import { AppNavigation } from './components/AppNavigation';
+import { LandingScreen, DashboardScreen } from './components/HomeScreens';
+import './components/appTheme.css';
 
 import {
   FolderOpen,
@@ -52,6 +54,7 @@ import {
 } from 'lucide-react';
 
 type TabType =
+  | 'dashboard'
   | 'split-studio'
   | 'expenses'
   | 'settlement'
@@ -68,7 +71,7 @@ export default function App() {
     return 'landing';
   });
 
-  const [activeTab, setActiveTab] = useState<TabType>('split-studio');
+  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
   const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
@@ -108,7 +111,7 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
-  const navigateToApp = (tab: TabType = 'split-studio') => {
+  const navigateToApp = (tab: TabType = 'dashboard') => {
     setActiveTab(tab);
     setView('app');
     window.location.hash = `#/app?tab=${tab}`;
@@ -208,6 +211,7 @@ export default function App() {
       navigateToApp('expenses');
     } catch (err) {
       console.error('Could not persist expense to IndexedDB:', err);
+      throw err;
     }
   };
 
@@ -229,6 +233,7 @@ export default function App() {
     : undefined;
 
   const appNavItems: NavItem[] = [
+    { id: 'dashboard', label: 'Dashboard', icon: <FolderOpen className="w-3.5 h-3.5" /> },
     { id: 'split-studio', label: 'Studio', icon: <Sparkles className="w-3.5 h-3.5" /> },
     { id: 'expenses', label: 'Expenses', badge: expenses.length, icon: <Receipt className="w-3.5 h-3.5" /> },
     { id: 'settlement', label: 'Settlement', badge: suggestions.length > 0 ? suggestions.length : undefined, icon: <Scale className="w-3.5 h-3.5" /> },
@@ -238,10 +243,10 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col antialiased relative selection:bg-purple-500/30 w-full max-w-full overflow-x-clip">
+    <div className="figma-engine min-h-screen bg-[#07090e] text-slate-100 flex flex-col antialiased relative selection:bg-purple-500/30 w-full max-w-full overflow-x-clip">
       {/* IMPROVED FLOATING NAVBAR: Matching Landing Page 75vw Liquid Glass with Responsive Mobile Menu */}
       {view === 'app' && (
-        <FloatingNav
+        <AppNavigation
           items={appNavItems}
           activeId={activeTab}
           onChange={(id) => {
@@ -258,14 +263,12 @@ export default function App() {
       {/* Main View Container */}
       <main className="flex-1 w-full relative z-10 flex flex-col">
         {view === 'landing' ? (
-          <LandingPage
-            onLaunchApp={(tab) => navigateToApp((tab as TabType) || 'split-studio')}
-            onOpenScanModal={() => setIsScanModalOpen(true)}
-            expenses={expenses}
-            members={members}
+          <LandingScreen
+            onOpenApp={() => navigateToApp('dashboard')}
+            onScanReceipt={() => { navigateToApp('dashboard'); setIsScanModalOpen(true); }}
           />
         ) : (
-          <div className="flex-1 max-w-[1500px] w-full max-w-full mx-auto px-3.5 sm:px-8 pt-24 pb-12 space-y-6 overflow-x-clip">
+          <div className="ss-app-content flex-1 max-w-[1500px] w-full max-w-full mx-auto px-3.5 sm:px-8 pt-24 pb-12 space-y-6 overflow-x-clip">
             {/* Active Group Context Bar (Engine view with Liquid Glass & Distinct Typography) */}
             <div className="liquid-glass-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-xl">
               <div className="flex items-center gap-3">
@@ -321,6 +324,22 @@ export default function App() {
             </div>
 
             {/* Tab 1: Split Studio */}
+            {activeTab === 'dashboard' && <DashboardScreen
+              groups={groups}
+              activeGroupId={activeGroupId}
+              members={members}
+              expenses={expenses}
+              settlements={settlements}
+              balances={balances}
+              onOpenApp={() => navigateToApp('dashboard')}
+              onOpenGroup={async (id) => { await switchGroup(id); navigateToApp('expenses'); }}
+              onCreateGroup={() => setIsGroupModalOpen(true)}
+              onAddExpense={() => setIsManualModalOpen(true)}
+              onScanReceipt={() => setIsScanModalOpen(true)}
+              onOpenExpenses={() => navigateToApp('expenses')}
+              onOpenBalances={() => navigateToApp('settlement')}
+              onOpenAnalytics={() => navigateToApp('analytics')}
+            />}
             {activeTab === 'split-studio' && (
               <SplitStudio
                 members={members}
@@ -431,6 +450,7 @@ export default function App() {
           members={members}
           groupId={group.id}
           onSaveExpense={handleSaveExpense}
+          onAddMember={addMember}
           onOpenInSplitStudio={(draft) => {
             setSplitStudioDraft(draft);
             navigateToApp('split-studio');
