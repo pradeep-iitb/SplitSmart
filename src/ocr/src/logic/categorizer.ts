@@ -57,7 +57,8 @@ export async function categorizeItems(items: { id: string; name: string }[], opt
     const k = keywordCategory(it.name);
     if (k) opts.onResult(it.id, k, 'keyword'); else unknown.push(it);
   }
-  if (!unknown.length || opts.useModel === false) { unknown.forEach(u => opts.onResult(u.id, 'Other', 'keyword')); return; }
+  if (!unknown.length) { opts.onStatus?.('ready'); return; }
+  if (opts.useModel === false) { unknown.forEach(u => opts.onResult(u.id, 'Other', 'keyword')); opts.onStatus?.('ready'); return; }
 
   statusCb = opts.onStatus;
   try {
