@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Production build output
+dist/
+dist-ssr/
+*.local
+
+# Standalone prototypes & test outputs
+Build SplitSmart Expense Prototype/
+scratch/
+test/
+data/
+
+# Lock files and auto-generated logs
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+*.log
+
+# Cache & Environment
+.eslintcache
+.turbo/
+.vercel/
+.env*

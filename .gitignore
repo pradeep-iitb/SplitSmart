@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Standalone prototypes, raw data, test outputs, and scratch scripts
+/Build SplitSmart Expense Prototype/
+/data/
+/scratch/
+/test/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
