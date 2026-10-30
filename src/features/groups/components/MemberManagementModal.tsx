@@ -3,6 +3,7 @@ import type { Member } from '../../../types/domain';
 import { MemberAvatar } from './MemberAvatar';
 import { AVATAR_OPTIONS } from '../avatarUtils';
 import { X, UserPlus, Trash2, Edit2, Check, QrCode } from 'lucide-react';
+import { saveUserProfile } from '../../../utils/userProfile';
 
 interface MemberManagementModalProps {
   isOpen: boolean;
@@ -69,6 +70,10 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
 
   const handleSaveEdit = async (memberId: string) => {
     if (!editName.trim()) return;
+    const targetMember = members.find((m) => m.id === memberId);
+    if (targetMember?.isCurrentUser) {
+      saveUserProfile({ name: editName.trim(), upiId: editUpiId.trim() });
+    }
     await onUpdateMember(memberId, {
       name: editName.trim(),
       upiId: editUpiId.trim() || undefined,
@@ -243,7 +248,7 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
                           <h4 className="text-sm font-bold text-slate-100">{member.name}</h4>
                           {member.isCurrentUser && (
                             <span className="text-[10px] px-2 py-0.5 rounded-full bg-lime-400/20 text-lime-300 font-semibold">
-                              Me
+                              You
                             </span>
                           )}
                           {!member.active && (

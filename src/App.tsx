@@ -165,6 +165,8 @@ export default function App() {
     materializeRecurringExpenses: storeMaterializeRecurringExpenses,
     refreshDueRecurringExpenses,
     resetCleanDemoData,
+    updateUserProfile,
+    clearAllData,
   } = useGroupStore();
 
   const { isOffline } = useOfflineStatus();
@@ -462,6 +464,18 @@ export default function App() {
                 onRecurring={() => navigateToApp('recurring')}
                 onSplitStudio={() => navigateToApp('split-studio')}
                 onShare={() => navigateToApp('export')}
+                onSaveProfile={async (p) => {
+                  await updateUserProfile(p.name, p.upiId);
+                  setSuccessToast(`Profile name updated to "${p.name}" across all records!`);
+                }}
+                onClearAllData={async () => {
+                  await clearAllData();
+                  setSuccessToast('All data cleared. SplitSmart is now 100% fresh!');
+                }}
+                onLoadDemoData={async () => {
+                  await resetCleanDemoData();
+                  setSuccessToast('Sample demo trip loaded!');
+                }}
               />
             )}
             {activeTab === 'split-studio' && (

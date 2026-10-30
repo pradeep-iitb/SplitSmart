@@ -2,6 +2,7 @@ import { db, SplitSmartDatabase } from './database';
 import type { Expense, Group, ID, Member, RecordedSettlement } from '../types/domain';
 import type { RecurringExpenseTemplate } from '../features/split/types';
 import { materializeDueRecurringExpenses } from '../features/split/recurring';
+import { getUserProfileName, getUserProfileUpi } from '../utils/userProfile';
 import mixedPayersFixture from '../test/fixtures/expenses-mixed-payers.json';
 import partialSettlementsFixture from '../test/fixtures/settlements-partial.json';
 
@@ -220,22 +221,38 @@ export async function ensureCurrentUserMember(
     members.find((member) => member.active) ??
     members[0];
 
+  const profileName = getUserProfileName();
+  const profileUpi = getUserProfileUpi();
+  const defaultName = profileName || 'Me';
+
   if (!current) {
-    const created = await addMember(groupId, 'Me', undefined, customDb);
+    const created = await addMember(
+      groupId,
+      defaultName,
+      { upiId: profileUpi || undefined },
+      customDb
+    );
     await customDb.members.update(created.id, { isCurrentUser: true });
     return { ...created, isCurrentUser: true };
   }
 
+  const shouldUpdateNameToProfile = Boolean(profileName && /^(me|you)$/i.test(current.name.trim()));
+  const newName = shouldUpdateNameToProfile ? profileName : current.name;
+  const newUpi = !current.upiId && profileUpi ? profileUpi : current.upiId;
+
   await customDb.transaction('rw', customDb.members, async () => {
     for (const member of members) {
-      if (member.id === current.id && (!member.isCurrentUser || !member.active)) {
-        await customDb.members.update(member.id, { isCurrentUser: true, active: true });
+      if (member.id === current.id) {
+        const patch: Partial<Member> = { isCurrentUser: true, active: true };
+        if (shouldUpdateNameToProfile) patch.name = newName;
+        if (newUpi && newUpi !== member.upiId) patch.upiId = newUpi;
+        await customDb.members.update(member.id, patch);
       } else if (member.id !== current.id && member.isCurrentUser) {
         await customDb.members.update(member.id, { isCurrentUser: false });
       }
     }
   });
-  return { ...current, isCurrentUser: true, active: true };
+  return { ...current, name: newName, upiId: newUpi, isCurrentUser: true, active: true };
 }
 
 export async function setCurrentUserMember(

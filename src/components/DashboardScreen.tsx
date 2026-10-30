@@ -107,38 +107,76 @@ export function DashboardScreen({
         <button onClick={onCreateGroup}>New group ＋</button>
       </div>
       <div className="ss-dashboard-groups">
-        {groups.map((group, index) => {
-          const summary = groupSummaries.find((entry) => entry.group.id === group.id);
-          const groupMembers = summary?.members ?? (group.id === activeGroupId ? members : []);
-          return (
-            <button key={group.id} onClick={() => onOpenGroup(group.id)}>
-              <div className="ss-dashboard-group-head">
-                <span className={`tone-${index % 4}`}>{group.name.slice(0, 2).toUpperCase()}</span>
-                <strong>{group.name}</strong>
-                <b>›</b>
-              </div>
-              <div className="ss-dashboard-avatars">
-                {groupMembers.slice(0, 4).map((member, memberIndex) => (
-                  <span className={`tone-${memberIndex % 4}`} key={member.id}>
-                    {member.name.slice(0, 2).toUpperCase()}
-                  </span>
-                ))}
-                <small>{groupMembers.length} members</small>
-              </div>
-              <div className="ss-dashboard-group-foot">
-                <span>Your expense share</span>
-                <strong>{formatPaise(summary?.myExpenseSharePaise ?? 0)}</strong>
-              </div>
-              <small className="ss-dashboard-group-status">
-                {summary?.balancePaise
-                  ? summary.balancePaise > 0
-                    ? `Group owes you: +${formatPaise(summary.balancePaise)}`
-                    : `You owe group: -${formatPaise(-summary.balancePaise)}`
-                  : 'All settled up (₹0.00)'}
-              </small>
+        {groups.length === 0 ? (
+          <div
+            style={{
+              gridColumn: '1 / -1',
+              padding: '36px 20px',
+              textAlign: 'center',
+              background: '#181c18',
+              borderRadius: '16px',
+              border: '1px dashed #30372f',
+            }}
+          >
+            <h3 style={{ margin: '0 0 6px 0', fontSize: '17px', color: '#f5f5f0' }}>
+              No groups yet
+            </h3>
+            <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#a7ada5' }}>
+              SplitSmart is ready and clean. Create your first group to start splitting bills!
+            </p>
+            <button
+              type="button"
+              onClick={onCreateGroup}
+              style={{
+                padding: '10px 20px',
+                background: '#d9ff66',
+                color: '#10120f',
+                fontWeight: 700,
+                fontSize: '13px',
+                borderRadius: '10px',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              Create first group ＋
             </button>
-          );
-        })}
+          </div>
+        ) : (
+          groups.map((group, index) => {
+            const summary = groupSummaries.find((entry) => entry.group.id === group.id);
+            const groupMembers = summary?.members ?? (group.id === activeGroupId ? members : []);
+            return (
+              <button key={group.id} onClick={() => onOpenGroup(group.id)}>
+                <div className="ss-dashboard-group-head">
+                  <span className={`tone-${index % 4}`}>
+                    {group.name.slice(0, 2).toUpperCase()}
+                  </span>
+                  <strong>{group.name}</strong>
+                  <b>›</b>
+                </div>
+                <div className="ss-dashboard-avatars">
+                  {groupMembers.slice(0, 4).map((member, memberIndex) => (
+                    <span className={`tone-${memberIndex % 4}`} key={member.id}>
+                      {member.name.slice(0, 2).toUpperCase()}
+                    </span>
+                  ))}
+                  <small>{groupMembers.length} members</small>
+                </div>
+                <div className="ss-dashboard-group-foot">
+                  <span>Your expense share</span>
+                  <strong>{formatPaise(summary?.myExpenseSharePaise ?? 0)}</strong>
+                </div>
+                <small className="ss-dashboard-group-status">
+                  {summary?.balancePaise
+                    ? summary.balancePaise > 0
+                      ? `Group owes you: +${formatPaise(summary.balancePaise)}`
+                      : `You owe group: -${formatPaise(-summary.balancePaise)}`
+                    : 'All settled up (₹0.00)'}
+                </small>
+              </button>
+            );
+          })
+        )}
       </div>
       <section className="ss-dashboard-activity">
         <div className="ss-dashboard-row">

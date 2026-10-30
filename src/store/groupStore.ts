@@ -4,6 +4,8 @@ import type { RecurringExpenseTemplate } from '../features/split/types';
 import * as repo from '../db/repository';
 import { todayLocalISO } from '../features/split/recurring';
 import { exportGroupJson, importGroupJson } from '../features/sharing/sharingService';
+import { saveUserProfile, syncUserProfileAcrossGroups } from '../utils/userProfile';
+import { db } from '../db/database';
 
 interface GroupStoreState {
   groups: Group[];
@@ -44,6 +46,8 @@ interface GroupStoreState {
   exportJson: () => Promise<string>;
   importJson: (jsonString: string) => Promise<string>;
   resetCleanDemoData: () => Promise<void>;
+  updateUserProfile: (name: string, upiId?: string) => Promise<void>;
+  clearAllData: () => Promise<void>;
 }
 
 export const useGroupStore = create<GroupStoreState>((set, get) => ({
@@ -60,11 +64,21 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
   init: async () => {
     try {
       set({ isLoading: true, error: null });
-      await repo.seedInitialDataIfEmpty();
+      // Fresh start: do not automatically seed mock data
+      // await repo.seedInitialDataIfEmpty();
 
       const allGroups = await repo.listGroups();
       if (allGroups.length === 0) {
-        set({ groups: [], activeGroupId: null, activeGroup: null, isLoading: false });
+        set({
+          groups: [],
+          activeGroupId: null,
+          activeGroup: null,
+          members: [],
+          expenses: [],
+          settlements: [],
+          recurringTemplates: [],
+          isLoading: false,
+        });
         return;
       }
 
@@ -329,5 +343,47 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
     set({ groups: allGroups });
     await get().switchGroup(importedId);
     return importedId;
+  },
+
+  updateUserProfile: async (name: string, upiId?: string) => {
+    saveUserProfile({ name, upiId });
+    await syncUserProfileAcrossGroups(name, upiId);
+    const activeId = get().activeGroupId;
+    if (activeId) {
+      const members = await repo.listMembers(activeId);
+      set({ members });
+    }
+  },
+
+  clearAllData: async () => {
+    try {
+      set({ isLoading: true, error: null });
+      await db.transaction(
+        'rw',
+        [db.groups, db.members, db.expenses, db.settlements, db.recurringTemplates],
+        async () => {
+          await db.groups.clear();
+          await db.members.clear();
+          await db.expenses.clear();
+          await db.settlements.clear();
+          await db.recurringTemplates.clear();
+        }
+      );
+      set({
+        groups: [],
+        activeGroupId: null,
+        activeGroup: null,
+        members: [],
+        expenses: [],
+        settlements: [],
+        recurringTemplates: [],
+        isLoading: false,
+      });
+    } catch (err: unknown) {
+      set({
+        error: err instanceof Error ? err.message : 'Failed to clear database.',
+        isLoading: false,
+      });
+    }
   },
 }));

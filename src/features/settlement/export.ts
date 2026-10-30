@@ -7,6 +7,7 @@ import type {
   SuggestedPayment,
 } from '../../types/domain';
 import { formatPaise, paiseToRupees } from './balances';
+import { getUserProfileName } from '../../utils/userProfile';
 
 /**
  * Escapes a CSV cell value according to RFC 4180.
@@ -25,8 +26,16 @@ function escapeCsvCell(value: string | number | null | undefined): string {
  * PS Point 20: Export to CSV
  * Exports all group expenses with detailed itemized and share breakdowns.
  */
+function resolveDisplayName(member: Member, profileName: string): string {
+  if (member.isCurrentUser && profileName && /^(me|you)$/i.test(member.name.trim())) {
+    return profileName;
+  }
+  return member.name;
+}
+
 export function exportExpensesToCsv(expenses: Expense[], members: Member[]): string {
-  const memberNameMap = new Map(members.map((m) => [m.id, m.name]));
+  const profileName = getUserProfileName();
+  const memberNameMap = new Map(members.map((m) => [m.id, resolveDisplayName(m, profileName)]));
 
   const headers = [
     'Expense ID',
@@ -75,7 +84,8 @@ export function exportSettlementsToCsv(
   recorded: RecordedSettlement[],
   members: Member[]
 ): string {
-  const memberNameMap = new Map(members.map((m) => [m.id, m.name]));
+  const profileName = getUserProfileName();
+  const memberNameMap = new Map(members.map((m) => [m.id, resolveDisplayName(m, profileName)]));
   const memberUpiMap = new Map(members.map((m) => [m.id, m.upiId || '']));
 
   const lines: string[] = [];
@@ -144,7 +154,8 @@ export function exportGroupSummaryText(
   balances: MemberBalance[],
   suggestions: SuggestedPayment[]
 ): string {
-  const memberNameMap = new Map(members.map((m) => [m.id, m.name]));
+  const profileName = getUserProfileName();
+  const memberNameMap = new Map(members.map((m) => [m.id, resolveDisplayName(m, profileName)]));
   const memberUpiMap = new Map(members.map((m) => [m.id, m.upiId || '']));
 
   const totalSpent = expenses.reduce((s, e) => s + e.amountPaise, 0);
