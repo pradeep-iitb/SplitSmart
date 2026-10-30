@@ -1,9 +1,7 @@
-import React, { useState, useMemo, useEffect } from 'react';
+/* eslint-disable react-hooks/set-state-in-effect */
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import type { Expense, Member, ReceiptItem, SplitMode } from '../../../types/domain';
-import {
-  calculateDetailedItemizedSplit,
-  calculateExpenseShares,
-} from '../splitEngine';
+import { calculateDetailedItemizedSplit, calculateExpenseShares } from '../splitEngine';
 import { validateSplitInput } from '../validation';
 import { formatPaise } from '../../settlement/balances';
 import { MemberAvatar } from '../../groups/components/MemberAvatar';
@@ -46,28 +44,19 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
   onClearDraft,
 }) => {
   const [description, setDescription] = useState(initialDraft?.description || '');
-  const [totalRupees, setTotalRupees] = useState<string>(initialTotalRupees.toString());
-  const [payerId, setPayerId] = useState<string>(members[0]?.id || '');
-  const [splitMode, setSplitMode] = useState<SplitMode>('equal');
-  const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(
-    members.map((m) => m.id)
+  const [totalRupees, setTotalRupees] = useState<string>(
+    initialDraft?.totalRupees || initialTotalRupees.toString()
   );
-
-  // Load draft from receipt scanner if present
-  useEffect(() => {
-    if (initialDraft) {
-      if (initialDraft.description) setDescription(initialDraft.description);
-      if (initialDraft.totalRupees) setTotalRupees(initialDraft.totalRupees);
-      if (initialDraft.payerId) setPayerId(initialDraft.payerId);
-      if (initialDraft.items && initialDraft.items.length > 0) {
-        setItems(initialDraft.items);
-        setSplitMode('itemized');
-      }
-      if (initialDraft.taxLines) setTaxLines(initialDraft.taxLines);
-      if (initialDraft.serviceChargeRupees) setServiceChargeRupees(initialDraft.serviceChargeRupees);
-      if (initialDraft.discountRupees) setDiscountRupees(initialDraft.discountRupees);
-    }
-  }, [initialDraft]);
+  const [payerId, setPayerId] = useState<string>(
+    initialDraft?.payerId ||
+      members.find((member) => member.isCurrentUser)?.id ||
+      members[0]?.id ||
+      ''
+  );
+  const [splitMode, setSplitMode] = useState<SplitMode>(
+    initialDraft?.items?.length ? 'itemized' : 'equal'
+  );
+  const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(members.map((m) => m.id));
 
   // Exact mode state
   const [exactAmountsRupees, setExactAmountsRupees] = useState<Record<string, string>>({});
@@ -94,33 +83,62 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
   });
 
   // Itemized mode state
-  const [items, setItems] = useState<ReceiptItem[]>([
-    {
-      id: 'item-1',
-      name: 'Paneer Butter Masala',
-      quantity: 2,
-      unitPricePaise: 28000,
-      lineTotalPaise: 56000,
-      assignedMemberIds: members.map((m) => m.id),
-      category: 'Food',
-    },
-    {
-      id: 'item-2',
-      name: 'Garlic Naan & Roti',
-      quantity: 4,
-      unitPricePaise: 6000,
-      lineTotalPaise: 24000,
-      assignedMemberIds: members.map((m) => m.id),
-      category: 'Food',
-    },
-  ]);
+  const [items, setItems] = useState<ReceiptItem[]>(() => {
+    if (initialDraft?.items && initialDraft.items.length > 0) return initialDraft.items;
+    return [
+      {
+        id: 'item-1',
+        name: 'Paneer Butter Masala',
+        quantity: 2,
+        unitPricePaise: 28000,
+        lineTotalPaise: 56000,
+        assignedMemberIds: members.map((m) => m.id),
+        category: 'Food',
+      },
+      {
+        id: 'item-2',
+        name: 'Garlic Naan & Roti',
+        quantity: 4,
+        unitPricePaise: 6000,
+        lineTotalPaise: 24000,
+        assignedMemberIds: members.map((m) => m.id),
+        category: 'Food',
+      },
+    ];
+  });
 
-  const [taxLines, setTaxLines] = useState<Array<{ label: string; amountPaise: number }>>([
-    { label: 'CGST 2.5%', amountPaise: 2000 },
-    { label: 'SGST 2.5%', amountPaise: 2000 },
-  ]);
-  const [serviceChargeRupees, setServiceChargeRupees] = useState<string>('0');
-  const [discountRupees, setDiscountRupees] = useState<string>('0');
+  const [taxLines, setTaxLines] = useState<Array<{ label: string; amountPaise: number }>>(() => {
+    if (initialDraft?.taxLines) return initialDraft.taxLines;
+    return [
+      { label: 'CGST 2.5%', amountPaise: 2000 },
+      { label: 'SGST 2.5%', amountPaise: 2000 },
+    ];
+  });
+  const [serviceChargeRupees, setServiceChargeRupees] = useState<string>(
+    () => initialDraft?.serviceChargeRupees || '0'
+  );
+  const [discountRupees, setDiscountRupees] = useState<string>(
+    () => initialDraft?.discountRupees || '0'
+  );
+
+  // Load draft from receipt scanner if present on mount/prop change
+  const lastDraftRef = useRef(initialDraft);
+  useEffect(() => {
+    if (initialDraft && initialDraft !== lastDraftRef.current) {
+      lastDraftRef.current = initialDraft;
+      if (initialDraft.description) setDescription(initialDraft.description);
+      if (initialDraft.totalRupees) setTotalRupees(initialDraft.totalRupees);
+      if (initialDraft.payerId) setPayerId(initialDraft.payerId);
+      if (initialDraft.items && initialDraft.items.length > 0) {
+        setItems(initialDraft.items);
+        setSplitMode('itemized');
+      }
+      if (initialDraft.taxLines) setTaxLines(initialDraft.taxLines);
+      if (initialDraft.serviceChargeRupees)
+        setServiceChargeRupees(initialDraft.serviceChargeRupees);
+      if (initialDraft.discountRupees) setDiscountRupees(initialDraft.discountRupees);
+    }
+  }, [initialDraft]);
 
   const parsedRupees = parseFloat(totalRupees) || 0;
   const totalPaise = Math.round(parsedRupees * 100);
@@ -262,9 +280,7 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
           {!invariantSatisfied && (
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold bg-rose-500/10 text-rose-400 border-rose-500/30">
               <AlertTriangle className="w-4 h-4" />
-              <span>
-                Discrepancy: {formatPaise(Math.abs(totalPaise - sumSharesPaise))}
-              </span>
+              <span>Discrepancy: {formatPaise(Math.abs(totalPaise - sumSharesPaise))}</span>
             </div>
           )}
         </div>
@@ -322,11 +338,36 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
             {[
-              { id: 'equal', label: 'Equal', icon: Divide, desc: 'Even split with odd-paisa tie break' },
-              { id: 'exact', label: 'Exact Amounts', icon: Coins, desc: 'Custom ₹ amounts per person' },
-              { id: 'percentage', label: 'Percentages', icon: Percent, desc: 'Basis-point exact allocations' },
-              { id: 'shares', label: 'Shares / Ratio', icon: Scale, desc: 'Ratios like 2:1:1 or 3:2' },
-              { id: 'itemized', label: 'Itemized Receipt', icon: ListOrdered, desc: 'Line items + proportional tax' },
+              {
+                id: 'equal',
+                label: 'Equal',
+                icon: Divide,
+                desc: 'Even split with odd-paisa tie break',
+              },
+              {
+                id: 'exact',
+                label: 'Exact Amounts',
+                icon: Coins,
+                desc: 'Custom ₹ amounts per person',
+              },
+              {
+                id: 'percentage',
+                label: 'Percentages',
+                icon: Percent,
+                desc: 'Basis-point exact allocations',
+              },
+              {
+                id: 'shares',
+                label: 'Shares / Ratio',
+                icon: Scale,
+                desc: 'Ratios like 2:1:1 or 3:2',
+              },
+              {
+                id: 'itemized',
+                label: 'Itemized Receipt',
+                icon: ListOrdered,
+                desc: 'Line items + proportional tax',
+              },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = splitMode === tab.id;
@@ -483,7 +524,10 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
               const m = members.find((x) => x.id === id);
               const weight = sharesWeights[id] ?? 1;
               return (
-                <div key={id} className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 text-center">
+                <div
+                  key={id}
+                  className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 text-center"
+                >
                   <div className="text-xs font-medium text-slate-300 mb-2 truncate">
                     {m?.name || id}
                   </div>
@@ -499,9 +543,7 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
                     >
                       -
                     </button>
-                    <span className="text-base font-bold text-purple-400 w-6">
-                      {weight}x
-                    </span>
+                    <span className="text-base font-bold text-purple-400 w-6">{weight}x</span>
                     <button
                       onClick={() =>
                         setSharesWeights({
@@ -563,7 +605,9 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
                       value={item.name}
                       onChange={(e) => {
                         const newName = e.target.value;
-                        setItems(items.map((it) => (it.id === item.id ? { ...it, name: newName } : it)));
+                        setItems(
+                          items.map((it) => (it.id === item.id ? { ...it, name: newName } : it))
+                        );
                       }}
                       className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-100 flex-1"
                     />
@@ -744,9 +788,7 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
           </h3>
           <span className="text-xs text-slate-400">
             Total:{' '}
-            <strong className="text-slate-100 font-bold">
-              {formatPaise(sumSharesPaise)}
-            </strong>
+            <strong className="text-slate-100 font-bold">{formatPaise(sumSharesPaise)}</strong>
           </span>
         </div>
 
@@ -770,18 +812,14 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <MemberAvatar member={m} size="sm" />
-                    <span className="text-xs font-bold text-slate-200">
-                      {m?.name || memberId}
-                    </span>
+                    <span className="text-xs font-bold text-slate-200">{m?.name || memberId}</span>
                   </div>
                   <span className="text-[10px] text-slate-400 font-medium">
                     {percentage.toFixed(1)}%
                   </span>
                 </div>
 
-                <div className="text-lg font-black text-emerald-400">
-                  {formatPaise(amt)}
-                </div>
+                <div className="text-lg font-black text-emerald-400">{formatPaise(amt)}</div>
 
                 {itemizedBreakdown && (
                   <div className="text-[10px] text-slate-400 space-y-0.5 pt-1 border-t border-slate-700/50">

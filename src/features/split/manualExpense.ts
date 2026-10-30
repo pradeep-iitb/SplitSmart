@@ -12,10 +12,7 @@ import { validateManualExpense } from './validation';
  * 3. Rounding reconciled to 1 paisa
  * 4. Safe crypto ID and ISO 8601 timestamps
  */
-export function createManualExpense(
-  draft: ManualExpenseDraft,
-  groupMemberIds: ID[]
-): Expense {
+export function createManualExpense(draft: ManualExpenseDraft, groupMemberIds: ID[]): Expense {
   const issues = validateManualExpense(draft, groupMemberIds);
   const errors = issues.filter((i) => i.severity === 'error');
 

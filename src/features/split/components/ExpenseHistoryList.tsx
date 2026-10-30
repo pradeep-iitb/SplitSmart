@@ -46,7 +46,9 @@ export const ExpenseHistoryList: React.FC<ExpenseHistoryListProps> = ({
       const descMatch = exp.description.toLowerCase().includes(searchTerm.toLowerCase());
       const payerName = memberMap.get(exp.payerId)?.name.toLowerCase() || '';
       const payerMatch = payerName.includes(searchTerm.toLowerCase());
-      const itemMatch = exp.items?.some((i) => i.name.toLowerCase().includes(searchTerm.toLowerCase()));
+      const itemMatch = exp.items?.some((i) =>
+        i.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
       return descMatch || payerMatch || itemMatch;
     });
   }, [expenses, searchTerm, memberMap]);
@@ -61,12 +63,18 @@ export const ExpenseHistoryList: React.FC<ExpenseHistoryListProps> = ({
 
   const getCategoryIcon = (category?: string) => {
     switch (category) {
-      case 'Food': return Utensils;
-      case 'Groceries': return ShoppingCart;
-      case 'Travel': return Plane;
-      case 'Utilities': return Zap;
-      case 'Entertainment': return Film;
-      default: return Tag;
+      case 'Food':
+        return Utensils;
+      case 'Groceries':
+        return ShoppingCart;
+      case 'Travel':
+        return Plane;
+      case 'Utilities':
+        return Zap;
+      case 'Entertainment':
+        return Film;
+      default:
+        return Tag;
     }
   };
 
@@ -88,7 +96,9 @@ export const ExpenseHistoryList: React.FC<ExpenseHistoryListProps> = ({
           </div>
           <p className="text-xs sm:text-sm text-slate-300 mt-1 font-body">
             Total recorded spend across all group members:{' '}
-            <span className="font-black text-white font-mono-numbers text-base">{formatPaise(totalGroupSpendPaise)}</span>
+            <span className="font-black text-white font-mono-numbers text-base">
+              {formatPaise(totalGroupSpendPaise)}
+            </span>
           </p>
         </div>
 
@@ -229,7 +239,11 @@ export const ExpenseHistoryList: React.FC<ExpenseHistoryListProps> = ({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (window.confirm(`Delete expense "${exp.description}"? Balances will be recalculated.`)) {
+                          if (
+                            window.confirm(
+                              `Delete expense "${exp.description}"? Balances will be recalculated.`
+                            )
+                          ) {
                             onDeleteExpense(exp.id);
                           }
                         }}
@@ -240,7 +254,11 @@ export const ExpenseHistoryList: React.FC<ExpenseHistoryListProps> = ({
                       </button>
 
                       <span className="p-1 text-slate-400">
-                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        {isExpanded ? (
+                          <ChevronUp className="w-4 h-4" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
                       </span>
                     </div>
                   </div>
@@ -258,7 +276,10 @@ export const ExpenseHistoryList: React.FC<ExpenseHistoryListProps> = ({
                         </div>
                         <div className="border border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-800/80 bg-slate-900/60">
                           {exp.items.map((it) => (
-                            <div key={it.id} className="p-2.5 sm:px-3.5 flex items-center justify-between text-xs sm:text-sm">
+                            <div
+                              key={it.id}
+                              className="p-2.5 sm:px-3.5 flex items-center justify-between text-xs sm:text-sm"
+                            >
                               <div className="flex-1 min-w-0 pr-3">
                                 <div className="font-medium text-slate-200 truncate">{it.name}</div>
                                 <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
@@ -281,24 +302,32 @@ export const ExpenseHistoryList: React.FC<ExpenseHistoryListProps> = ({
                         </div>
 
                         {/* Charges breakdown if any */}
-                        {((exp.taxLines && exp.taxLines.length > 0) || exp.serviceChargePaise > 0 || exp.discountPaise > 0) && (
+                        {((exp.taxLines && exp.taxLines.length > 0) ||
+                          exp.serviceChargePaise > 0 ||
+                          exp.discountPaise > 0) && (
                           <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-3 space-y-1.5 text-xs text-slate-400">
                             {exp.taxLines?.map((t, idx) => (
                               <div key={idx} className="flex justify-between">
                                 <span>{t.label}:</span>
-                                <span className="text-slate-200 font-medium">+{formatPaise(t.amountPaise)}</span>
+                                <span className="text-slate-200 font-medium">
+                                  +{formatPaise(t.amountPaise)}
+                                </span>
                               </div>
                             ))}
                             {exp.serviceChargePaise > 0 && (
                               <div className="flex justify-between">
                                 <span>Service Charge:</span>
-                                <span className="text-slate-200 font-medium">+{formatPaise(exp.serviceChargePaise)}</span>
+                                <span className="text-slate-200 font-medium">
+                                  +{formatPaise(exp.serviceChargePaise)}
+                                </span>
                               </div>
                             )}
                             {exp.discountPaise > 0 && (
                               <div className="flex justify-between text-emerald-400">
                                 <span>Discount:</span>
-                                <span className="font-medium">-{formatPaise(exp.discountPaise)}</span>
+                                <span className="font-medium">
+                                  -{formatPaise(exp.discountPaise)}
+                                </span>
                               </div>
                             )}
                           </div>

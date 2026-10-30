@@ -1,8 +1,5 @@
 import type { ID, Paise } from '../../types/domain';
-import type {
-  RoundingAuditEntry,
-  RoundingReconciliationResult,
-} from './types';
+import type { RoundingAuditEntry, RoundingReconciliationResult } from './types';
 
 /**
  * Reconciles rounding using the Largest Remainder (Hamilton-Hare) Method
@@ -49,9 +46,7 @@ export function reconcileRoundingDetailed(
   }
 
   if (stableIds.length !== n) {
-    throw new Error(
-      `stableIds length (${stableIds.length}) must match rawWeights length (${n})`
-    );
+    throw new Error(`stableIds length (${stableIds.length}) must match rawWeights length (${n})`);
   }
 
   // Ensure totalPaise is an integer
@@ -207,10 +202,7 @@ export function reconcileRoundingDetailed(
  * Distribute an amount equally among participants, with odd paise allocated
  * deterministically by ascending stable member ID.
  */
-export function distributeEvenly(
-  totalPaise: Paise,
-  participantIds: ID[]
-): Record<ID, Paise> {
+export function distributeEvenly(totalPaise: Paise, participantIds: ID[]): Record<ID, Paise> {
   const weights = new Array(participantIds.length).fill(1);
   const allocations = reconcileRounding(weights, totalPaise, participantIds);
 

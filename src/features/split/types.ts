@@ -136,9 +136,9 @@ export interface RecurringExpenseTemplate {
   };
   frequency: RecurrenceFrequency;
   startDate: ISODate; // YYYY-MM-DD
-  endDate?: ISODate;   // optional end date
+  endDate?: ISODate; // optional end date
   dayOfMonth?: number; // 1-31 for monthly
-  dayOfWeek?: number;  // 0-6 for weekly (0 = Sunday)
+  dayOfWeek?: number; // 0-6 for weekly (0 = Sunday)
   active: boolean;
   lastMaterializedDate?: ISODate;
   createdAt: ISODateTime;

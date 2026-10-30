@@ -1,20 +1,9 @@
 import React, { useState } from 'react';
 import type { Expense, Member } from '../../../types/domain';
-import {
-  formatRecurrenceLabel,
-  materializeDueRecurringExpenses,
-} from '../recurring';
+import { formatRecurrenceLabel, materializeDueRecurringExpenses } from '../recurring';
 import type { RecurringExpenseTemplate, RecurrenceFrequency } from '../types';
 import { formatPaise } from '../../settlement/balances';
-import {
-  Repeat,
-  Calendar,
-  CheckCircle2,
-  Plus,
-  Play,
-  Clock,
-  Trash2,
-} from 'lucide-react';
+import { Repeat, Calendar, CheckCircle2, Plus, Play, Clock, Trash2 } from 'lucide-react';
 
 interface RecurringExpenseManagerProps {
   members: Member[];
@@ -23,7 +12,10 @@ interface RecurringExpenseManagerProps {
   templates: RecurringExpenseTemplate[];
   onSaveTemplate: (template: RecurringExpenseTemplate) => Promise<void>;
   onDeleteTemplate: (templateId: string) => Promise<void>;
-  onMaterializeExpenses: (newExpenses: Expense[], updatedTemplates: RecurringExpenseTemplate[]) => Promise<void>;
+  onMaterializeExpenses: (
+    newExpenses: Expense[],
+    updatedTemplates: RecurringExpenseTemplate[]
+  ) => Promise<void>;
 }
 
 export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = ({
@@ -50,7 +42,9 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
   const [showNewForm, setShowNewForm] = useState(false);
   const [newDesc, setNewDesc] = useState('');
   const [newRupees, setNewRupees] = useState('500');
-  const [newPayerId, setNewPayerId] = useState(members[0]?.id || '');
+  const [newPayerId, setNewPayerId] = useState(
+    members.find((member) => member.isCurrentUser)?.id || members[0]?.id || ''
+  );
   const [newFrequency, setNewFrequency] = useState<RecurrenceFrequency>('monthly');
   const [newDayOfMonth, setNewDayOfMonth] = useState<number>(1);
 
@@ -93,7 +87,8 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
       description: newDesc,
       category: 'Utilities',
       amountPaise: Math.round(rupees * 100),
-      payerId: newPayerId || members[0]?.id || '',
+      payerId:
+        newPayerId || members.find((member) => member.isCurrentUser)?.id || members[0]?.id || '',
       splitMode: 'equal',
       participantIds: members.map((m) => m.id),
       frequency: newFrequency,
@@ -129,9 +124,7 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
               <span className="p-2 rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/30">
                 <Repeat className="w-5 h-5" />
               </span>
-              <h2 className="text-xl font-bold text-slate-100">
-                Recurring Expenses
-              </h2>
+              <h2 className="text-xl font-bold text-slate-100">Recurring Expenses</h2>
             </div>
             <p className="text-xs sm:text-sm text-slate-400 mt-1">
               Automate repeating shared bills like Wi-Fi, rent, subscriptions, and utilities
@@ -219,9 +212,7 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div className="sm:col-span-2">
-              <label className="block text-xs text-slate-400 mb-1 font-medium">
-                Description
-              </label>
+              <label className="block text-xs text-slate-400 mb-1 font-medium">Description</label>
               <input
                 type="text"
                 placeholder="e.g. Netflix Subscription, Maid, Cook"
@@ -233,9 +224,7 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
             </div>
 
             <div>
-              <label className="block text-xs text-slate-400 mb-1 font-medium">
-                Amount (₹)
-              </label>
+              <label className="block text-xs text-slate-400 mb-1 font-medium">Amount (₹)</label>
               <input
                 type="number"
                 step="0.01"
@@ -249,9 +238,7 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
             </div>
 
             <div>
-              <label className="block text-xs text-slate-400 mb-1 font-medium">
-                Payer
-              </label>
+              <label className="block text-xs text-slate-400 mb-1 font-medium">Payer</label>
               <select
                 value={newPayerId}
                 onChange={(e) => setNewPayerId(e.target.value)}
@@ -268,14 +255,10 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-slate-400 mb-1 font-medium">
-                Frequency
-              </label>
+              <label className="block text-xs text-slate-400 mb-1 font-medium">Frequency</label>
               <select
                 value={newFrequency}
-                onChange={(e) =>
-                  setNewFrequency(e.target.value as RecurrenceFrequency)
-                }
+                onChange={(e) => setNewFrequency(e.target.value as RecurrenceFrequency)}
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-purple-500 cursor-pointer"
               >
                 <option value="weekly">Weekly</option>
@@ -332,9 +315,7 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
                     <span className="text-[11px] font-semibold text-purple-400 bg-purple-500/10 px-2.5 py-0.5 rounded-full border border-purple-500/20">
                       {formatRecurrenceLabel(tpl)}
                     </span>
-                    <h3 className="text-base font-bold text-slate-100 mt-2">
-                      {tpl.description}
-                    </h3>
+                    <h3 className="text-base font-bold text-slate-100 mt-2">{tpl.description}</h3>
                   </div>
 
                   <div className="text-right">
@@ -350,8 +331,7 @@ export const RecurringExpenseManager: React.FC<RecurringExpenseManagerProps> = (
                 <div className="mt-3 text-xs text-slate-400 flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-slate-500" />
                   <span>
-                    Last recorded:{' '}
-                    {tpl.lastMaterializedDate ? tpl.lastMaterializedDate : 'Never'}
+                    Last recorded: {tpl.lastMaterializedDate ? tpl.lastMaterializedDate : 'Never'}
                   </span>
                 </div>
               </div>

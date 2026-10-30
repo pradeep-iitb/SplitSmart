@@ -2,22 +2,17 @@ import React, { useState, useMemo } from 'react';
 import type { Member } from '../../../types/domain';
 import { reconcileRoundingDetailed } from '../rounding';
 import { formatPaise } from '../../settlement/balances';
-import {
-  Scale,
-  CheckCircle2,
-  Sparkles,
-  ShieldCheck,
-} from 'lucide-react';
+import { Scale, CheckCircle2, Sparkles, ShieldCheck } from 'lucide-react';
 
 interface RoundingDebuggerCardProps {
   members: Member[];
 }
 
-export const RoundingDebuggerCard: React.FC<RoundingDebuggerCardProps> = ({
-  members,
-}) => {
+export const RoundingDebuggerCard: React.FC<RoundingDebuggerCardProps> = ({ members }) => {
   // Preset scenarios
-  const [selectedPreset, setSelectedPreset] = useState<'100_3' | 'tax_600_400' | '1paisa_4' | 'custom'>('100_3');
+  const [selectedPreset, setSelectedPreset] = useState<
+    '100_3' | 'tax_600_400' | '1paisa_4' | 'custom'
+  >('100_3');
 
   const [customTotalPaise, setCustomTotalPaise] = useState<number>(10000);
   const [customWeights, setCustomWeights] = useState<Record<string, number>>(() => {
@@ -36,7 +31,8 @@ export const RoundingDebuggerCard: React.FC<RoundingDebuggerCardProps> = ({
         stableIds: activeIds,
         weights: [1, 1, 1],
         names: ['Arjun', 'Meera', 'Riya'],
-        description: 'Odd-Paisa Benchmark: ₹100 split 3 ways yields [₹33.34, ₹33.33, ₹33.33] using stable ID tie break (arjun < meera < riya).',
+        description:
+          'Odd-Paisa Benchmark: ₹100 split 3 ways yields [₹33.34, ₹33.33, ₹33.33] using stable ID tie break (arjun < meera < riya).',
       };
     }
 
@@ -47,7 +43,8 @@ export const RoundingDebuggerCard: React.FC<RoundingDebuggerCardProps> = ({
         stableIds: activeIds,
         weights: [60000, 40000], // ₹600 and ₹400 subtotals
         names: ['Arjun (Subtotal ₹600)', 'Riya (Subtotal ₹400)'],
-        description: 'Proportional Tax: ₹100 GST allocated on ₹600 and ₹400 subtotals -> yields exact ₹60 and ₹40.',
+        description:
+          'Proportional Tax: ₹100 GST allocated on ₹600 and ₹400 subtotals -> yields exact ₹60 and ₹40.',
       };
     }
 
@@ -58,7 +55,8 @@ export const RoundingDebuggerCard: React.FC<RoundingDebuggerCardProps> = ({
         stableIds: activeIds,
         weights: [1, 1, 1, 1],
         names: ['Member A', 'Member B', 'Member C', 'Member D'],
-        description: 'Micro-penny stress test: 1 paisa divided among 4 participants yields [1, 0, 0, 0] with zero money created or lost.',
+        description:
+          'Micro-penny stress test: 1 paisa divided among 4 participants yields [1, 0, 0, 0] with zero money created or lost.',
       };
     }
 
@@ -97,7 +95,8 @@ export const RoundingDebuggerCard: React.FC<RoundingDebuggerCardProps> = ({
               </h2>
             </div>
             <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              Deterministic largest fractional remainder allocation with ascending stable-ID tie-breaking
+              Deterministic largest fractional remainder allocation with ascending stable-ID
+              tie-breaking
             </p>
           </div>
 
@@ -114,16 +113,20 @@ export const RoundingDebuggerCard: React.FC<RoundingDebuggerCardProps> = ({
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
             {[
-              { id: '100_3', label: '₹100 ÷ 3 Ways', badge: 'PS Core Benchmark' },
-              { id: 'tax_600_400', label: 'Tax ₹100 on ₹600/₹400', badge: 'Proportional Tax' },
-              { id: '1paisa_4', label: '1 Paisa ÷ 4 Users', badge: 'Micro-Paisa Test' },
-              { id: 'custom', label: 'Custom Configuration', badge: 'Interactive' },
+              { id: '100_3' as const, label: '₹100 ÷ 3 Ways', badge: 'PS Core Benchmark' },
+              {
+                id: 'tax_600_400' as const,
+                label: 'Tax ₹100 on ₹600/₹400',
+                badge: 'Proportional Tax',
+              },
+              { id: '1paisa_4' as const, label: '1 Paisa ÷ 4 Users', badge: 'Micro-Paisa Test' },
+              { id: 'custom' as const, label: 'Custom Configuration', badge: 'Interactive' },
             ].map((p) => {
               const active = selectedPreset === p.id;
               return (
                 <button
                   key={p.id}
-                  onClick={() => setSelectedPreset(p.id as any)}
+                  onClick={() => setSelectedPreset(p.id)}
                   className={`p-3 rounded-xl border text-left transition-all ${
                     active
                       ? 'bg-emerald-600/20 border-emerald-500 text-emerald-300 shadow-md'
@@ -151,7 +154,9 @@ export const RoundingDebuggerCard: React.FC<RoundingDebuggerCardProps> = ({
               <input
                 type="number"
                 value={customTotalPaise}
-                onChange={(e) => setCustomTotalPaise(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                onChange={(e) =>
+                  setCustomTotalPaise(Math.max(0, parseInt(e.target.value, 10) || 0))
+                }
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-100 font-bold"
               />
             </div>
@@ -219,12 +224,14 @@ export const RoundingDebuggerCard: React.FC<RoundingDebuggerCardProps> = ({
                     </td>
                     <td className="py-3 text-slate-300">{entry.rawWeight}</td>
                     <td className="py-3 font-mono text-slate-300">
-                      {entry.baseAllocationPaise} p (₹{(entry.baseAllocationPaise / 100).toFixed(2)})
+                      {entry.baseAllocationPaise} p (₹{(entry.baseAllocationPaise / 100).toFixed(2)}
+                      )
                     </td>
                     <td className="py-3 font-mono text-slate-300">
                       {entry.fractionalRemainderNumerator > 0 ? (
                         <span>
-                          {entry.fractionalRemainderDecimal.toFixed(4)} ({entry.fractionalRemainderNumerator}/W)
+                          {entry.fractionalRemainderDecimal.toFixed(4)} (
+                          {entry.fractionalRemainderNumerator}/W)
                         </span>
                       ) : (
                         <span className="text-slate-500">0.0000</span>
@@ -256,10 +263,22 @@ export const RoundingDebuggerCard: React.FC<RoundingDebuggerCardProps> = ({
             Mathematical Verification & Deterministic Invariant Proof
           </div>
           <div className="text-slate-400 space-y-1 font-mono text-[11px]">
-            <div>1. Base floor sum: Σ floor(T × wᵢ / W) = {auditResult.totalAllocatedPaise - auditResult.remainderPaise} paise</div>
-            <div>2. Spare unallocated remainder: R = T − Σ floor = {auditResult.remainderPaise} paisa(e)</div>
-            <div>3. Remainder sorted by fractional part descending; ties broken by ascending stable string ID.</div>
-            <div>4. Final sum = {auditResult.totalAllocatedPaise} paise === Target {auditResult.targetTotalPaise} paise. Discrepancy = 0 paise.</div>
+            <div>
+              1. Base floor sum: Σ floor(T × wᵢ / W) ={' '}
+              {auditResult.totalAllocatedPaise - auditResult.remainderPaise} paise
+            </div>
+            <div>
+              2. Spare unallocated remainder: R = T − Σ floor = {auditResult.remainderPaise}{' '}
+              paisa(e)
+            </div>
+            <div>
+              3. Remainder sorted by fractional part descending; ties broken by ascending stable
+              string ID.
+            </div>
+            <div>
+              4. Final sum = {auditResult.totalAllocatedPaise} paise === Target{' '}
+              {auditResult.targetTotalPaise} paise. Discrepancy = 0 paise.
+            </div>
           </div>
         </div>
       </div>

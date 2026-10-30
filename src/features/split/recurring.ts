@@ -1,17 +1,12 @@
 import type { Expense, ID, ISODate } from '../../types/domain';
 import { calculateExpenseShares } from './splitEngine';
-import type {
-  RecurringExpenseTemplate,
-} from './types';
+import type { RecurringExpenseTemplate } from './types';
 
 /**
  * Generates a deterministic occurrence ID for an instance of a recurring expense.
  * Guarantees idempotency across page reloads and multiple materialization checks.
  */
-export function getDeterministicOccurrenceId(
-  templateId: ID,
-  occurrenceDate: ISODate
-): ID {
+export function getDeterministicOccurrenceId(templateId: ID, occurrenceDate: ISODate): ID {
   return `rec-${templateId}-${occurrenceDate}`;
 }
 
@@ -30,9 +25,7 @@ export function calculateDueOccurrenceDates(
   const targetTime = new Date(`${asOfDate}T23:59:59Z`).getTime();
 
   // Determine starting point: day after sinceDate, or template.startDate
-  let cursor = new Date(
-    sinceDate ? `${sinceDate}T00:00:00Z` : `${template.startDate}T00:00:00Z`
-  );
+  const cursor = new Date(sinceDate ? `${sinceDate}T00:00:00Z` : `${template.startDate}T00:00:00Z`);
 
   // If sinceDate was provided, advance by 1 day to not re-generate the same date
   if (sinceDate) {
@@ -70,9 +63,11 @@ export function calculateDueOccurrenceDates(
       case 'monthly': {
         const targetDayOfMonth =
           template.dayOfMonth ?? new Date(`${template.startDate}T00:00:00Z`).getUTCDate();
-        
+
         // Handle end of month (e.g., target 31 in a 30-day month)
-        const daysInCurrentMonth = new Date(Date.UTC(year, cursor.getUTCMonth() + 1, 0)).getUTCDate();
+        const daysInCurrentMonth = new Date(
+          Date.UTC(year, cursor.getUTCMonth() + 1, 0)
+        ).getUTCDate();
         const adjustedTarget = Math.min(targetDayOfMonth, daysInCurrentMonth);
         isMatch = cursor.getUTCDate() === adjustedTarget;
         break;
@@ -201,10 +196,10 @@ export function formatRecurrenceLabel(template: RecurringExpenseTemplate): strin
         day === 1 || day === 21 || day === 31
           ? 'st'
           : day === 2 || day === 22
-          ? 'nd'
-          : day === 3 || day === 23
-          ? 'rd'
-          : 'th';
+            ? 'nd'
+            : day === 3 || day === 23
+              ? 'rd'
+              : 'th';
       return `Monthly on the ${day}${suffix}`;
     }
     case 'yearly':

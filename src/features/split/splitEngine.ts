@@ -1,10 +1,6 @@
 import type { ID, MemberShare, Paise } from '../../types/domain';
 import { distributeEvenly, reconcileRounding } from './rounding';
-import type {
-  ItemizedMemberBreakdown,
-  ItemizedSplitResult,
-  SplitInput,
-} from './types';
+import type { ItemizedMemberBreakdown, ItemizedSplitResult, SplitInput } from './types';
 
 /**
  * Calculates exact member shares for an expense across all split modes:
@@ -37,11 +33,7 @@ export function calculateExpenseShares(input: SplitInput): MemberShare[] {
       return calculateEqualShares(totalPaise, participantIds);
 
     case 'exact':
-      return calculateExactShares(
-        totalPaise,
-        participantIds,
-        input.exactAmounts ?? {}
-      );
+      return calculateExactShares(totalPaise, participantIds, input.exactAmounts ?? {});
 
     case 'percentage':
       return calculatePercentageShares(
@@ -51,11 +43,7 @@ export function calculateExpenseShares(input: SplitInput): MemberShare[] {
       );
 
     case 'shares':
-      return calculateRatioShares(
-        totalPaise,
-        participantIds,
-        input.sharesWeights ?? {}
-      );
+      return calculateRatioShares(totalPaise, participantIds, input.sharesWeights ?? {});
 
     case 'itemized':
       return calculateItemizedShares(input);
@@ -68,10 +56,7 @@ export function calculateExpenseShares(input: SplitInput): MemberShare[] {
 /**
  * Equal Split: Splits total evenly, distributing odd paise by ascending stable ID.
  */
-function calculateEqualShares(
-  totalPaise: Paise,
-  participantIds: ID[]
-): MemberShare[] {
+function calculateEqualShares(totalPaise: Paise, participantIds: ID[]): MemberShare[] {
   const weights = new Array(participantIds.length).fill(1);
   const allocations = reconcileRounding(weights, totalPaise, participantIds);
 
@@ -90,9 +75,7 @@ function calculateExactShares(
   participantIds: ID[],
   exactAmounts: Record<ID, Paise>
 ): MemberShare[] {
-  const rawAmounts = participantIds.map((id) =>
-    Math.max(0, Math.round(exactAmounts[id] ?? 0))
-  );
+  const rawAmounts = participantIds.map((id) => Math.max(0, Math.round(exactAmounts[id] ?? 0)));
   const currentSum = rawAmounts.reduce((a, b) => a + b, 0);
 
   if (currentSum === totalPaise) {
@@ -122,9 +105,7 @@ function calculatePercentageShares(
   participantIds: ID[],
   basisPointsMap: Record<ID, number>
 ): MemberShare[] {
-  const weights = participantIds.map((id) =>
-    Math.max(0, basisPointsMap[id] ?? 0)
-  );
+  const weights = participantIds.map((id) => Math.max(0, basisPointsMap[id] ?? 0));
   const allocations = reconcileRounding(weights, totalPaise, participantIds);
 
   return participantIds.map((memberId, idx) => ({
@@ -166,9 +147,7 @@ export function calculateItemizedShares(input: SplitInput): MemberShare[] {
  * Detailed Itemized Split Calculator:
  * Returns full breakdown per member for item subtotals, taxes, service charges, and discounts.
  */
-export function calculateDetailedItemizedSplit(
-  input: SplitInput
-): ItemizedSplitResult {
+export function calculateDetailedItemizedSplit(input: SplitInput): ItemizedSplitResult {
   const {
     participantIds,
     items = [],
@@ -188,13 +167,10 @@ export function calculateDetailedItemizedSplit(
 
   // 1. Process line items
   for (const item of items) {
-    const assignees = item.assignedMemberIds.filter((id) =>
-      participantIds.includes(id)
-    );
+    const assignees = item.assignedMemberIds.filter((id) => participantIds.includes(id));
 
     // If an item has no valid assignees among participants, treat it as shared by all participants
-    const activeAssignees =
-      assignees.length > 0 ? assignees : [...participantIds];
+    const activeAssignees = assignees.length > 0 ? assignees : [...participantIds];
 
     const itemTotal = Math.round(item.lineTotalPaise);
     const itemSplit = distributeEvenly(itemTotal, activeAssignees);
@@ -208,16 +184,11 @@ export function calculateDetailedItemizedSplit(
     }
   }
 
-  const rawSubtotals = participantIds.map(
-    (id) => memberItemSubtotalMap.get(id) ?? 0
-  );
+  const rawSubtotals = participantIds.map((id) => memberItemSubtotalMap.get(id) ?? 0);
   const sumSubtotals = rawSubtotals.reduce((a, b) => a + b, 0);
 
   // 2. Proportional Tax Lines
-  const totalTaxPaise = taxLines.reduce(
-    (acc, t) => acc + Math.round(t.amountPaise),
-    0
-  );
+  const totalTaxPaise = taxLines.reduce((acc, t) => acc + Math.round(t.amountPaise), 0);
 
   // Weights for proportional distribution: member subtotals
   // If sumSubtotals === 0, distribute equally
@@ -233,11 +204,7 @@ export function calculateDetailedItemizedSplit(
   const cleanServiceCharge = Math.max(0, Math.round(serviceChargePaise));
   const serviceChargeAllocations =
     cleanServiceCharge > 0
-      ? reconcileRounding(
-          proportionalWeights,
-          cleanServiceCharge,
-          participantIds
-        )
+      ? reconcileRounding(proportionalWeights, cleanServiceCharge, participantIds)
       : new Array(participantIds.length).fill(0);
 
   // 4. Proportional Discount
@@ -278,12 +245,9 @@ export function calculateDetailedItemizedSplit(
   }
 
   // 6. Verify and reconcile with authoritative totalPaise
-  const calculatedGrandTotal =
-    sumSubtotals + totalTaxPaise + cleanServiceCharge - cleanDiscount;
+  const calculatedGrandTotal = sumSubtotals + totalTaxPaise + cleanServiceCharge - cleanDiscount;
   const targetTotal =
-    typeof totalPaise === 'number' && totalPaise > 0
-      ? totalPaise
-      : calculatedGrandTotal;
+    typeof totalPaise === 'number' && totalPaise > 0 ? totalPaise : calculatedGrandTotal;
 
   let finalMemberShares = computedShares;
 
@@ -291,9 +255,7 @@ export function calculateDetailedItemizedSplit(
   if (calculatedGrandTotal !== targetTotal) {
     const weights = computedShares.map((s) => Math.max(0, s.amountPaise));
     const finalAllocations = reconcileRounding(
-      weights.some((w) => w > 0)
-        ? weights
-        : new Array(participantIds.length).fill(1),
+      weights.some((w) => w > 0) ? weights : new Array(participantIds.length).fill(1),
       targetTotal,
       participantIds
     );

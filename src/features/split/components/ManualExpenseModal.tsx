@@ -23,9 +23,10 @@ import {
 interface ManualExpenseModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSwitchToScan?: () => void;
   members: Member[];
   groupId: string;
-  onSaveExpense: (expense: Expense) => void;
+  onSaveExpense: (expense: Expense) => void | Promise<void>;
 }
 
 const CATEGORIES: Array<{ key: Category; label: string; icon: React.ElementType }> = [
@@ -40,6 +41,7 @@ const CATEGORIES: Array<{ key: Category; label: string; icon: React.ElementType 
 export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
   isOpen,
   onClose,
+  onSwitchToScan,
   members,
   groupId,
   onSaveExpense,
@@ -47,12 +49,12 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
   const [description, setDescription] = useState('');
   const [rupees, setRupees] = useState('');
   const [category, setCategory] = useState<Category>('Food');
-  const [payerId, setPayerId] = useState(members[0]?.id || '');
+  const [payerId, setPayerId] = useState(
+    members.find((member) => member.isCurrentUser)?.id || members[0]?.id || ''
+  );
   const [date, setDate] = useState(() => new Date().toISOString().substring(0, 10));
   const [splitMode, setSplitMode] = useState<SplitMode>('equal');
-  const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(
-    members.map((m) => m.id)
-  );
+  const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(members.map((m) => m.id));
 
   // Exact / Percentage / Shares inputs
   const [exactAmounts, setExactAmounts] = useState<Record<string, string>>({});
@@ -86,7 +88,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
 
@@ -113,7 +115,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
         members.map((m) => m.id)
       );
 
-      onSaveExpense(expense);
+      await onSaveExpense(expense);
       onClose();
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -125,8 +127,8 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
+    <div className="ss-manual-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+      <div className="ss-manual-dialog bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
         {/* Modal Header */}
         <div className="p-5 border-b border-slate-800 flex items-center justify-between sticky top-0 bg-slate-900/95 backdrop-blur-md z-10">
           <div className="flex items-center gap-2.5">
@@ -134,8 +136,10 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
               <Receipt className="w-5 h-5" />
             </span>
             <div>
-              <h2 className="text-xl font-bold text-slate-100">Add Manual Expense</h2>
-              <p className="text-xs sm:text-sm text-slate-400">Record a non-receipt expense with flexible group split</p>
+              <h2 className="text-xl font-bold text-slate-100">How would you like to add it?</h2>
+              <p className="text-xs sm:text-sm text-slate-400">
+                Scan for speed, or enter the details yourself.
+              </p>
             </div>
           </div>
           <button
@@ -145,6 +149,16 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
             <X className="w-5 h-5" />
           </button>
         </div>
+        {onSwitchToScan && (
+          <div className="ss-manual-tabs">
+            <button type="button" onClick={onSwitchToScan}>
+              ▤ Scan receipt
+            </button>
+            <button type="button" className="active">
+              ＋ Manual expense
+            </button>
+          </div>
+        )}
 
         {/* Modal Form */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4 text-xs">
@@ -158,9 +172,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
           {/* Description & Amount */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 font-medium mb-1">
-                Description *
-              </label>
+              <label className="block text-slate-300 font-medium mb-1">Description *</label>
               <input
                 type="text"
                 required
@@ -172,9 +184,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-slate-300 font-medium mb-1">
-                Amount (₹) *
-              </label>
+              <label className="block text-slate-300 font-medium mb-1">Amount (₹) *</label>
               <div className="relative">
                 <span className="absolute left-3 top-2 text-slate-500">₹</span>
                 <input
@@ -192,9 +202,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
 
           {/* Category Selector */}
           <div>
-            <label className="block text-slate-300 font-medium mb-1">
-              Category
-            </label>
+            <label className="block text-slate-300 font-medium mb-1">Category</label>
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
               {CATEGORIES.map((cat) => {
                 const Icon = cat.icon;
@@ -211,9 +219,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
                     }`}
                   >
                     <Icon className="w-4 h-4 mb-1" />
-                    <span className="text-[10px] truncate max-w-full font-medium">
-                      {cat.key}
-                    </span>
+                    <span className="text-[10px] truncate max-w-full font-medium">{cat.key}</span>
                   </button>
                 );
               })}
@@ -223,9 +229,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
           {/* Payer and Date */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 font-medium mb-1">
-                Paid By *
-              </label>
+              <label className="block text-slate-300 font-medium mb-1">Paid By *</label>
               <select
                 value={payerId}
                 onChange={(e) => setPayerId(e.target.value)}
@@ -240,9 +244,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-slate-300 font-medium mb-1">
-                Date *
-              </label>
+              <label className="block text-slate-300 font-medium mb-1">Date *</label>
               <input
                 type="date"
                 required
@@ -255,9 +257,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
 
           {/* Split Mode Selector */}
           <div>
-            <label className="block text-slate-300 font-medium mb-1">
-              Split Mode
-            </label>
+            <label className="block text-slate-300 font-medium mb-1">Split Mode</label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {[
                 { id: 'equal', label: 'Equal', icon: Divide },
@@ -329,9 +329,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
                         step="0.01"
                         placeholder="0.00"
                         value={exactAmounts[id] ?? ''}
-                        onChange={(e) =>
-                          setExactAmounts({ ...exactAmounts, [id]: e.target.value })
-                        }
+                        onChange={(e) => setExactAmounts({ ...exactAmounts, [id]: e.target.value })}
                         className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-slate-100"
                       />
                     </div>
@@ -343,7 +341,9 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
 
           {splitMode === 'percentage' && (
             <div className="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3 space-y-2">
-              <span className="font-semibold text-slate-300">Percentages (basis points: 2500 = 25%):</span>
+              <span className="font-semibold text-slate-300">
+                Percentages (basis points: 2500 = 25%):
+              </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {selectedMemberIds.map((id) => {
                   const m = members.find((x) => x.id === id);
@@ -373,7 +373,9 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
 
           {splitMode === 'shares' && (
             <div className="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3 space-y-2">
-              <span className="font-semibold text-slate-300">Relative Ratio Weights (e.g. 1, 2):</span>
+              <span className="font-semibold text-slate-300">
+                Relative Ratio Weights (e.g. 1, 2):
+              </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {selectedMemberIds.map((id) => {
                   const m = members.find((x) => x.id === id);
@@ -404,9 +406,7 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
           {/* Live Preview */}
           <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between">
             <span className="text-slate-400">Total paise to split:</span>
-            <span className="font-bold text-emerald-400 text-sm">
-              {formatPaise(amountPaise)}
-            </span>
+            <span className="font-bold text-emerald-400 text-sm">{formatPaise(amountPaise)}</span>
           </div>
 
           {/* Submit Action */}

@@ -1,9 +1,5 @@
 import type { ID } from '../../types/domain';
-import type {
-  ManualExpenseDraft,
-  SplitInput,
-  ValidationIssue,
-} from './types';
+import type { ManualExpenseDraft, SplitInput, ValidationIssue } from './types';
 
 /**
  * Validates a SplitInput configuration according to domain invariants.
@@ -159,7 +155,8 @@ export function validateSplitInput(input: SplitInput): ValidationIssue[] {
           field: 'items',
           code: 'NO_ITEMS_IN_ITEMIZED',
           severity: 'warning',
-          message: 'Itemized mode selected but no items are defined. Split will fall back to equal.',
+          message:
+            'Itemized mode selected but no items are defined. Split will fall back to equal.',
         });
       } else {
         // Check for unassigned items
@@ -178,10 +175,7 @@ export function validateSplitInput(input: SplitInput): ValidationIssue[] {
         }
 
         // Check if items total + taxes + serviceCharge - discount matches totalPaise
-        const itemsTotal = items.reduce(
-          (sum, it) => sum + Math.round(it.lineTotalPaise),
-          0
-        );
+        const itemsTotal = items.reduce((sum, it) => sum + Math.round(it.lineTotalPaise), 0);
         const taxTotal = (input.taxLines ?? []).reduce(
           (sum, t) => sum + Math.round(t.amountPaise),
           0
