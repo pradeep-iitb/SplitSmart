@@ -1,18 +1,20 @@
 import { Wallet } from 'lucide-react';
 import type {
+  Expense,
   Group,
   Member,
   MemberBalance,
   RecordedSettlement,
   SuggestedPayment,
 } from '../types/domain';
-import { formatPaise } from '../features/settlement/balances';
+import { calculatePairwiseBalancesForMember, formatPaise } from '../features/settlement/balances';
 import { SettlementHistoryList } from '../features/settlement/components/SettlementHistoryList';
 import './settlementScreen.css';
 
 type Props = {
   group: Group;
   members: Member[];
+  expenses?: Expense[];
   balances: MemberBalance[];
   suggestions: SuggestedPayment[];
   settlements: RecordedSettlement[];
@@ -25,6 +27,7 @@ type Props = {
 export function SettlementScreen({
   group,
   members,
+  expenses = [],
   balances,
   suggestions,
   settlements,
@@ -34,10 +37,12 @@ export function SettlementScreen({
   onUndo,
 }: Props) {
   const name = (id: string) => members.find((member) => member.id === id)?.name ?? 'Member';
+  const myMember = members.find((member) => member.isCurrentUser);
   const myBalance =
-    balances.find(
-      (balance) => balance.memberId === members.find((member) => member.isCurrentUser)?.id
-    )?.balancePaise ?? 0;
+    balances.find((balance) => balance.memberId === myMember?.id)?.balancePaise ?? 0;
+  const pairwiseBalances = myMember
+    ? calculatePairwiseBalancesForMember(myMember.id, members, expenses, settlements)
+    : [];
   return (
     <div className="ss-settlement-page">
       <div className="ss-settlement-header">
@@ -54,46 +59,118 @@ export function SettlementScreen({
       </div>
       <section className="ss-settlement-banner">
         <div>
-          <span className="ss-eyebrow">YOUR NET BALANCE</span>
+          <span className="ss-eyebrow">YOUR GROUP NET BALANCE</span>
           <strong className={myBalance < 0 ? 'negative' : 'positive'}>
             {myBalance > 0 ? '+' : ''}
             {formatPaise(myBalance)}
           </strong>
           <p>
             {myBalance > 0
-              ? 'You are owed money.'
+              ? 'Group owes you (Total net claim on the group)'
               : myBalance < 0
-                ? 'You owe money.'
-                : 'All settled up.'}
+                ? 'You owe the group (Total net amount to pay)'
+                : 'All settled up with this group'}
           </p>
+          <small style={{ color: '#a7ada5', fontSize: '11px', marginTop: '4px', display: 'block' }}>
+            Combines all your paid bills and consumed shares into one single number for settlement.
+          </small>
         </div>
         <span>
           <Wallet size={25} />
         </span>
       </section>
+
+      {pairwiseBalances.length > 0 && (
+        <section className="ss-settlement-card">
+          <h2>Direct Who-Owes-Whom (Pairwise Breakdown)</h2>
+          <p>
+            Individual balances between you and each member before group debt simplification is
+            applied:
+          </p>
+          <div style={{ marginTop: '14px', display: 'grid', gap: '8px' }}>
+            {pairwiseBalances.map((rel) => (
+              <div
+                key={rel.otherMemberId}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '10px 14px',
+                  background: '#222722',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                }}
+              >
+                <strong style={{ color: '#f5f5f0' }}>{rel.otherMemberName}</strong>
+                <span
+                  className={
+                    rel.amountPaise > 0 ? 'positive' : rel.amountPaise < 0 ? 'negative' : ''
+                  }
+                  style={{ fontWeight: 700 }}
+                >
+                  {rel.amountPaise > 0
+                    ? `${rel.otherMemberName} owes you ${formatPaise(rel.amountPaise)}`
+                    : rel.amountPaise < 0
+                      ? `You owe ${rel.otherMemberName} ${formatPaise(-rel.amountPaise)}`
+                      : 'All settled up'}
+                </span>
+              </div>
+            ))}
+          </div>
+          <small
+            style={{ color: '#a7ada5', fontSize: '11px', marginTop: '10px', display: 'block' }}
+          >
+            Sum of direct debts: <strong>{formatPaise(myBalance, { showSign: true })}</strong>{' '}
+            (matches your group net balance).
+          </small>
+        </section>
+      )}
+
       <section className="ss-settlement-card">
-        <h2>Net balances</h2>
-        <p>Positive means they should receive money.</p>
+        <h2>Group Net Balances</h2>
+        <p>
+          Positive (+ green) means they receive money back from the group; negative (- red) means
+          they pay into the group.
+        </p>
         <div className="ss-settlement-net">
-          {balances.map((balance, index) => (
-            <div key={balance.memberId}>
-              <span className={`ss-settlement-avatar tone-${index % 4}`}>
-                {name(balance.memberId).slice(0, 2).toUpperCase()}
-              </span>
-              <strong>{name(balance.memberId)}</strong>
-              <b className={balance.balancePaise < 0 ? 'negative' : 'positive'}>
-                {balance.balancePaise > 0 ? '+' : ''}
-                {formatPaise(balance.balancePaise)}
-              </b>
-            </div>
-          ))}
+          {balances.map((balance, index) => {
+            const memberName = name(balance.memberId);
+            const isMe = balance.memberId === myMember?.id;
+            return (
+              <div key={balance.memberId}>
+                <span className={`ss-settlement-avatar tone-${index % 4}`}>
+                  {memberName.slice(0, 2).toUpperCase()}
+                </span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <strong style={{ display: 'block', fontSize: '12px' }}>
+                    {memberName}
+                    {isMe ? ' (You)' : ''}
+                  </strong>
+                  <small style={{ display: 'block', fontSize: '10px', color: '#a7ada5' }}>
+                    {balance.balancePaise > 0
+                      ? 'Gets back from group'
+                      : balance.balancePaise < 0
+                        ? 'Owes to group'
+                        : 'Settled'}
+                  </small>
+                </div>
+                <b className={balance.balancePaise < 0 ? 'negative' : 'positive'}>
+                  {balance.balancePaise > 0 ? '+' : ''}
+                  {formatPaise(balance.balancePaise)}
+                </b>
+              </div>
+            );
+          })}
         </div>
       </section>
       <section className="ss-settlement-card">
         <div className="ss-settlement-card-title">
           <div>
             <h2>Suggested settlements</h2>
-            <p>Fewer payments, same final balances.</p>
+            <p>
+              Debt simplification routes payments through the fewest people to settle everyone in
+              minimum transfers.
+            </p>
           </div>
           <span>{suggestions.length} payments</span>
         </div>

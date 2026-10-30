@@ -84,25 +84,25 @@ export function DashboardScreen({
       </div>
       <div className="ss-dashboard-stats">
         <div className="featured">
-          <small>Your total expenses</small>
+          <small>Your total spending</small>
           <strong>{formatPaise(totals.spentPaise)}</strong>
-          <span>Your share across all groups</span>
+          <span>Your personal share across all groups</span>
         </div>
         <button onClick={() => onOpenBalances(oweGroup)} className="owed">
-          <small>You owe</small>
+          <small>Total net you owe</small>
           <strong>{formatPaise(totals.owePaise)}</strong>
-          <span>View who you owe →</span>
+          <span>Net debts across groups · tap to settle →</span>
         </button>
         <button onClick={() => onOpenBalances(owedGroup)} className="owing">
-          <small>You are owed</small>
+          <small>Total net you are owed</small>
           <strong>{formatPaise(totals.owedPaise)}</strong>
-          <span>View who owes you →</span>
+          <span>Net credits across groups · tap to review →</span>
         </button>
       </div>
       <div className="ss-dashboard-row">
         <div>
           <h2>Your groups</h2>
-          <p>Shared spaces, sorted.</p>
+          <p>Shared spaces with simplified net balances.</p>
         </div>
         <button onClick={onCreateGroup}>New group ＋</button>
       </div>
@@ -132,9 +132,9 @@ export function DashboardScreen({
               <small className="ss-dashboard-group-status">
                 {summary?.balancePaise
                   ? summary.balancePaise > 0
-                    ? `You are owed ${formatPaise(summary.balancePaise)}`
-                    : `You owe ${formatPaise(-summary.balancePaise)}`
-                  : 'All settled up'}
+                    ? `Group owes you: +${formatPaise(summary.balancePaise)}`
+                    : `You owe group: -${formatPaise(-summary.balancePaise)}`
+                  : 'All settled up (₹0.00)'}
               </small>
             </button>
           );

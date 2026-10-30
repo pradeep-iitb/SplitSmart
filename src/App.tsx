@@ -471,6 +471,7 @@ export default function App() {
               <SettlementScreen
                 group={group}
                 members={members}
+                expenses={expenses}
                 balances={balances}
                 suggestions={suggestions}
                 settlements={settlements}

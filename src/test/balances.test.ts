@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   calculateDetailedBalances,
   calculateGroupBalances,
+  calculatePairwiseBalancesForMember,
   formatPaise,
   paiseToRupees,
   rupeesToPaise,
@@ -145,6 +146,83 @@ describe('Balance Calculation Engine (balances.ts)', () => {
       expect(rupeesToPaise('1,234.56')).toBe(123456);
       expect(rupeesToPaise('-50.25')).toBe(-5025);
       expect(paiseToRupees(3350)).toBe(33.5);
+    });
+
+    it('accurately calculates direct pairwise who-owes-whom balances', () => {
+      // Scenario:
+      // Members: Me, Riya, Arjun
+      // 1. Riya pays ₹900 for lunch (Me's share is ₹300, Arjun's share is ₹300, Riya's share is ₹300)
+      //    -> Me owes Riya ₹300
+      // 2. Me pays ₹1,000 for dinner (Arjun's share is ₹500, Me's share is ₹500)
+      //    -> Arjun owes Me ₹500
+      // Expected direct bilateral relations:
+      // - Me with Riya: -₹300 (Me owes Riya ₹300)
+      // - Me with Arjun: +₹500 (Arjun owes Me ₹500)
+      // Expected group net balance: -300 + 500 = +₹200 (group owes Me ₹200)
+      const members: Member[] = [
+        { id: 'me', groupId: 'g1', name: 'Me', active: true, isCurrentUser: true },
+        { id: 'riya', groupId: 'g1', name: 'Riya', active: true, isCurrentUser: false },
+        { id: 'arjun', groupId: 'g1', name: 'Arjun', active: true, isCurrentUser: false },
+      ];
+
+      const expenses: Expense[] = [
+        {
+          id: 'exp-lunch',
+          groupId: 'g1',
+          description: 'Lunch',
+          date: '2026-10-30',
+          payerId: 'riya',
+          amountPaise: 90000,
+          splitMode: 'equal',
+          memberShares: [
+            { memberId: 'riya', amountPaise: 30000 },
+            { memberId: 'me', amountPaise: 30000 },
+            { memberId: 'arjun', amountPaise: 30000 },
+          ],
+          items: [],
+          taxLines: [],
+          serviceChargePaise: 0,
+          discountPaise: 0,
+          createdAt: '',
+        },
+        {
+          id: 'exp-dinner',
+          groupId: 'g1',
+          description: 'Dinner',
+          date: '2026-10-30',
+          payerId: 'me',
+          amountPaise: 100000,
+          splitMode: 'exact',
+          memberShares: [
+            { memberId: 'me', amountPaise: 50000 },
+            { memberId: 'arjun', amountPaise: 50000 },
+          ],
+          items: [],
+          taxLines: [],
+          serviceChargePaise: 0,
+          discountPaise: 0,
+          createdAt: '',
+        },
+      ];
+
+      const pairwise = calculatePairwiseBalancesForMember('me', members, expenses);
+      const riyaRel = pairwise.find((p) => p.otherMemberId === 'riya')!;
+      const arjunRel = pairwise.find((p) => p.otherMemberId === 'arjun')!;
+
+      // Me owes Riya ₹300 (-30000 paise)
+      expect(riyaRel.amountPaise).toBe(-30000);
+
+      // Arjun owes Me ₹500 (+50000 paise)
+      expect(arjunRel.amountPaise).toBe(50000);
+
+      // Sum of bilateral relationships matches group net balance exactly
+      const sumPairwise = pairwise.reduce((acc, p) => acc + p.amountPaise, 0);
+      const groupBalances = calculateGroupBalances(['me', 'riya', 'arjun'], expenses, []);
+      const myNet = groupBalances.find((b) => b.memberId === 'me')!.balancePaise;
+
+      expect(sumPairwise).toBe(20000); // +₹200
+      expect(myNet).toBe(20000); // +₹200
+      expect(sumPairwise).toBe(myNet);
     });
   });
 });

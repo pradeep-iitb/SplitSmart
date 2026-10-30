@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowRight, Download, Plus, Wallet } from 'lucide-react';
 import type { Expense, Group, Member, MemberBalance } from '../types/domain';
-import { formatPaise } from '../features/settlement/balances';
+import { calculatePairwiseBalancesForMember, formatPaise } from '../features/settlement/balances';
 import './groupOverview.css';
 
 type Props = {
@@ -35,10 +35,12 @@ export function GroupOverview({
 }: Props) {
   const [tab, setTab] = useState<'Expenses' | 'Balances' | 'Members' | 'Insights'>('Expenses');
   const total = expenses.reduce((sum, expense) => sum + expense.amountPaise, 0);
+  const myMember = members.find((member) => member.isCurrentUser);
   const myBalance =
-    balances.find(
-      (balance) => balance.memberId === members.find((member) => member.isCurrentUser)?.id
-    )?.balancePaise ?? 0;
+    balances.find((balance) => balance.memberId === myMember?.id)?.balancePaise ?? 0;
+  const pairwiseBalances = myMember
+    ? calculatePairwiseBalancesForMember(myMember.id, members, expenses)
+    : [];
   return (
     <div className="ss-group-page">
       <div className="ss-group-hero">
@@ -78,12 +80,18 @@ export function GroupOverview({
           <span>{expenses.length} expenses</span>
         </div>
         <button onClick={onSettle}>
-          <small>Your net balance</small>
+          <small>Your group net balance</small>
           <strong className={myBalance < 0 ? 'negative' : 'positive'}>
             {myBalance > 0 ? '+' : ''}
             {formatPaise(myBalance)}
           </strong>
-          <span>{myBalance >= 0 ? 'You are owed' : 'You owe'}</span>
+          <span>
+            {myBalance > 0
+              ? 'Group owes you (Net credit)'
+              : myBalance < 0
+                ? 'You owe group (Net debt)'
+                : 'All settled up with group'}
+          </span>
         </button>
         <button onClick={onSettle}>
           <small>Pending settlements</small>
@@ -108,7 +116,7 @@ export function GroupOverview({
                 : tab === 'Members'
                   ? `${members.length} people in this group`
                   : tab === 'Balances'
-                    ? 'Who owes whom in this group'
+                    ? 'Net positions & direct who-owes-whom'
                     : 'Spending across this group'}
             </p>
           </div>
@@ -152,16 +160,83 @@ export function GroupOverview({
             )}
           </div>
         ) : tab === 'Balances' ? (
-          <div className="ss-group-balance-list">
-            {balances.map((balance) => (
-              <div key={balance.memberId}>
-                <strong>{members.find((member) => member.id === balance.memberId)?.name}</strong>
-                <span className={balance.balancePaise < 0 ? 'negative' : 'positive'}>
-                  {balance.balancePaise > 0 ? '+' : ''}
-                  {formatPaise(balance.balancePaise)}
-                </span>
+          <div className="space-y-4">
+            <div className="rounded-xl border border-slate-700/60 bg-slate-800/40 p-3 text-xs text-slate-300">
+              <strong className="text-slate-100 block mb-0.5">Understanding Group Balances:</strong>
+              SplitSmart folds all shared expenses into one simplified net balance per person.
+              Positive (green) means the group owes them; negative (red) means they owe the group.
+            </div>
+
+            {pairwiseBalances.length > 0 && (
+              <div className="rounded-xl border border-slate-700/60 bg-slate-850 p-3 space-y-2">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-200">
+                  <span>Direct relationships with you (Before simplification):</span>
+                  <span className="text-[11px] text-slate-400">
+                    Net: {formatPaise(myBalance, { showSign: true })}
+                  </span>
+                </div>
+                <div className="divide-y divide-slate-800 text-xs">
+                  {pairwiseBalances.map((rel) => (
+                    <div key={rel.otherMemberId} className="py-2 flex items-center justify-between">
+                      <span className="text-slate-300 font-medium">{rel.otherMemberName}</span>
+                      <span
+                        className={
+                          rel.amountPaise > 0
+                            ? 'positive font-bold'
+                            : rel.amountPaise < 0
+                              ? 'negative font-bold'
+                              : 'text-slate-400'
+                        }
+                      >
+                        {rel.amountPaise > 0
+                          ? `${rel.otherMemberName} owes you ${formatPaise(rel.amountPaise)}`
+                          : rel.amountPaise < 0
+                            ? `You owe ${rel.otherMemberName} ${formatPaise(-rel.amountPaise)}`
+                            : 'All settled up'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
+            )}
+
+            <div className="ss-group-balance-list">
+              <span className="text-xs font-semibold text-slate-400 block px-1 mb-1">
+                All Member Net Positions:
+              </span>
+              {balances.map((balance) => {
+                const memberObj = members.find((member) => member.id === balance.memberId);
+                const isMe = memberObj?.isCurrentUser;
+                return (
+                  <div key={balance.memberId}>
+                    <div>
+                      <strong>
+                        {memberObj?.name ?? 'Member'}
+                        {isMe ? ' (You)' : ''}
+                      </strong>
+                      <small
+                        style={{
+                          display: 'block',
+                          fontSize: '10px',
+                          color: '#a7ada5',
+                          marginTop: '2px',
+                        }}
+                      >
+                        {balance.balancePaise > 0
+                          ? 'Gets back from group'
+                          : balance.balancePaise < 0
+                            ? 'Owes to group'
+                            : 'Fully square'}
+                      </small>
+                    </div>
+                    <span className={balance.balancePaise < 0 ? 'negative' : 'positive'}>
+                      {balance.balancePaise > 0 ? '+' : ''}
+                      {formatPaise(balance.balancePaise)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         ) : tab === 'Members' ? (
           <div className="ss-group-member-list">

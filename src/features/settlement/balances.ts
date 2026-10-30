@@ -231,3 +231,70 @@ export function rupeesToPaise(rupees: number | string): Paise {
 export function paiseToRupees(paise: Paise): number {
   return Number((paise / 100).toFixed(2));
 }
+
+/**
+ * Represents the bilateral (pairwise) relationship between the current member and another group member.
+ * Positive amountPaise: other member owes you directly.
+ * Negative amountPaise: you owe the other member directly.
+ * Zero amountPaise: you two are square.
+ */
+export interface PairwiseRelationship {
+  otherMemberId: ID;
+  otherMemberName: string;
+  amountPaise: Paise;
+}
+
+/**
+ * Calculates direct who-owes-whom bilateral debts between a specific member and each other member in the group.
+ * The sum of all pairwise balances with group members mathematically equals the member's net group balance.
+ */
+export function calculatePairwiseBalancesForMember(
+  myMemberId: ID,
+  members: Member[],
+  expenses: Expense[],
+  settlements: RecordedSettlement[] = []
+): PairwiseRelationship[] {
+  const map = new Map<ID, Paise>();
+  for (const m of members) {
+    if (m.id !== myMemberId) {
+      map.set(m.id, 0);
+    }
+  }
+
+  // 1. Process all expenses
+  for (const exp of expenses) {
+    if (exp.payerId === myMemberId) {
+      // You paid! Each other member owes you their share
+      for (const share of exp.memberShares) {
+        if (share.memberId !== myMemberId && map.has(share.memberId)) {
+          map.set(share.memberId, (map.get(share.memberId) ?? 0) + share.amountPaise);
+        }
+      }
+    } else if (map.has(exp.payerId)) {
+      // Someone else paid! You owe the payer your share
+      const myShare = exp.memberShares.find((s) => s.memberId === myMemberId)?.amountPaise ?? 0;
+      if (myShare > 0) {
+        map.set(exp.payerId, (map.get(exp.payerId) ?? 0) - myShare);
+      }
+    }
+  }
+
+  // 2. Process all direct settlements
+  for (const pay of settlements) {
+    if (pay.fromMemberId === myMemberId && map.has(pay.toMemberId)) {
+      // You paid them: reduces what you owe or increases what they owe you
+      map.set(pay.toMemberId, (map.get(pay.toMemberId) ?? 0) + pay.amountPaise);
+    } else if (pay.toMemberId === myMemberId && map.has(pay.fromMemberId)) {
+      // They paid you: reduces what they owe you or increases what you owe them
+      map.set(pay.fromMemberId, (map.get(pay.fromMemberId) ?? 0) - pay.amountPaise);
+    }
+  }
+
+  return members
+    .filter((m) => m.id !== myMemberId)
+    .map((m) => ({
+      otherMemberId: m.id,
+      otherMemberName: m.name,
+      amountPaise: map.get(m.id) ?? 0,
+    }));
+}
