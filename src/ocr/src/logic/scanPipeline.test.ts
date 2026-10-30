@@ -10,7 +10,9 @@ vi.mock('./imagePreprocess', () => ({
 vi.mock('./ocrService', () => ({
   recognizeCanvas: vi.fn(async () => ({ confidence: 0.95, rotation: 0 })),
 }));
-vi.mock('./receiptParser', () => ({ parseReceipt: vi.fn(() => ({ items: [{ name: 'Coffee' }] })) }));
+vi.mock('./receiptParser', () => ({
+  parseReceipt: vi.fn(() => ({ items: [{ name: 'Coffee' }] })),
+}));
 vi.mock('./receiptValidation', () => ({ validateParsed: vi.fn(() => ({ status: 'ok' })) }));
 
 import { scanBatch } from './scanPipeline';
@@ -20,7 +22,7 @@ describe('multi-receipt scan', () => {
     const progress: number[] = [];
     const results = await scanBatch(
       [new Blob(['x'], { type: 'image/png' }), new Blob(['valid'], { type: 'image/png' })],
-      { onProgress: (index) => progress.push(index) },
+      { onProgress: (index) => progress.push(index) }
     );
     expect(results[0].ok).toBe(false);
     expect(results[1].ok).toBe(true);

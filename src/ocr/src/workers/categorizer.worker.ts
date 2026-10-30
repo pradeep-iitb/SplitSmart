@@ -27,7 +27,10 @@ async function load() {
   ctx.postMessage({ type: 'status', status: 'loading' });
   classifier = await pipeline('zero-shot-classification', 'Xenova/mobilebert-uncased-mnli', {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    progress_callback: (p: any) => { if (p?.status === 'progress') ctx.postMessage({ type: 'status', status: 'downloading', progress: p.progress }); },
+    progress_callback: (p: any) => {
+      if (p?.status === 'progress')
+        ctx.postMessage({ type: 'status', status: 'downloading', progress: p.progress });
+    },
   });
   ctx.postMessage({ type: 'status', status: 'ready' });
   return classifier;

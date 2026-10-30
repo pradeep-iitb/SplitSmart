@@ -5,7 +5,8 @@ export interface ReceiptPerson {
   role: 'payer' | 'customer';
 }
 
-const NAME_LINE = /^\s*(paid\s+by|payer|customer(?:\s+name)?|bill\s+to)\s*[:-]\s*([A-Za-z][A-Za-z .'-]{1,60})\s*$/i;
+const NAME_LINE =
+  /^\s*(paid\s+by|payer|customer(?:\s+name)?|bill\s+to)\s*[:-]\s*([A-Za-z][A-Za-z .'-]{1,60})\s*$/i;
 const NON_NAMES = /^(?:cash|card|upi|online|guest|walk\s*in|self|counter|swiggy|zomato)$/i;
 
 export function detectReceiptPeople(ocr: Pick<OcrResult, 'lines'>): ReceiptPerson[] {
@@ -24,5 +25,7 @@ export function detectReceiptPeople(ocr: Pick<OcrResult, 'lines'>): ReceiptPerso
 
 export function isKnownGroupMember(name: string, memberNames: string[]): boolean {
   const normalized = name.toLocaleLowerCase().replace(/[^a-z]/g, '');
-  return memberNames.some((member) => member.toLocaleLowerCase().replace(/[^a-z]/g, '') === normalized);
+  return memberNames.some(
+    (member) => member.toLocaleLowerCase().replace(/[^a-z]/g, '') === normalized
+  );
 }

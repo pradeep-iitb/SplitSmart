@@ -1,33 +1,106 @@
 /**
- * Canvas preprocessing: EXIF-aware decode, rotate, rescale, grayscale + contrast stretch,
- * and an optional adaptive binarisation for faded thermal paper.
+ * Canvas preprocessing (Pipeline v2 - Stage 0):
+ * EXIF-aware decode, rotate, rescale, background crop, blur quality gate,
+ * grayscale + contrast stretch, and adaptive binarisation for faded thermal paper.
  */
 export type Rotation = 0 | 90 | 180 | 270;
-export type PreprocessMode = 'gray' | 'binarized';
+export type PreprocessMode = 'raw' | 'gray' | 'binarized';
 export type CanvasLike = HTMLCanvasElement | OffscreenCanvas;
 type Ctx = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
 
 const TARGET_LONG_SIDE = 2000; // Tesseract is happiest around 300 DPI-equivalent text height
-const MIN_LONG_SIDE = 1200;    // upscale small screenshots / low-res photos (max 2x)
+const MIN_LONG_SIDE = 1200; // upscale small screenshots / low-res photos (max 2x)
 
 export async function loadBitmap(file: Blob): Promise<ImageBitmap> {
-  try { return await createImageBitmap(file, { imageOrientation: 'from-image' } as ImageBitmapOptions); }
-  catch { return await createImageBitmap(file); } // older Safari rejects the options bag
+  try {
+    return await createImageBitmap(file, { imageOrientation: 'from-image' } as ImageBitmapOptions);
+  } catch {
+    return await createImageBitmap(file);
+  } // older Safari rejects the options bag
 }
 
 function makeCanvas(w: number, h: number): CanvasLike {
   if (typeof OffscreenCanvas !== 'undefined') return new OffscreenCanvas(w, h);
   const c = document.createElement('canvas');
-  c.width = w; c.height = h;
+  c.width = w;
+  c.height = h;
   return c;
+}
+
+export interface ImageQualityReport {
+  isBlurry: boolean;
+  blurVariance: number;
+  quality: 'good' | 'fair' | 'poor';
+  recommendation?: string;
+}
+
+/**
+ * Computes Laplacian variance on a downscaled grayscale patch to detect motion blur or out-of-focus capture.
+ */
+export function estimateSharpness(
+  rgba: Uint8ClampedArray,
+  width: number,
+  height: number
+): ImageQualityReport {
+  // Sample step for speed
+  const step = Math.max(1, Math.floor(Math.min(width, height) / 300));
+  const sw = Math.floor(width / step);
+  const sh = Math.floor(height / step);
+
+  const gray = new Float32Array(sw * sh);
+  for (let y = 0; y < sh; y++) {
+    for (let x = 0; x < sw; x++) {
+      const idx = (y * step * width + x * step) * 4;
+      gray[y * sw + x] = 0.299 * rgba[idx] + 0.587 * rgba[idx + 1] + 0.114 * rgba[idx + 2];
+    }
+  }
+
+  // Laplacian kernel: [0, 1, 0; 1, -4, 1; 0, 1, 0]
+  let sum = 0;
+  let sumSq = 0;
+  let count = 0;
+
+  for (let y = 1; y < sh - 1; y++) {
+    for (let x = 1; x < sw - 1; x++) {
+      const center = gray[y * sw + x];
+      const lap =
+        gray[(y - 1) * sw + x] +
+        gray[(y + 1) * sw + x] +
+        gray[y * sw + (x - 1)] +
+        gray[y * sw + (x + 1)] -
+        4 * center;
+      sum += lap;
+      sumSq += lap * lap;
+      count++;
+    }
+  }
+
+  const mean = sum / (count || 1);
+  const variance = sumSq / (count || 1) - mean * mean;
+  const isBlurry = variance < 35;
+  const quality = variance >= 80 ? 'good' : variance >= 35 ? 'fair' : 'poor';
+
+  return {
+    isBlurry,
+    blurVariance: Math.round(variance),
+    quality,
+    recommendation: isBlurry
+      ? 'The image seems blurry. Hold the camera steady and tap to focus for best OCR results.'
+      : undefined,
+  };
 }
 
 export function preprocessToCanvas(
   bmp: ImageBitmap,
-  { rotation = 0, mode = 'gray' }: { rotation?: Rotation; mode?: PreprocessMode } = {},
+  { rotation = 0, mode = 'raw' }: { rotation?: Rotation; mode?: PreprocessMode } = {}
 ): CanvasLike {
   const long = Math.max(bmp.width, bmp.height);
-  const scale = long > TARGET_LONG_SIDE ? TARGET_LONG_SIDE / long : long < MIN_LONG_SIDE ? Math.min(2, MIN_LONG_SIDE / long) : 1;
+  const scale =
+    long > TARGET_LONG_SIDE
+      ? TARGET_LONG_SIDE / long
+      : long < MIN_LONG_SIDE
+        ? Math.min(2, MIN_LONG_SIDE / long)
+        : 1;
   const w = Math.round(bmp.width * scale);
   const h = Math.round(bmp.height * scale);
   const swap = rotation === 90 || rotation === 270;
@@ -41,6 +114,8 @@ export function preprocessToCanvas(
   ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(bmp, -w / 2, -h / 2, w, h);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+  if (mode === 'raw') return canvas;
 
   const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const gray = grayStretch(img.data, canvas.width * canvas.height);
@@ -59,10 +134,19 @@ function grayStretch(rgba: Uint8ClampedArray, n: number): Uint8ClampedArray {
   const hist = new Uint32Array(256);
   for (let i = 0, j = 0; i < n; i++, j += 4) {
     const v = (0.299 * rgba[j] + 0.587 * rgba[j + 1] + 0.114 * rgba[j + 2]) | 0;
-    gray[i] = v; hist[v]++;
+    gray[i] = v;
+    hist[v]++;
   }
-  const pct = (p: number) => { let acc = 0; for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc >= n * p) return v; } return 255; };
-  const lo = pct(0.02), hi = pct(0.98);
+  const pct = (p: number) => {
+    let acc = 0;
+    for (let v = 0; v < 256; v++) {
+      acc += hist[v];
+      if (acc >= n * p) return v;
+    }
+    return 255;
+  };
+  const lo = pct(0.02),
+    hi = pct(0.98);
   if (hi - lo < 20) return gray;
   const k = 255 / (hi - lo);
   for (let i = 0; i < n; i++) gray[i] = (gray[i] - lo) * k;
@@ -83,11 +167,17 @@ function binarize(gray: Uint8ClampedArray, w: number, h: number): void {
   }
   const out = new Uint8ClampedArray(gray.length);
   for (let y = 0; y < h; y++) {
-    const y0 = Math.max(0, y - half), y1 = Math.min(h - 1, y + half);
+    const y0 = Math.max(0, y - half),
+      y1 = Math.min(h - 1, y + half);
     for (let x = 0; x < w; x++) {
-      const x0 = Math.max(0, x - half), x1 = Math.min(w - 1, x + half);
+      const x0 = Math.max(0, x - half),
+        x1 = Math.min(w - 1, x + half);
       const area = (x1 - x0 + 1) * (y1 - y0 + 1);
-      const sum = integral[(y1 + 1) * W1 + x1 + 1] - integral[y0 * W1 + x1 + 1] - integral[(y1 + 1) * W1 + x0] + integral[y0 * W1 + x0];
+      const sum =
+        integral[(y1 + 1) * W1 + x1 + 1] -
+        integral[y0 * W1 + x1 + 1] -
+        integral[(y1 + 1) * W1 + x0] +
+        integral[y0 * W1 + x0];
       out[y * w + x] = gray[y * w + x] * area < sum * 0.88 ? 0 : 255;
     }
   }

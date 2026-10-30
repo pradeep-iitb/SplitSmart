@@ -1,18 +1,39 @@
 /** Mock OCR data so the UI (Member 1) and split engine (Member 3) can progress before real OCR is wired in. */
 import type { OcrResult } from '../types/receipt';
 
-export function fromPlainText(text: string, confidence = 0.95, lineConfidence: Record<number, number> = {}): OcrResult {
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean).map((l, i) => {
-    const conf = lineConfidence[i] ?? confidence;
-    let x = 0;
-    const words = l.split(/\s+/).map(w => {
-      const bbox = { x0: x, y0: i * 30, x1: x + w.length * 10, y1: i * 30 + 24 };
-      x += w.length * 10 + 10;
-      return { text: w, confidence: conf, bbox };
+export function fromPlainText(
+  text: string,
+  confidence = 0.95,
+  lineConfidence: Record<number, number> = {}
+): OcrResult {
+  const lines = text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l, i) => {
+      const conf = lineConfidence[i] ?? confidence;
+      let x = 0;
+      const words = l.split(/\s+/).map((w) => {
+        const bbox = { x0: x, y0: i * 30, x1: x + w.length * 10, y1: i * 30 + 24 };
+        x += w.length * 10 + 10;
+        return { text: w, confidence: conf, bbox };
+      });
+      return {
+        text: l,
+        confidence: conf,
+        bbox: { x0: 0, y0: i * 30, x1: x, y1: i * 30 + 24 },
+        words,
+      };
     });
-    return { text: l, confidence: conf, bbox: { x0: 0, y0: i * 30, x1: x, y1: i * 30 + 24 }, words };
-  });
-  return { text, confidence, lines, width: 600, height: lines.length * 30 + 20, rotation: 0, preprocess: 'gray' };
+  return {
+    text,
+    confidence,
+    lines,
+    width: 600,
+    height: lines.length * 30 + 20,
+    rotation: 0,
+    preprocess: 'gray',
+  };
 }
 
 export const MOCK_RECEIPT_TEXT = {

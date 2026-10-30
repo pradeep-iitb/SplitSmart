@@ -11,17 +11,31 @@ describe('receipt item categorization', () => {
       onerror: (() => void) | null = null;
       postMessage(message: { id: number; texts: string[] }) {
         requests.push(message.texts);
-        queueMicrotask(() => this.onmessage?.({ data: { type: 'result', id: message.id, results: [{ category: 'Groceries', score: 0.92 }] } } as MessageEvent));
+        queueMicrotask(() =>
+          this.onmessage?.({
+            data: {
+              type: 'result',
+              id: message.id,
+              results: [{ category: 'Groceries', score: 0.92 }],
+            },
+          } as MessageEvent)
+        );
       }
       terminate() {}
     }
     vi.stubGlobal('Worker', FakeWorker);
     const results: Array<[string, string, string]> = [];
     await categorizeItems(
-      [{ id: 'pizza', name: 'Pizza' }, { id: 'mystery', name: 'Amaranth' }],
-      { onResult: (id, category, source) => results.push([id, category, source]) },
+      [
+        { id: 'pizza', name: 'Pizza' },
+        { id: 'mystery', name: 'Amaranth' },
+      ],
+      { onResult: (id, category, source) => results.push([id, category, source]) }
     );
     expect(requests).toEqual([['Amaranth']]);
-    expect(results).toEqual([['pizza', 'Food', 'keyword'], ['mystery', 'Groceries', 'model']]);
+    expect(results).toEqual([
+      ['pizza', 'Food', 'keyword'],
+      ['mystery', 'Groceries', 'model'],
+    ]);
   });
 });
