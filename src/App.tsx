@@ -339,7 +339,7 @@ export default function App() {
             }}
           />
         ) : (
-          <div className="ss-app-content flex-1 max-w-[1500px] w-full max-w-full mx-auto px-3.5 sm:px-8 pt-24 pb-12 space-y-6 overflow-x-clip">
+          <div className="ss-app-content flex-1 max-w-375 w-full mx-auto px-3.5 sm:px-8 pt-24 pb-12 space-y-6 overflow-x-clip">
             {/* Active Group Context Bar (Engine view with Liquid Glass & Distinct Typography) */}
             {!['dashboard', 'groups', 'settings', 'analytics', 'settlement'].includes(
               activeTab
