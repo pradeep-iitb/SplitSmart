@@ -403,6 +403,30 @@
   border-color: #708747;
   background: #d9ff660b;
 }
+.ss-member-grid button.is-me {
+  border: 2px solid #84cc16;
+  box-shadow: 0 0 0 2px rgba(132, 204, 22, 0.28);
+  background: rgba(132, 204, 22, 0.08);
+}
+.ss-member-grid button.is-me.selected {
+  border-color: #a3e635;
+  background: rgba(163, 230, 53, 0.16);
+  box-shadow: 0 0 0 3px rgba(163, 230, 53, 0.4);
+}
+.ss-member-me-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: rgba(163, 230, 53, 0.24);
+  color: #d9ff66;
+  border: 1px solid rgba(163, 230, 53, 0.55);
+  line-height: 1.2;
+}
 .ss-member-grid button span:nth-child(2) {
   flex: 1;
 }

@@ -270,12 +270,12 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
                       {!member.isCurrentUser && (
                         <button
                           type="button"
                           onClick={() => void onSetCurrentUser(member.id)}
-                          className="px-2 py-1.5 rounded-lg text-xs text-lime-300 hover:bg-lime-400/10"
+                          className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-lime-300 border border-lime-400/60 bg-lime-400/10 hover:bg-lime-400/20 shadow-xs transition-all cursor-pointer"
                           title={`Use ${member.name} for your balances in this group`}
                         >
                           This is me

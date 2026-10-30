@@ -667,6 +667,7 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
                   {selectedMemberIds.map((mId) => {
                     const m = members.find((x) => x.id === mId);
                     const isAssigned = item.assignedMemberIds.includes(mId);
+                    const isMe = m?.isCurrentUser;
                     return (
                       <button
                         key={mId}
@@ -680,14 +681,27 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({
                             )
                           );
                         }}
-                        className={`text-[10px] pl-1 pr-2 py-0.5 rounded-full border flex items-center gap-1 transition-all ${
+                        className={`text-[10px] pl-1 pr-2 py-0.5 rounded-full flex items-center gap-1 transition-all ${
+                          isMe
+                            ? 'border-2 border-lime-400 ring-1 ring-lime-400/50 shadow-xs'
+                            : 'border'
+                        } ${
                           isAssigned
-                            ? 'bg-blue-600/20 border-blue-500/60 text-blue-300 font-semibold'
-                            : 'bg-slate-900/60 border-slate-700 text-slate-500'
+                            ? isMe
+                              ? 'bg-lime-500/20 text-lime-200 font-semibold'
+                              : 'bg-blue-600/20 border-blue-500/60 text-blue-300 font-semibold'
+                            : isMe
+                              ? 'bg-slate-900 border-lime-500/50 text-lime-400/90'
+                              : 'bg-slate-900/60 border-slate-700 text-slate-500'
                         }`}
                       >
                         <MemberAvatar member={m} size="xs" />
                         <span>{m?.name || mId}</span>
+                        {isMe && (
+                          <span className="text-[9px] px-1 rounded-full bg-lime-400/30 text-lime-300 border border-lime-400/50 font-bold">
+                            This is me
+                          </span>
+                        )}
                       </button>
                     );
                   })}

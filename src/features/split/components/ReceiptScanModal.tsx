@@ -2506,12 +2506,13 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                           <div className="ss-member-grid">
                             {members.map((member, index) => {
                               const selected = assigned.includes(member.id);
+                              const isMe = member.isCurrentUser;
                               return (
                                 <button
                                   type="button"
                                   key={member.id}
                                   aria-pressed={selected}
-                                  className={selected ? 'selected' : ''}
+                                  className={`${selected ? 'selected' : ''} ${isMe ? 'is-me' : ''}`}
                                   onClick={() =>
                                     setItemAssignments((current) => ({
                                       ...current,
@@ -2525,7 +2526,12 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                                     {member.name.slice(0, 2).toUpperCase()}
                                   </span>
                                   <span>
-                                    <strong>{member.name}</strong>
+                                    <span className="flex items-center gap-1.5 flex-wrap">
+                                      <strong>{member.name}</strong>
+                                      {isMe && (
+                                        <span className="ss-member-me-pill">This is me</span>
+                                      )}
+                                    </span>
                                     <small>
                                       {selected ? 'Included in this item' : 'Not included'}
                                     </small>

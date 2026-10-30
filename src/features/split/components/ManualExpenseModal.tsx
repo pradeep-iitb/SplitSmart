@@ -294,19 +294,33 @@ export const ManualExpenseModal: React.FC<ManualExpenseModalProps> = ({
             <div className="flex flex-wrap gap-1.5">
               {members.map((m) => {
                 const isSelected = selectedMemberIds.includes(m.id);
+                const isMe = m.isCurrentUser;
                 return (
                   <button
                     key={m.id}
                     type="button"
                     onClick={() => toggleParticipant(m.id)}
                     className={`px-2.5 py-1 rounded-lg border text-xs flex items-center gap-1.5 transition-all ${
+                      isMe
+                        ? 'border-2 border-lime-400 ring-1 ring-lime-400/50 shadow-xs'
+                        : 'border-slate-700'
+                    } ${
                       isSelected
-                        ? 'bg-blue-600/20 border-blue-500 text-blue-300'
-                        : 'bg-slate-800/40 border-slate-700 text-slate-500 line-through'
+                        ? isMe
+                          ? 'bg-lime-500/20 text-lime-200 font-semibold'
+                          : 'bg-blue-600/20 border-blue-500 text-blue-300'
+                        : isMe
+                          ? 'bg-slate-900 border-lime-500/60 text-lime-400/80'
+                          : 'bg-slate-800/40 text-slate-500 line-through'
                     }`}
                   >
                     <MemberAvatar member={m} size="xs" />
                     <span>{m.name}</span>
+                    {isMe && (
+                      <span className="text-[9px] px-1 rounded-full bg-lime-400/25 text-lime-300 border border-lime-400/40 font-bold">
+                        This is me
+                      </span>
+                    )}
                   </button>
                 );
               })}
