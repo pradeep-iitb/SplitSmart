@@ -1,12 +1,5 @@
-import React, { useRef, useState, useEffect } from 'react';
-import {
-  Camera,
-  PlusCircle,
-  FolderOpen,
-  ArrowLeft,
-  Menu,
-  X,
-} from 'lucide-react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { Camera, PlusCircle, FolderOpen, ArrowLeft, Menu, X } from 'lucide-react';
 
 export interface NavItem {
   id: string;
@@ -42,7 +35,13 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [pillStyle, setPillStyle] = useState<{ left: number; top: number; width: number; height: number; opacity: number }>({
+  const [pillStyle, setPillStyle] = useState<{
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+    opacity: number;
+  }>({
     left: 0,
     top: 0,
     width: 0,
@@ -50,9 +49,11 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
     opacity: 0,
   });
 
-  const updatePill = () => {
+  const updatePill = useCallback(() => {
     if (!containerRef.current) return;
-    const activeEl = containerRef.current.querySelector(`[data-nav-id="${activeId}"]`) as HTMLElement;
+    const activeEl = containerRef.current.querySelector(
+      `[data-nav-id="${activeId}"]`
+    ) as HTMLElement;
     if (activeEl) {
       const containerRect = containerRef.current.getBoundingClientRect();
       const activeRect = activeEl.getBoundingClientRect();
@@ -64,13 +65,13 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
         opacity: 1,
       });
     }
-  };
+  }, [activeId]);
 
   useEffect(() => {
     updatePill();
     window.addEventListener('resize', updatePill);
     return () => window.removeEventListener('resize', updatePill);
-  }, [activeId, items]);
+  }, [updatePill, items]);
 
   const activeItem = items.find((item) => item.id === activeId);
 
@@ -138,7 +139,9 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
                   data-nav-id={item.id}
                   onClick={() => onChange(item.id)}
                   className={`relative z-10 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full transition-colors whitespace-nowrap cursor-pointer select-none ${
-                    isActive ? 'text-white font-bold' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                    isActive
+                      ? 'text-white font-bold'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                   }`}
                 >
                   {item.icon && <span className="shrink-0">{item.icon}</span>}

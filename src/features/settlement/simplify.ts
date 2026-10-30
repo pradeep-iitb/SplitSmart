@@ -1,9 +1,4 @@
-import type {
-  ID,
-  Paise,
-  MemberBalance,
-  SuggestedPayment,
-} from '../../types/domain';
+import type { ID, Paise, MemberBalance, SuggestedPayment } from '../../types/domain';
 
 interface Participant {
   memberId: ID;
@@ -93,12 +88,8 @@ export function suggestSettlementsWithDetails(
  * Compares exact minimum vs. greedy simplification.
  * Useful for inspection, tests, and judge demonstrations.
  */
-export function compareDebtAlgorithms(
-  balances: MemberBalance[]
-): AlgorithmComparison {
-  const active = balances
-    .filter((b) => b.balancePaise !== 0)
-    .map((b) => ({ ...b }));
+export function compareDebtAlgorithms(balances: MemberBalance[]): AlgorithmComparison {
+  const active = balances.filter((b) => b.balancePaise !== 0).map((b) => ({ ...b }));
 
   if (active.length <= 1) {
     return { exact: [], greedy: [], transactionsSaved: 0 };
@@ -122,9 +113,7 @@ export function compareDebtAlgorithms(
  * equals N - k, where k is the maximum number of disjoint non-empty subsets
  * whose member balances sum to zero.
  */
-export function simplifyExactOptimal(
-  participants: Participant[]
-): SuggestedPayment[] {
+export function simplifyExactOptimal(participants: Participant[]): SuggestedPayment[] {
   const n = participants.length;
   if (n <= 1) return [];
 
@@ -224,9 +213,7 @@ export function simplifyExactOptimal(
  * Complexity: O(N log N)
  * Guarantee: At most N - 1 transactions.
  */
-export function simplifyGreedy(
-  participants: Participant[]
-): SuggestedPayment[] {
+export function simplifyGreedy(participants: Participant[]): SuggestedPayment[] {
   // Separate into debtors (< 0) and creditors (> 0)
   const debtors: { memberId: ID; debtPaise: Paise }[] = [];
   const creditors: { memberId: ID; creditPaise: Paise }[] = [];

@@ -31,7 +31,9 @@ export const DecayCardFeature: React.FC<DecayCardFeatureProps> = ({
     const rotX = ((y - centerY) / centerY) * -10;
     const rotY = ((x - centerX) / centerX) * 10;
 
-    setTransform(`perspective(1000px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`);
+    setTransform(
+      `perspective(1000px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`
+    );
     setGlint({
       x: (x / rect.width) * 100,
       y: (y / rect.height) * 100,
@@ -68,16 +70,11 @@ export const DecayCardFeature: React.FC<DecayCardFeatureProps> = ({
       </div>
 
       {/* Content */}
-      <h3 className="text-xl font-extrabold text-slate-100 tracking-tight mb-2">
-        {title}
-      </h3>
-      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-5">
-        {tagline}
-      </p>
+      <h3 className="text-xl font-extrabold text-slate-100 tracking-tight mb-2">{title}</h3>
+      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-5">{tagline}</p>
 
       {/* Embedded interactive graphic or slot */}
       {children}
     </div>
   );
 };
-

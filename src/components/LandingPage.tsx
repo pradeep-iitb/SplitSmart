@@ -49,11 +49,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const shortExpenses = expenses.slice(0, 4);
 
   // Real category totals for Analytics preview
-  const categoryTotals = expenses.reduce((acc, exp) => {
-    const cat = exp.category || 'General';
-    acc[cat] = (acc[cat] || 0) + exp.amountPaise;
-    return acc;
-  }, {} as Record<string, number>);
+  const categoryTotals = expenses.reduce(
+    (acc, exp) => {
+      const cat = exp.category || 'General';
+      acc[cat] = (acc[cat] || 0) + exp.amountPaise;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 
   const totalSpentPaise = expenses.reduce((sum, e) => sum + e.amountPaise, 0);
 
@@ -109,7 +112,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               aria-label="GitHub Repository"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                />
               </svg>
             </a>
 
@@ -133,7 +140,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               aria-label="GitHub Repository"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                />
               </svg>
             </a>
 
@@ -152,11 +163,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             >
               {isMobileMenuOpen ? (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               ) : (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 </svg>
               )}
             </button>
@@ -191,7 +212,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-white"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                  />
                 </svg>
                 <span>GitHub</span>
               </a>
@@ -266,7 +291,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </h1>
 
               <p className="text-base sm:text-lg text-slate-200/95 leading-relaxed font-body drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-                Scan paper receipts, divide shared expenses with exact odd-paisa precision, and settle group debts directly with friends via 1-tap UPI QR codes.
+                Scan paper receipts, divide shared expenses with exact odd-paisa precision, and
+                settle group debts directly with friends via 1-tap UPI QR codes.
               </p>
 
               <div className="flex flex-wrap items-center gap-3.5 pt-2">
@@ -283,9 +309,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   onClick={onOpenScanModal}
                   className="px-5 py-3.5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-white/20 text-slate-100 font-heading font-semibold text-sm backdrop-blur-md transition-all cursor-pointer flex items-center gap-2 shadow-lg"
                 >
-                  <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <svg
+                    className="w-4 h-4 text-emerald-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
                   </svg>
                   <span>Scan Receipt</span>
                 </button>
@@ -294,18 +335,30 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               {/* Invariant stats with font-mono-numbers */}
               <div className="pt-6 border-t border-white/10 flex items-center gap-6 sm:gap-8 text-xs text-slate-300">
                 <div>
-                  <span className="block text-slate-100 font-mono-numbers font-bold text-sm">₹0.00</span>
-                  <span className="text-[11px] font-display uppercase tracking-wider text-slate-400">Odd-Paisa Drift</span>
+                  <span className="block text-slate-100 font-mono-numbers font-bold text-sm">
+                    ₹0.00
+                  </span>
+                  <span className="text-[11px] font-display uppercase tracking-wider text-slate-400">
+                    Odd-Paisa Drift
+                  </span>
                 </div>
                 <div className="w-px h-6 bg-white/10" />
                 <div>
-                  <span className="block text-slate-100 font-mono-numbers font-bold text-sm">{members.length}</span>
-                  <span className="text-[11px] font-display uppercase tracking-wider text-slate-400">Active Members</span>
+                  <span className="block text-slate-100 font-mono-numbers font-bold text-sm">
+                    {members.length}
+                  </span>
+                  <span className="text-[11px] font-display uppercase tracking-wider text-slate-400">
+                    Active Members
+                  </span>
                 </div>
                 <div className="w-px h-6 bg-white/10" />
                 <div>
-                  <span className="block text-emerald-400 font-heading font-bold text-sm">Offline</span>
-                  <span className="text-[11px] font-display uppercase tracking-wider text-slate-400">IndexedDB Storage</span>
+                  <span className="block text-emerald-400 font-heading font-bold text-sm">
+                    Offline
+                  </span>
+                  <span className="text-[11px] font-display uppercase tracking-wider text-slate-400">
+                    IndexedDB Storage
+                  </span>
                 </div>
               </div>
             </div>
@@ -359,7 +412,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               Trips, Live Balances & Spending Insights
             </h2>
             <p className="text-sm sm:text-base font-body text-slate-300 max-w-2xl mt-2 leading-relaxed">
-              Organize group expenses with smart categories, live balance sync, and visual analytics.
+              Organize group expenses with smart categories, live balance sync, and visual
+              analytics.
             </p>
           </div>
 
@@ -415,7 +469,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               image="/Images/Decaycard3.png"
             >
               <div className="space-y-1 select-none liquid-glass px-3.5 py-2 rounded-xl border border-white/15 w-fit shadow-xl">
-                <span className="text-[11px] font-heading font-bold text-emerald-400">Spending Insights</span>
+                <span className="text-[11px] font-heading font-bold text-emerald-400">
+                  Spending Insights
+                </span>
               </div>
             </DecayCard>
           </div>
@@ -462,7 +518,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                       {exp.description}
                     </h5>
                     <p className="text-xs font-body text-slate-400 mt-0.5">
-                      {exp.date} · Paid by <span className="text-purple-300 font-semibold">{payer?.name || 'Member'}</span>
+                      {exp.date} · Paid by{' '}
+                      <span className="text-purple-300 font-semibold">
+                        {payer?.name || 'Member'}
+                      </span>
                     </p>
                   </div>
                   <div className="text-right shrink-0">
@@ -497,34 +556,41 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
             <div className="text-sm font-body text-slate-300">
               Total Recorded:{' '}
-              <span className="font-bold text-white font-mono-numbers text-base">{formatPaise(totalSpentPaise)}</span>
+              <span className="font-bold text-white font-mono-numbers text-base">
+                {formatPaise(totalSpentPaise)}
+              </span>
             </div>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {Object.entries(categoryTotals).slice(0, 4).map(([category, amountPaise]) => {
-              const pct = totalSpentPaise > 0 ? Math.round((amountPaise / totalSpentPaise) * 100) : 0;
-              return (
-                <div
-                  key={category}
-                  className="liquid-glass-card p-5 rounded-2xl space-y-2.5 hover:border-emerald-500/40 transition-colors"
-                >
-                  <span className="text-xs font-display font-bold text-slate-400 uppercase tracking-wider block">
-                    {category}
-                  </span>
-                  <div className="text-xl sm:text-2xl font-black text-slate-100 font-mono-numbers">
-                    {formatPaise(amountPaise)}
+            {Object.entries(categoryTotals)
+              .slice(0, 4)
+              .map(([category, amountPaise]) => {
+                const pct =
+                  totalSpentPaise > 0 ? Math.round((amountPaise / totalSpentPaise) * 100) : 0;
+                return (
+                  <div
+                    key={category}
+                    className="liquid-glass-card p-5 rounded-2xl space-y-2.5 hover:border-emerald-500/40 transition-colors"
+                  >
+                    <span className="text-xs font-display font-bold text-slate-400 uppercase tracking-wider block">
+                      {category}
+                    </span>
+                    <div className="text-xl sm:text-2xl font-black text-slate-100 font-mono-numbers">
+                      {formatPaise(amountPaise)}
+                    </div>
+                    <div className="w-full bg-slate-800/80 h-2 rounded-full overflow-hidden p-0.5">
+                      <div
+                        className="bg-gradient-to-r from-purple-500 via-indigo-500 to-cyan-400 h-full rounded-full transition-all duration-500"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <span className="text-[11px] font-mono text-slate-400 block">
+                      {pct}% of group spend
+                    </span>
                   </div>
-                  <div className="w-full bg-slate-800/80 h-2 rounded-full overflow-hidden p-0.5">
-                    <div
-                      className="bg-gradient-to-r from-purple-500 via-indigo-500 to-cyan-400 h-full rounded-full transition-all duration-500"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                  <span className="text-[11px] font-mono text-slate-400 block">{pct}% of group spend</span>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
       </section>
@@ -565,19 +631,35 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* 6. Footer */}
       <footer className="border-t border-slate-800/80 py-6 px-6 sm:px-12 max-w-[1500px] mx-auto w-full max-w-full overflow-x-clip flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
         <div className="flex items-center gap-2">
-          <img src="/Images/SplitSmart Neon Receipt Logo.png" alt="Logo" className="w-5 h-5 rounded" />
+          <img
+            src="/Images/SplitSmart Neon Receipt Logo.png"
+            alt="Logo"
+            className="w-5 h-5 rounded"
+          />
           <span className="font-semibold text-slate-300">SplitSmart</span>
           <span>·</span>
           <span>Client-Side Local Ledger</span>
         </div>
         <div className="flex items-center gap-5">
-          <button type="button" onClick={() => onLaunchApp('split-studio')} className="hover:text-purple-300">
+          <button
+            type="button"
+            onClick={() => onLaunchApp('split-studio')}
+            className="hover:text-purple-300"
+          >
             Split Studio
           </button>
-          <button type="button" onClick={() => onLaunchApp('expenses')} className="hover:text-purple-300">
+          <button
+            type="button"
+            onClick={() => onLaunchApp('expenses')}
+            className="hover:text-purple-300"
+          >
             Expenses
           </button>
-          <button type="button" onClick={() => onLaunchApp('settlement')} className="hover:text-purple-300">
+          <button
+            type="button"
+            onClick={() => onLaunchApp('settlement')}
+            className="hover:text-purple-300"
+          >
             Settlement
           </button>
         </div>

@@ -1,11 +1,5 @@
 import { db, SplitSmartDatabase } from './database';
-import type {
-  Expense,
-  Group,
-  ID,
-  Member,
-  RecordedSettlement,
-} from '../types/domain';
+import type { Expense, Group, ID, Member, RecordedSettlement } from '../types/domain';
 import type { RecurringExpenseTemplate } from '../features/split/types';
 import mixedPayersFixture from '../test/fixtures/expenses-mixed-payers.json';
 import partialSettlementsFixture from '../test/fixtures/settlements-partial.json';
@@ -99,7 +93,10 @@ export async function listGroups(customDb: SplitSmartDatabase = db): Promise<Gro
 /**
  * Retrieves a single group by ID.
  */
-export async function getGroup(groupId: ID, customDb: SplitSmartDatabase = db): Promise<Group | undefined> {
+export async function getGroup(
+  groupId: ID,
+  customDb: SplitSmartDatabase = db
+): Promise<Group | undefined> {
   return await customDb.groups.get(groupId);
 }
 
@@ -123,9 +120,7 @@ export async function addMember(
   }
 
   const existingMembers = await customDb.members.where('groupId').equals(groupId).toArray();
-  const color =
-    options?.color ||
-    MEMBER_COLORS[existingMembers.length % MEMBER_COLORS.length];
+  const color = options?.color || MEMBER_COLORS[existingMembers.length % MEMBER_COLORS.length];
 
   const id =
     typeof crypto !== 'undefined' && crypto.randomUUID
@@ -133,8 +128,7 @@ export async function addMember(
       : `m-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 
   const avatarDataUrl =
-    options?.avatarDataUrl ||
-    `/Images/Avatar${(existingMembers.length % 8) + 1}.png`;
+    options?.avatarDataUrl || `/Images/Avatar${(existingMembers.length % 8) + 1}.png`;
 
   const member: Member = {
     id,
@@ -173,17 +167,20 @@ export async function updateMember(
 export async function removeMember(memberId: ID, customDb: SplitSmartDatabase = db): Promise<void> {
   const member = await customDb.members.get(memberId);
   if (!member) return;
+  if (member.isCurrentUser)
+    throw new Error('This member is you. Choose another person as Me before removing them.');
 
   // Check if member is referenced in any expense (as payer or share participant)
   const allExpenses = await customDb.expenses.where('groupId').equals(member.groupId).toArray();
   const isReferencedInExpenses = allExpenses.some(
-    (e) =>
-      e.payerId === memberId ||
-      e.memberShares.some((s) => s.memberId === memberId)
+    (e) => e.payerId === memberId || e.memberShares.some((s) => s.memberId === memberId)
   );
 
   // Check if member is referenced in any settlement
-  const allSettlements = await customDb.settlements.where('groupId').equals(member.groupId).toArray();
+  const allSettlements = await customDb.settlements
+    .where('groupId')
+    .equals(member.groupId)
+    .toArray();
   const isReferencedInSettlements = allSettlements.some(
     (s) => s.fromMemberId === memberId || s.toMemberId === memberId
   );
@@ -205,22 +202,76 @@ export async function listMembers(
   includeInactive = true,
   customDb: SplitSmartDatabase = db
 ): Promise<Member[]> {
-  let query = customDb.members.where('groupId').equals(groupId);
+  const query = customDb.members.where('groupId').equals(groupId);
   const list = await query.toArray();
   return includeInactive ? list : list.filter((m) => m.active);
+}
+
+/** Preserve the existing member's financial history when assigning the local user. */
+export async function ensureCurrentUserMember(
+  groupId: ID,
+  customDb: SplitSmartDatabase = db
+): Promise<Member> {
+  const members = await listMembers(groupId, true, customDb);
+  const current =
+    members.find((member) => member.isCurrentUser) ??
+    members.find((member) => /^(me|you)$/i.test(member.name.trim())) ??
+    members.find((member) => member.active) ??
+    members[0];
+
+  if (!current) {
+    const created = await addMember(groupId, 'Me', undefined, customDb);
+    await customDb.members.update(created.id, { isCurrentUser: true });
+    return { ...created, isCurrentUser: true };
+  }
+
+  await customDb.transaction('rw', customDb.members, async () => {
+    for (const member of members) {
+      if (member.id === current.id && (!member.isCurrentUser || !member.active)) {
+        await customDb.members.update(member.id, { isCurrentUser: true, active: true });
+      } else if (member.id !== current.id && member.isCurrentUser) {
+        await customDb.members.update(member.id, { isCurrentUser: false });
+      }
+    }
+  });
+  return { ...current, isCurrentUser: true, active: true };
+}
+
+export async function setCurrentUserMember(
+  groupId: ID,
+  memberId: ID,
+  customDb: SplitSmartDatabase = db
+): Promise<void> {
+  const members = await listMembers(groupId, true, customDb);
+  if (!members.some((member) => member.id === memberId))
+    throw new Error('Member is not in this group.');
+  await customDb.transaction('rw', customDb.members, async () => {
+    for (const member of members) {
+      if (member.id === memberId)
+        await customDb.members.update(member.id, { isCurrentUser: true, active: true });
+      else if (member.isCurrentUser)
+        await customDb.members.update(member.id, { isCurrentUser: false });
+    }
+  });
 }
 
 /**
  * Lists all expenses for a group (PS Point 14).
  */
-export async function listExpenses(groupId: ID, customDb: SplitSmartDatabase = db): Promise<Expense[]> {
+export async function listExpenses(
+  groupId: ID,
+  customDb: SplitSmartDatabase = db
+): Promise<Expense[]> {
   return await customDb.expenses.where('groupId').equals(groupId).toArray();
 }
 
 /**
  * Saves or updates an expense with strict financial invariant verification.
  */
-export async function saveExpense(expense: Expense, customDb: SplitSmartDatabase = db): Promise<void> {
+export async function saveExpense(
+  expense: Expense,
+  customDb: SplitSmartDatabase = db
+): Promise<void> {
   // Validate total sum invariant
   const shareSum = expense.memberShares.reduce((a, b) => a + b.amountPaise, 0);
   if (shareSum !== expense.amountPaise) {
@@ -241,7 +292,10 @@ export async function saveExpense(expense: Expense, customDb: SplitSmartDatabase
 /**
  * Deletes an expense by ID.
  */
-export async function deleteExpense(expenseId: ID, customDb: SplitSmartDatabase = db): Promise<void> {
+export async function deleteExpense(
+  expenseId: ID,
+  customDb: SplitSmartDatabase = db
+): Promise<void> {
   await customDb.expenses.delete(expenseId);
 }
 
@@ -265,7 +319,10 @@ export async function recordSettlement(
 /**
  * Deletes / reverses a recorded settlement.
  */
-export async function deleteSettlement(settlementId: ID, customDb: SplitSmartDatabase = db): Promise<void> {
+export async function deleteSettlement(
+  settlementId: ID,
+  customDb: SplitSmartDatabase = db
+): Promise<void> {
   await customDb.settlements.delete(settlementId);
 }
 
@@ -462,12 +519,20 @@ export async function seedInitialDataIfEmpty(customDb: SplitSmartDatabase = db):
 
   await customDb.transaction(
     'rw',
-    [customDb.groups, customDb.members, customDb.expenses, customDb.settlements, customDb.recurringTemplates],
+    [
+      customDb.groups,
+      customDb.members,
+      customDb.expenses,
+      customDb.settlements,
+      customDb.recurringTemplates,
+    ],
     async () => {
       await customDb.groups.add(defaultGroup);
       await customDb.members.bulkAdd(mixedPayersFixture.members as Member[]);
       await customDb.expenses.bulkAdd(mixedPayersFixture.expenses as Expense[]);
-      await customDb.settlements.bulkAdd(partialSettlementsFixture.settlements as RecordedSettlement[]);
+      await customDb.settlements.bulkAdd(
+        partialSettlementsFixture.settlements as RecordedSettlement[]
+      );
       await customDb.recurringTemplates.bulkAdd([
         {
           id: 'tpl-wifi-fiber',
@@ -526,4 +591,3 @@ export async function deleteRecurringTemplate(
 ): Promise<void> {
   await customDb.recurringTemplates.delete(templateId);
 }
-

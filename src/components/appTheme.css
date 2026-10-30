@@ -1,14 +1,340 @@
-.figma-engine{background:#10120f!important;color:#f5f5f0;font-family:'DM Sans',sans-serif}
-.figma-engine h1,.figma-engine h2,.figma-engine h3,.figma-engine .font-heading{font-family:Manrope,sans-serif;letter-spacing:-.035em}
-.figma-engine .liquid-glass-card{background:#1a1e1ae8!important;border:1px solid #3a4139!important;box-shadow:0 20px 60px #0003}
-.figma-engine [class*="bg-slate-900"],.figma-engine [class*="bg-slate-950"]{background-color:#1a1e1a!important}
-.figma-engine [class*="bg-slate-800"]{background-color:#222722!important}
-.figma-engine [class*="border-slate-700"],.figma-engine [class*="border-slate-800"]{border-color:#3a4139!important}
-.figma-engine [class*="text-purple-"],.figma-engine [class*="text-violet-"],.figma-engine [class*="text-blue-400"]{color:#d9ff66!important}
-.figma-engine [class*="bg-purple-600"],.figma-engine [class*="bg-violet-600"],.figma-engine [class*="bg-blue-600"]{background-color:#b8dc4f!important;color:#10120f!important}
-.figma-engine [class*="border-purple-"],.figma-engine [class*="border-violet-"]{border-color:#78983a!important}
-.figma-engine button:focus-visible,.figma-engine a:focus-visible{outline:2px solid #d9ff66;outline-offset:3px}
-.figma-engine:has(.ss-app-nav) .ss-app-content{margin-left:244px;width:calc(100% - 244px);padding-top:38px}
-.ss-app-nav{position:fixed;inset:0 auto 0 0;width:244px;z-index:45;background:#1a1e1a;border-right:1px solid #3a4139;padding:29px 17px;display:flex;flex-direction:column;font-family:'DM Sans',sans-serif}.ss-nav-logo{display:flex;align-items:center;color:#f5f5f0;font:800 21px Manrope,sans-serif;margin:0 5px 40px}.ss-nav-logo>span:first-child{display:grid;place-items:center;width:35px;height:35px;background:#d9ff66;color:#10120f;border-radius:10px;margin-right:8px}.ss-nav-logo>span:last-child{color:#d9ff66}.ss-app-nav nav{display:flex;flex-direction:column;gap:5px}.ss-app-nav nav button{display:flex;align-items:center;gap:12px;color:#a7ada5;text-align:left;padding:13px 12px;border-radius:11px;font-size:14px;font-weight:700}.ss-app-nav nav button.active{background:#d9ff661c;color:#d9ff66}.ss-app-nav nav button:hover,.ss-nav-actions button:hover{background:#282e28;color:#f5f5f0}.ss-app-nav nav button small{margin-left:auto;background:#3a4139;border-radius:99px;padding:2px 7px}.ss-nav-actions{border-top:1px solid #3a4139;margin-top:22px;padding-top:16px;display:grid;gap:4px}.ss-nav-actions button{text-align:left;padding:11px 12px;border-radius:10px;color:#f5f5f0;font-size:13px}.ss-nav-private{margin-top:auto;padding:13px;background:#222722;border:1px solid #3a4139;border-radius:12px;color:#54f58c;display:flex;gap:9px}.ss-nav-private span{display:block}.ss-nav-private strong,.ss-nav-private small{display:block;font-size:12px}.ss-nav-private small{color:#a7ada5;margin-top:3px;font-size:10px}.ss-mobile-header,.ss-bottom-nav{display:none}
-@media(max-width:1000px){.ss-app-nav{width:76px;padding:22px 9px}.ss-app-nav .ss-nav-logo{font-size:0;margin:0 0 35px 10px}.ss-app-nav .ss-nav-logo>span:last-child,.ss-app-nav nav button span,.ss-app-nav nav button small,.ss-nav-private{display:none}.ss-app-nav nav button{justify-content:center}.ss-nav-actions button{font-size:0;text-align:center}.ss-nav-actions button::first-letter{font-size:20px}.figma-engine:has(.ss-app-nav) .ss-app-content{margin-left:76px;width:calc(100% - 76px)}}
-@media(max-width:640px){.ss-app-nav{display:none}.ss-mobile-header{height:65px;display:flex;justify-content:space-between;align-items:center;padding:0 16px;background:#1a1e1a;border-bottom:1px solid #3a4139;position:sticky;top:0;z-index:45}.ss-mobile-header .ss-nav-logo{margin:0}.ss-mobile-header>button:last-child{color:#d9ff66;font-size:12px}.ss-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:45;height:70px;background:#1a1e1a;border-top:1px solid #3a4139;display:grid;grid-template-columns:repeat(5,1fr)}.ss-bottom-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#a7ada5;font-size:10px}.ss-bottom-nav button.active{color:#d9ff66}.figma-engine:has(.ss-mobile-header) .ss-app-content{margin-left:0;width:100%;padding-top:25px;padding-bottom:90px}}
+.figma-engine {
+  background: #10120f !important;
+  color: #f5f5f0;
+  font-family: 'DM Sans', sans-serif;
+}
+.figma-engine h1,
+.figma-engine h2,
+.figma-engine h3,
+.figma-engine .font-heading {
+  font-family: Manrope, sans-serif;
+  letter-spacing: -0.035em;
+}
+.figma-engine .liquid-glass-card {
+  background: #1a1e1ae8 !important;
+  border: 1px solid #3a4139 !important;
+  box-shadow: 0 20px 60px #0003;
+}
+.figma-engine [class*='bg-slate-900'],
+.figma-engine [class*='bg-slate-950'] {
+  background-color: #1a1e1a !important;
+}
+.figma-engine [class*='bg-slate-800'] {
+  background-color: #222722 !important;
+}
+.figma-engine [class*='border-slate-700'],
+.figma-engine [class*='border-slate-800'] {
+  border-color: #3a4139 !important;
+}
+.figma-engine [class*='text-purple-'],
+.figma-engine [class*='text-violet-'],
+.figma-engine [class*='text-blue-400'] {
+  color: #d9ff66 !important;
+}
+.figma-engine [class*='bg-purple-600'],
+.figma-engine [class*='bg-violet-600'],
+.figma-engine [class*='bg-blue-600'] {
+  background-color: #b8dc4f !important;
+  color: #10120f !important;
+}
+.figma-engine [class*='border-purple-'],
+.figma-engine [class*='border-violet-'] {
+  border-color: #78983a !important;
+}
+.figma-engine button:focus-visible,
+.figma-engine a:focus-visible {
+  outline: 2px solid #d9ff66;
+  outline-offset: 3px;
+}
+.figma-engine:has(.ss-app-nav) .ss-app-content {
+  margin-left: 244px;
+  width: calc(100% - 244px);
+  padding-top: 38px;
+}
+.ss-app-nav {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 244px;
+  z-index: 45;
+  background: #1a1e1a;
+  border-right: 1px solid #3a4139;
+  padding: 29px 17px;
+  display: flex;
+  flex-direction: column;
+  font-family: 'DM Sans', sans-serif;
+}
+.ss-nav-logo {
+  display: flex;
+  align-items: center;
+  color: #f5f5f0;
+  font:
+    800 21px Manrope,
+    sans-serif;
+  margin: 0 5px 40px;
+}
+.ss-nav-logo > span:first-child {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  background: #d9ff66;
+  color: #10120f;
+  border-radius: 10px;
+  margin-right: 8px;
+}
+.ss-nav-logo > span:last-child {
+  color: #d9ff66;
+}
+.ss-app-nav nav {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.ss-app-nav nav button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #a7ada5;
+  text-align: left;
+  padding: 13px 12px;
+  border-radius: 11px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.ss-app-nav nav button.active {
+  background: #d9ff661c;
+  color: #d9ff66;
+}
+.ss-app-nav nav button:hover,
+.ss-nav-actions button:hover {
+  background: #282e28;
+  color: #f5f5f0;
+}
+.ss-app-nav nav button small {
+  margin-left: auto;
+  background: #3a4139;
+  border-radius: 99px;
+  padding: 2px 7px;
+}
+.ss-nav-actions {
+  border-top: 1px solid #3a4139;
+  margin-top: 22px;
+  padding-top: 16px;
+  display: grid;
+  gap: 4px;
+}
+.ss-nav-actions button {
+  text-align: left;
+  padding: 11px 12px;
+  border-radius: 10px;
+  color: #f5f5f0;
+  font-size: 13px;
+}
+.ss-nav-private {
+  margin-top: auto;
+  padding: 13px;
+  background: #222722;
+  border: 1px solid #3a4139;
+  border-radius: 12px;
+  color: #54f58c;
+  display: flex;
+  gap: 9px;
+}
+.ss-nav-private span {
+  display: block;
+}
+.ss-nav-private strong,
+.ss-nav-private small {
+  display: block;
+  font-size: 12px;
+}
+.ss-nav-private small {
+  color: #a7ada5;
+  margin-top: 3px;
+  font-size: 10px;
+}
+.ss-mobile-header,
+.ss-bottom-nav {
+  display: none;
+}
+@media (max-width: 1000px) {
+  .ss-app-nav {
+    width: 76px;
+    padding: 22px 9px;
+  }
+  .ss-app-nav .ss-nav-logo {
+    font-size: 0;
+    margin: 0 0 35px 10px;
+  }
+  .ss-app-nav .ss-nav-logo > span:last-child,
+  .ss-app-nav nav button span,
+  .ss-app-nav nav button small,
+  .ss-nav-private {
+    display: none;
+  }
+  .ss-app-nav nav button {
+    justify-content: center;
+  }
+  .ss-nav-actions button {
+    font-size: 0;
+    text-align: center;
+  }
+  .ss-nav-actions button::first-letter {
+    font-size: 20px;
+  }
+  .figma-engine:has(.ss-app-nav) .ss-app-content {
+    margin-left: 76px;
+    width: calc(100% - 76px);
+  }
+}
+@media (max-width: 640px) {
+  .ss-app-nav {
+    display: none;
+  }
+  .ss-mobile-header {
+    height: 65px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    background: #1a1e1a;
+    border-bottom: 1px solid #3a4139;
+    position: sticky;
+    top: 0;
+    z-index: 45;
+  }
+  .ss-mobile-header .ss-nav-logo {
+    margin: 0;
+  }
+  .ss-mobile-header > button:last-child {
+    color: #d9ff66;
+    font-size: 12px;
+  }
+  .ss-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 45;
+    height: 70px;
+    background: #1a1e1a;
+    border-top: 1px solid #3a4139;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+  }
+  .ss-bottom-nav button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: #a7ada5;
+    font-size: 10px;
+  }
+  .ss-bottom-nav button.active {
+    color: #d9ff66;
+  }
+  .figma-engine:has(.ss-mobile-header) .ss-app-content {
+    margin-left: 0;
+    width: 100%;
+    padding-top: 25px;
+    padding-bottom: 90px;
+  }
+}
+.ss-mobile-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ss-mobile-actions button {
+  color: #d9ff66;
+  font-size: 12px;
+  font-weight: 700;
+}
+.ss-mobile-actions .ss-mobile-add {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #d9ff66;
+  color: #10120f;
+}
+@media (max-width: 640px) {
+  .ss-mobile-header .ss-nav-logo {
+    font-size: 18px;
+  }
+  .ss-mobile-header .ss-nav-logo > span:first-child {
+    width: 30px;
+    height: 30px;
+    margin-right: 5px;
+  }
+}
+.ss-manual-overlay {
+  left: 244px;
+  z-index: 44;
+  align-items: flex-start;
+  padding: 40px 24px;
+  background: #10120f;
+  backdrop-filter: none;
+}
+.ss-manual-dialog {
+  max-width: 800px;
+  max-height: calc(100dvh - 80px);
+  background: #1a1e1a !important;
+  box-shadow: none;
+}
+.ss-manual-dialog > div:first-child {
+  background: #1a1e1a !important;
+}
+.ss-manual-dialog h2 {
+  font-size: 27px;
+}
+.ss-manual-dialog input,
+.ss-manual-dialog select {
+  min-height: 40px;
+}
+.ss-compact-layout .ss-app-content {
+  padding-top: 18px !important;
+}
+.ss-compact-layout .ss-dashboard-stats > *,
+.ss-compact-layout .ss-group-stats > * {
+  min-height: 105px;
+}
+.ss-compact-layout .ss-dashboard-groups > button {
+  min-height: 135px;
+}
+@media (max-width: 1000px) {
+  .ss-manual-overlay {
+    left: 76px;
+  }
+}
+@media (max-width: 640px) {
+  .ss-manual-overlay {
+    left: 0;
+    top: 65px;
+    bottom: 70px;
+    padding: 10px;
+  }
+  .ss-manual-dialog {
+    max-height: calc(100dvh - 155px);
+    height: calc(100dvh - 155px);
+  }
+}
+.ss-manual-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 12px 20px;
+}
+.ss-manual-tabs button {
+  min-height: 42px;
+  border: 1px solid #3a4139;
+  border-radius: 10px;
+  background: #222722;
+  color: #a7ada5;
+  font-size: 12px;
+  font-weight: 800;
+}
+.ss-manual-tabs button.active {
+  border-color: #d9ff66;
+  background: #d9ff6610;
+  color: #f5f5f0;
+}

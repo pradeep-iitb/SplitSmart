@@ -13,15 +13,7 @@ import {
   exportGroupSummaryText,
   exportSettlementsToCsv,
 } from '../export';
-import {
-  Download,
-  FileSpreadsheet,
-  Share2,
-  Check,
-  Copy,
-  Printer,
-  Sparkles,
-} from 'lucide-react';
+import { Download, FileSpreadsheet, Share2, Check, Copy, Printer, Sparkles } from 'lucide-react';
 
 interface ExportPanelProps {
   group: Group;
@@ -42,13 +34,7 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({
 }) => {
   const [copiedSummary, setCopiedSummary] = useState(false);
 
-  const summaryText = exportGroupSummaryText(
-    group,
-    members,
-    expenses,
-    balances,
-    suggestions
-  );
+  const summaryText = exportGroupSummaryText(group, members, expenses, balances, suggestions);
 
   const handleDownloadExpensesCsv = () => {
     const csv = exportExpensesToCsv(expenses, members);
@@ -78,12 +64,11 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({
       <div className="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-1">
           <Share2 className="w-5 h-5 text-blue-400" />
-          <h3 className="font-bold text-slate-100 text-lg">
-            Export & Report Generator
-          </h3>
+          <h3 className="font-bold text-slate-100 text-lg">Export & Report Generator</h3>
         </div>
         <p className="text-xs text-slate-400">
-          Export full group financial records as standard CSVs (Excel & Sheets compatible with UTF-8 BOM) or copy formatted summaries for WhatsApp/email.
+          Export full group financial records as standard CSVs (Excel & Sheets compatible with UTF-8
+          BOM) or copy formatted summaries for WhatsApp/email.
         </p>
 
         {/* Action Buttons Grid */}
@@ -123,9 +108,7 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-amber-400" />
-            <h4 className="font-semibold text-slate-100 text-sm">
-              Quick Chat / WhatsApp Summary
-            </h4>
+            <h4 className="font-semibold text-slate-100 text-sm">Quick Chat / WhatsApp Summary</h4>
           </div>
           <button
             type="button"

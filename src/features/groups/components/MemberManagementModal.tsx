@@ -1,22 +1,20 @@
 import React, { useState } from 'react';
 import type { Member } from '../../../types/domain';
-import { MemberAvatar, AVATAR_OPTIONS } from './MemberAvatar';
-import {
-  X,
-  UserPlus,
-  Trash2,
-  Edit2,
-  Check,
-  QrCode,
-} from 'lucide-react';
+import { MemberAvatar } from './MemberAvatar';
+import { AVATAR_OPTIONS } from '../avatarUtils';
+import { X, UserPlus, Trash2, Edit2, Check, QrCode } from 'lucide-react';
 
 interface MemberManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
   groupName: string;
   members: Member[];
-  onAddMember: (name: string, options?: { color?: string; avatarDataUrl?: string; upiId?: string }) => Promise<Member>;
+  onAddMember: (
+    name: string,
+    options?: { color?: string; avatarDataUrl?: string; upiId?: string }
+  ) => Promise<Member>;
   onUpdateMember: (memberId: string, patch: Partial<Member>) => Promise<void>;
+  onSetCurrentUser: (memberId: string) => Promise<void>;
   onRemoveMember: (memberId: string) => Promise<void>;
 }
 
@@ -27,6 +25,7 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
   members,
   onAddMember,
   onUpdateMember,
+  onSetCurrentUser,
   onRemoveMember,
 }) => {
   const [newName, setNewName] = useState('');
@@ -101,7 +100,10 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
         </div>
 
         {/* Add Member Form */}
-        <form onSubmit={handleAdd} className="p-6 border-b border-slate-800 bg-slate-950/40 space-y-3">
+        <form
+          onSubmit={handleAdd}
+          className="p-6 border-b border-slate-800 bg-slate-950/40 space-y-3"
+        >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <input
               type="text"
@@ -135,7 +137,11 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
                   }`}
                   title={`Avatar ${idx + 1}`}
                 >
-                  <img src={avatarPath} alt={`Avatar ${idx + 1}`} className="w-full h-full rounded-full object-cover" />
+                  <img
+                    src={avatarPath}
+                    alt={`Avatar ${idx + 1}`}
+                    className="w-full h-full rounded-full object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -156,6 +162,10 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
           <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">
             Group Members ({members.length})
           </span>
+          <p className="text-xs text-slate-400 mb-3">
+            The member marked Me is used for your balances. Choose “This is me” if an older group
+            has the wrong person marked.
+          </p>
 
           {members.map((member) => {
             const isEditing = member.id === editingMemberId;
@@ -196,7 +206,11 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
                             }`}
                             title={`Avatar ${idx + 1}`}
                           >
-                            <img src={avatarPath} alt={`Avatar ${idx + 1}`} className="w-full h-full rounded-full object-cover" />
+                            <img
+                              src={avatarPath}
+                              alt={`Avatar ${idx + 1}`}
+                              className="w-full h-full rounded-full object-cover"
+                            />
                           </button>
                         ))}
                       </div>
@@ -219,10 +233,19 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
                 ) : (
                   <>
                     <div className="flex items-center gap-3">
-                      <MemberAvatar member={member} size="lg" className="border-2 border-slate-700/80 shadow-sm" />
+                      <MemberAvatar
+                        member={member}
+                        size="lg"
+                        className="border-2 border-slate-700/80 shadow-sm"
+                      />
                       <div>
                         <div className="flex items-center gap-2">
                           <h4 className="text-sm font-bold text-slate-100">{member.name}</h4>
+                          {member.isCurrentUser && (
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-lime-400/20 text-lime-300 font-semibold">
+                              Me
+                            </span>
+                          )}
                           {!member.active && (
                             <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-500">
                               Inactive
@@ -235,12 +258,24 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
                             {member.upiId}
                           </span>
                         ) : (
-                          <span className="text-xs text-slate-500 mt-0.5 block">No UPI ID configured</span>
+                          <span className="text-xs text-slate-500 mt-0.5 block">
+                            No UPI ID configured
+                          </span>
                         )}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-1">
+                      {!member.isCurrentUser && (
+                        <button
+                          type="button"
+                          onClick={() => void onSetCurrentUser(member.id)}
+                          className="px-2 py-1.5 rounded-lg text-xs text-lime-300 hover:bg-lime-400/10"
+                          title={`Use ${member.name} for your balances in this group`}
+                        >
+                          This is me
+                        </button>
+                      )}
                       <button
                         onClick={() => handleStartEdit(member)}
                         className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-700/50"
@@ -248,17 +283,23 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button
-                        onClick={() => {
-                          if (confirm(`Remove member "${member.name}"? Historical records will be safely preserved.`)) {
-                            onRemoveMember(member.id);
-                          }
-                        }}
-                        className="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-700/50"
-                        title="Remove member"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {!member.isCurrentUser && (
+                        <button
+                          onClick={() => {
+                            if (
+                              confirm(
+                                `Remove member "${member.name}"? Historical records will be safely preserved.`
+                              )
+                            ) {
+                              onRemoveMember(member.id);
+                            }
+                          }}
+                          className="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-700/50"
+                          title="Remove member"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </>
                 )}

@@ -95,8 +95,12 @@ export const HeroCardsDeck: React.FC<HeroCardsDeckProps> = ({ onCardClick }) => 
           >
             {/* Top row */}
             <div className="flex items-center justify-between mb-4">
-              <span className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border ${c.badgeColor} flex items-center gap-1.5`}>
-                {c.featured && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />}
+              <span
+                className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border ${c.badgeColor} flex items-center gap-1.5`}
+              >
+                {c.featured && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                )}
                 <span>{c.badge}</span>
               </span>
               <span className="p-2 rounded-xl bg-slate-800/80 border border-slate-700/50 group-hover:scale-110 transition-transform">
@@ -126,4 +130,3 @@ export const HeroCardsDeck: React.FC<HeroCardsDeckProps> = ({ onCardClick }) => 
     </div>
   );
 };
-

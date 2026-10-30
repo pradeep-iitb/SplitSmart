@@ -19,6 +19,7 @@ import {
 
 interface BackupShareModalProps {
   isOpen: boolean;
+  initialSubTab?: 'url' | 'export' | 'import';
   onClose: () => void;
   group: Group;
   onImportSuccess: (importedGroupId: string) => void;
@@ -26,17 +27,20 @@ interface BackupShareModalProps {
 
 export const BackupShareModal: React.FC<BackupShareModalProps> = ({
   isOpen,
+  initialSubTab = 'url',
   onClose,
   group,
   onImportSuccess,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'export' | 'import' | 'url'>('url');
+  const [activeSubTab, setActiveSubTab] = useState<'export' | 'import' | 'url'>(initialSubTab);
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [copiedJson, setCopiedJson] = useState(false);
   const [shareableUrl, setShareableUrl] = useState<string>('');
   const [jsonText, setJsonText] = useState<string>('');
   const [importInput, setImportInput] = useState<string>('');
-  const [importStatus, setImportStatus] = useState<{ success: boolean; message: string } | null>(null);
+  const [importStatus, setImportStatus] = useState<{ success: boolean; message: string } | null>(
+    null
+  );
 
   // Load URL & JSON on modal open
   React.useEffect(() => {
@@ -125,7 +129,9 @@ export const BackupShareModal: React.FC<BackupShareModalProps> = ({
             </span>
             <div>
               <h2 className="text-xl font-bold text-slate-100">Serverless Sharing & Backup</h2>
-              <p className="text-xs text-slate-400">Export, import, or share without a server backend</p>
+              <p className="text-xs text-slate-400">
+                Export, import, or share without a server backend
+              </p>
             </div>
           </div>
           <button
@@ -148,7 +154,7 @@ export const BackupShareModal: React.FC<BackupShareModalProps> = ({
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveSubTab(tab.id as any)}
+                onClick={() => setActiveSubTab(tab.id as 'url' | 'export' | 'import')}
                 className={`py-3.5 px-4 text-xs font-semibold border-b-2 flex items-center gap-2 transition-all cursor-pointer ${
                   active
                     ? 'border-blue-500 text-blue-400 bg-blue-500/5'
@@ -173,7 +179,9 @@ export const BackupShareModal: React.FC<BackupShareModalProps> = ({
                   Instant Serverless Link Sharing
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  The entire group state (members, expenses, split shares, settlements) is compressed directly into the URL hash. Anyone with this link can open and import the group into their local browser with zero backend or server upload!
+                  The entire group state (members, expenses, split shares, settlements) is
+                  compressed directly into the URL hash. Anyone with this link can open and import
+                  the group into their local browser with zero backend or server upload!
                 </p>
               </div>
 
@@ -213,7 +221,8 @@ export const BackupShareModal: React.FC<BackupShareModalProps> = ({
           {activeSubTab === 'export' && (
             <div className="space-y-4">
               <p className="text-slate-400 text-xs">
-                Download a clean, structured JSON file of group <strong>"{group.name}"</strong> to keep a local backup or restore on another device.
+                Download a clean, structured JSON file of group <strong>"{group.name}"</strong> to
+                keep a local backup or restore on another device.
               </p>
 
               <div className="relative">
@@ -257,7 +266,8 @@ export const BackupShareModal: React.FC<BackupShareModalProps> = ({
           {activeSubTab === 'import' && (
             <div className="space-y-4">
               <p className="text-slate-400 text-xs">
-                Paste JSON text or upload a saved <code>.json</code> file to restore a group into your local IndexedDB.
+                Paste JSON text or upload a saved <code>.json</code> file to restore a group into
+                your local IndexedDB.
               </p>
 
               {importStatus && (

@@ -32,7 +32,8 @@ const BLEED = 1.24;
 const ROOT = 'relative flex-none will-change-transform';
 const CANVAS = 'pointer-events-none absolute top-[-12%] left-[-12%] block h-[124%] w-[124%]';
 const FALLBACK = 'absolute top-[8.33%] left-[8.33%] h-[83.33%] w-[83.33%] object-cover';
-const CONTENT = 'pointer-events-none absolute right-[8.33%] bottom-[8.33%] left-[8.33%] p-5 text-white';
+const CONTENT =
+  'pointer-events-none absolute right-[8.33%] bottom-[8.33%] left-[8.33%] p-5 text-white';
 
 const VERTEX = `#version 300 es
 in vec2 position;
@@ -205,7 +206,7 @@ const DecayCard = ({
   grayscale = false,
   children,
   className = '',
-  style
+  style,
 }: DecayCardProps) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -227,10 +228,12 @@ const DecayCard = ({
     tilt: clamp(tilt, 0, 45),
     scope: SCOPES.includes(scope) ? scope : 'window',
     radius: Math.max(0, radius),
-    grayscale
+    grayscale,
   };
   const settingsRef = useRef(settings);
-  settingsRef.current = settings;
+  useEffect(() => {
+    settingsRef.current = settings;
+  });
 
   useEffect(() => {
     const root = rootRef.current;
@@ -238,7 +241,11 @@ const DecayCard = ({
     if (!root || !canvas) return undefined;
 
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-    const gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: true, antialias: false });
+    const gl = canvas.getContext('webgl2', {
+      alpha: true,
+      premultipliedAlpha: true,
+      antialias: false,
+    });
     let program: WebGLProgram | null = null;
     let texture: WebGLTexture | null = null;
     let buffer: WebGLBuffer | null = null;
@@ -272,7 +279,17 @@ const DecayCard = ({
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 0]));
+        gl.texImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          1,
+          1,
+          0,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          new Uint8Array([0, 0, 0, 0])
+        );
         for (const name of [
           'uImage',
           'uSize',
@@ -288,7 +305,7 @@ const DecayCard = ({
           'uFlow',
           'uChroma',
           'uGray',
-          'uReady'
+          'uReady',
         ]) {
           uniforms[name] = gl.getUniformLocation(program, name);
         }
@@ -311,7 +328,7 @@ const DecayCard = ({
       visible: true,
       ready: false,
       imageWidth: 1,
-      imageHeight: 1
+      imageHeight: 1,
     };
     let raf = 0;
     let last = performance.now();
@@ -336,14 +353,17 @@ const DecayCard = ({
       gl.uniform2f(uniforms.uSize, w, h);
       gl.uniform2f(uniforms.uImageSize, state.imageWidth, state.imageHeight);
       gl.uniform1f(uniforms.uUnit, unit);
-      const currentLevel = state.hovered ? state.level : (state.level < 0.005 ? 0 : state.level);
+      const currentLevel = state.hovered ? state.level : state.level < 0.005 ? 0 : state.level;
       gl.uniform1f(uniforms.uScale, currentLevel * s.intensity * 440);
       const currentIdle = state.hovered ? s.idle : 0;
       gl.uniform1f(uniforms.uIdle, currentIdle);
       gl.uniform1f(uniforms.uFrequency, s.frequency);
       gl.uniform1i(uniforms.uOctaves, s.octaves);
       gl.uniform1f(uniforms.uSeed, s.seed);
-      gl.uniform1f(uniforms.uRadius, Math.min(300, (s.radius * (w / Math.max(1, canvas.clientWidth))) / unit));
+      gl.uniform1f(
+        uniforms.uRadius,
+        Math.min(300, (s.radius * (w / Math.max(1, canvas.clientWidth))) / unit)
+      );
       gl.uniform1f(uniforms.uTime, state.time);
       gl.uniform1f(uniforms.uFlow, reduce ? 0 : s.flow);
       gl.uniform1f(uniforms.uChroma, s.chroma);
@@ -393,7 +413,12 @@ const DecayCard = ({
         state.level = 0;
       }
 
-      if (!state.hovered && Math.abs(state.x) < 0.05 && Math.abs(state.y) < 0.05 && Math.abs(state.rotate) < 0.05) {
+      if (
+        !state.hovered &&
+        Math.abs(state.x) < 0.05 &&
+        Math.abs(state.y) < 0.05 &&
+        Math.abs(state.rotate) < 0.05
+      ) {
         state.x = 0;
         state.y = 0;
         state.rotate = 0;
@@ -402,7 +427,10 @@ const DecayCard = ({
       root.style.transform = `translate3d(${state.x.toFixed(2)}px, ${state.y.toFixed(2)}px, 0) rotate(${state.rotate.toFixed(3)}deg)`;
 
       const settling =
-        Math.abs(targetX - state.x) + Math.abs(targetY - state.y) + Math.abs(targetRotate - state.rotate) > 0.05 ||
+        Math.abs(targetX - state.x) +
+          Math.abs(targetY - state.y) +
+          Math.abs(targetRotate - state.rotate) >
+          0.05 ||
         Math.abs(wanted - state.level) > 0.002 ||
         (state.level > 0.002 && s.flow > 0 && !reduce) ||
         speed > 1;
@@ -519,8 +547,8 @@ const DecayCard = ({
 
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(canvas);
-    const visibility = new IntersectionObserver(entries => {
-      state.visible = entries.some(entry => entry.isIntersecting);
+    const visibility = new IntersectionObserver((entries) => {
+      state.visible = entries.some((entry) => entry.isIntersecting);
       if (state.visible) wake();
     });
     visibility.observe(root);
@@ -556,7 +584,11 @@ const DecayCard = ({
   });
 
   return (
-    <div ref={rootRef} className={`${ROOT}${className ? ` ${className}` : ''}`} style={{ width, height, ...style }}>
+    <div
+      ref={rootRef}
+      className={`${ROOT}${className ? ` ${className}` : ''}`}
+      style={{ width, height, ...style }}
+    >
       <canvas ref={canvasRef} className={CANVAS} aria-hidden="true" />
       {fallback && image && (
         <img
@@ -572,4 +604,3 @@ const DecayCard = ({
 };
 
 export default DecayCard;
-

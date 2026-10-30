@@ -3,13 +3,7 @@ import type { Member, MemberBalance, SuggestedPayment } from '../../../types/dom
 import { formatPaise } from '../balances';
 import { MemberAvatar } from '../../groups/components/MemberAvatar';
 import { suggestSettlementsWithDetails } from '../simplify';
-import {
-  ArrowRight,
-  CheckCircle2,
-  CreditCard,
-  QrCode,
-  Wallet,
-} from 'lucide-react';
+import { ArrowRight, CheckCircle2, CreditCard, QrCode, Wallet } from 'lucide-react';
 
 interface DebtSimplificationCardProps {
   balances: MemberBalance[];
@@ -43,9 +37,7 @@ export const DebtSimplificationCard: React.FC<DebtSimplificationCardProps> = ({
             <Wallet className="w-5 h-5" />
           </span>
           <div>
-            <h3 className="font-bold text-slate-100 text-lg">
-              Suggested Settlements
-            </h3>
+            <h3 className="font-bold text-slate-100 text-lg">Suggested Settlements</h3>
             <p className="text-xs text-slate-400 mt-0.5">
               Optimized payments to clear all group debts with minimum transactions.
             </p>
@@ -66,9 +58,7 @@ export const DebtSimplificationCard: React.FC<DebtSimplificationCardProps> = ({
             <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto text-emerald-400">
               <CheckCircle2 className="w-6 h-6" />
             </div>
-            <h4 className="font-semibold text-slate-200 text-base">
-              All settled up!
-            </h4>
+            <h4 className="font-semibold text-slate-200 text-base">All settled up!</h4>
             <p className="text-xs text-slate-400 max-w-sm mx-auto">
               No one in this group currently owes any money. All expenses are fully balanced.
             </p>

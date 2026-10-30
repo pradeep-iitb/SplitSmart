@@ -2,15 +2,7 @@ import React from 'react';
 import type { Expense, Member } from '../../../types/domain';
 import { formatPaise } from '../balances';
 import { calculateSpendingAnalytics } from '../analytics';
-import {
-  BarChart3,
-  PieChart,
-  TrendingUp,
-  Users,
-  Wallet,
-  Tag,
-  Calendar,
-} from 'lucide-react';
+import { BarChart3, PieChart, TrendingUp, Users, Wallet, Tag, Calendar } from 'lucide-react';
 
 interface AnalyticsDashboardProps {
   expenses: Expense[];
@@ -26,10 +18,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   Other: '#64748b', // Slate
 };
 
-export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
-  expenses,
-  members,
-}) => {
+export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ expenses, members }) => {
   const analytics = calculateSpendingAnalytics(expenses, members);
 
   if (expenses.length === 0) {
@@ -38,7 +27,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         <BarChart3 className="w-10 h-10 text-slate-500 mx-auto opacity-50" />
         <h4 className="font-semibold text-slate-200">No expense data available</h4>
         <p className="text-xs text-slate-400">
-          Add expenses or select a scenario fixture above to view spending trends and category analytics.
+          Add expenses or select a scenario fixture above to view spending trends and category
+          analytics.
         </p>
       </div>
     );
@@ -63,7 +53,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             {formatPaise(analytics.totalSpentPaise)}
           </div>
           <div className="text-sm text-slate-400 mt-1.5">
-            Across <span className="font-semibold text-slate-200">{analytics.expenseCount}</span> expenses
+            Across <span className="font-semibold text-slate-200">{analytics.expenseCount}</span>{' '}
+            expenses
           </div>
         </div>
 
@@ -75,9 +66,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
             {formatPaise(analytics.averagePerMemberPaise)}
           </div>
-          <div className="text-sm text-slate-400 mt-1.5">
-            For {members.length} participants
-          </div>
+          <div className="text-sm text-slate-400 mt-1.5">For {members.length} participants</div>
         </div>
 
         <div className="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-5 shadow-sm">
@@ -101,11 +90,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             <Calendar className="w-5 h-5 text-violet-400" />
           </div>
           <div className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
-            {analytics.spendingByDate.length} <span className="text-base font-normal text-slate-400">days</span>
+            {analytics.spendingByDate.length}{' '}
+            <span className="text-base font-normal text-slate-400">days</span>
           </div>
-          <div className="text-sm text-slate-400 mt-1.5">
-            Active spending records
-          </div>
+          <div className="text-sm text-slate-400 mt-1.5">Active spending records</div>
         </div>
       </div>
 
@@ -114,9 +102,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <PieChart className="w-5 h-5 text-emerald-400" />
-            <h3 className="font-bold text-slate-100 text-lg">
-              Spending by Category
-            </h3>
+            <h3 className="font-bold text-slate-100 text-lg">Spending by Category</h3>
           </div>
           <span className="text-xs text-slate-400">
             {analytics.categoryBreakdown.length} active categories
@@ -159,9 +145,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                     style={{ backgroundColor: color }}
                   />
                   <div>
-                    <div className="font-medium text-slate-200 text-xs">
-                      {cat.category}
-                    </div>
+                    <div className="font-medium text-slate-200 text-xs">{cat.category}</div>
                     <div className="text-[11px] text-slate-400">
                       {cat.expenseCount} {cat.expenseCount === 1 ? 'expense' : 'expenses'}
                     </div>
@@ -172,9 +156,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                   <div className="font-bold text-slate-100 text-xs">
                     {formatPaise(cat.totalPaise)}
                   </div>
-                  <div className="text-[11px] text-slate-400">
-                    {percentStr}%
-                  </div>
+                  <div className="text-[11px] text-slate-400">{percentStr}%</div>
                 </div>
               </div>
             );
@@ -218,16 +200,24 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                   <span className="font-semibold text-slate-200">{m.memberName}</span>
                   <div className="flex items-center gap-2">
                     <span className="text-slate-400">
-                      Paid: <strong className="text-slate-200">{formatPaise(m.totalPaidPaise)}</strong>
+                      Paid:{' '}
+                      <strong className="text-slate-200">{formatPaise(m.totalPaidPaise)}</strong>
                     </span>
                     <span>•</span>
                     <span className="text-slate-400">
-                      Consumed: <strong className="text-slate-200">{formatPaise(m.totalConsumedPaise)}</strong>
+                      Consumed:{' '}
+                      <strong className="text-slate-200">
+                        {formatPaise(m.totalConsumedPaise)}
+                      </strong>
                     </span>
                     <span>•</span>
                     <span
                       className={`font-bold ${
-                        isCreditor ? 'text-emerald-400' : m.netBalancePaise < 0 ? 'text-rose-400' : 'text-slate-400'
+                        isCreditor
+                          ? 'text-emerald-400'
+                          : m.netBalancePaise < 0
+                            ? 'text-rose-400'
+                            : 'text-slate-400'
                       }`}
                     >
                       {formatPaise(m.netBalancePaise, { showSign: true })}
@@ -261,9 +251,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         <div className="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 shadow-sm space-y-3">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-violet-400" />
-            <h3 className="font-semibold text-slate-100 text-base">
-              Daily Spending Timeline
-            </h3>
+            <h3 className="font-semibold text-slate-100 text-base">Daily Spending Timeline</h3>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1">
@@ -272,9 +260,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                 key={item.date}
                 className="bg-slate-800/80 border border-slate-700/40 rounded-xl p-3 text-center"
               >
-                <div className="text-[11px] text-slate-400 font-medium">
-                  {item.date}
-                </div>
+                <div className="text-[11px] text-slate-400 font-medium">{item.date}</div>
                 <div className="text-sm font-bold text-slate-100 mt-0.5">
                   {formatPaise(item.totalPaise)}
                 </div>

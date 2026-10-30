@@ -25,10 +25,7 @@ export function calculateSpendingAnalytics(
   expenses: Expense[],
   members: Member[]
 ): GroupAnalyticsSummary {
-  const totalSpentPaise: Paise = expenses.reduce(
-    (sum, exp) => sum + exp.amountPaise,
-    0
-  );
+  const totalSpentPaise: Paise = expenses.reduce((sum, exp) => sum + exp.amountPaise, 0);
 
   const memberCount = Math.max(1, members.length);
   const averagePerMemberPaise = Math.round(totalSpentPaise / memberCount);
@@ -75,9 +72,7 @@ export function calculateSpendingAnalytics(
   const categoryBreakdown = ALL_CATEGORIES.map((cat) => {
     const data = categoryTotals.get(cat) ?? { totalPaise: 0, count: 0 };
     const percentageBasisPoints =
-      totalSpentPaise > 0
-        ? Math.round((data.totalPaise * 10000) / totalSpentPaise)
-        : 0;
+      totalSpentPaise > 0 ? Math.round((data.totalPaise * 10000) / totalSpentPaise) : 0;
 
     return {
       category: cat,
@@ -147,21 +142,67 @@ export function calculateSpendingAnalytics(
 /**
  * Keyword-based heuristic to assign category for manual expenses without line items
  */
-function inferCategoryFromDescription(desc: string): Category {
+export function inferCategoryFromDescription(desc: string): Category {
   const d = desc.toLowerCase();
-  if (d.includes('food') || d.includes('dinner') || d.includes('lunch') || d.includes('breakfast') || d.includes('cafe') || d.includes('restaurant') || d.includes('pizza') || d.includes('burger') || d.includes('snack')) {
+  if (
+    d.includes('food') ||
+    d.includes('dinner') ||
+    d.includes('lunch') ||
+    d.includes('breakfast') ||
+    d.includes('cafe') ||
+    d.includes('restaurant') ||
+    d.includes('pizza') ||
+    d.includes('burger') ||
+    d.includes('snack')
+  ) {
     return 'Food';
   }
-  if (d.includes('grocery') || d.includes('supermarket') || d.includes('mart') || d.includes('vegetable') || d.includes('milk') || d.includes('kirana')) {
+  if (
+    d.includes('grocery') ||
+    d.includes('supermarket') ||
+    d.includes('mart') ||
+    d.includes('vegetable') ||
+    d.includes('milk') ||
+    d.includes('kirana')
+  ) {
     return 'Groceries';
   }
-  if (d.includes('travel') || d.includes('fuel') || d.includes('petrol') || d.includes('diesel') || d.includes('cab') || d.includes('taxi') || d.includes('uber') || d.includes('ola') || d.includes('toll') || d.includes('flight') || d.includes('train')) {
+  if (
+    d.includes('travel') ||
+    d.includes('fuel') ||
+    d.includes('petrol') ||
+    d.includes('diesel') ||
+    d.includes('cab') ||
+    d.includes('taxi') ||
+    d.includes('uber') ||
+    d.includes('ola') ||
+    d.includes('toll') ||
+    d.includes('flight') ||
+    d.includes('train')
+  ) {
     return 'Travel';
   }
-  if (d.includes('utility') || d.includes('electricity') || d.includes('water') || d.includes('wifi') || d.includes('internet') || d.includes('gas') || d.includes('recharge') || d.includes('rent')) {
+  if (
+    d.includes('utility') ||
+    d.includes('electricity') ||
+    d.includes('water') ||
+    d.includes('wifi') ||
+    d.includes('internet') ||
+    d.includes('gas') ||
+    d.includes('recharge') ||
+    d.includes('rent')
+  ) {
     return 'Utilities';
   }
-  if (d.includes('movie') || d.includes('cinema') || d.includes('club') || d.includes('game') || d.includes('concert') || d.includes('show') || d.includes('party')) {
+  if (
+    d.includes('movie') ||
+    d.includes('cinema') ||
+    d.includes('club') ||
+    d.includes('game') ||
+    d.includes('concert') ||
+    d.includes('show') ||
+    d.includes('party')
+  ) {
     return 'Entertainment';
   }
   return 'Other';

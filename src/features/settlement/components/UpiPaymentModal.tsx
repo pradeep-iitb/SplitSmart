@@ -32,9 +32,8 @@ export const UpiPaymentModal: React.FC<UpiPaymentModalProps> = ({
   const upiValid = isValidUpiId(activeUpiId);
 
   const note = `SplitSmart: ${payer?.name || 'Debtor'} to ${payee?.name || 'Creditor'}`;
-  const upiUri = payment && activeUpiId
-    ? createUpiUri(payment, activeUpiId, note, payee?.name)
-    : '';
+  const upiUri =
+    payment && activeUpiId ? createUpiUri(payment, activeUpiId, note, payee?.name) : '';
 
   useEffect(() => {
     let isMounted = true;
@@ -184,11 +183,7 @@ export const UpiPaymentModal: React.FC<UpiPaymentModalProps> = ({
           {/* QR Code Container */}
           <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-inner border border-slate-300 mx-auto max-w-[240px]">
             {qrDataUrl ? (
-              <img
-                src={qrDataUrl}
-                alt="UPI Payment QR Code"
-                className="w-48 h-48 rounded-lg"
-              />
+              <img src={qrDataUrl} alt="UPI Payment QR Code" className="w-48 h-48 rounded-lg" />
             ) : (
               <div className="w-48 h-48 flex flex-col items-center justify-center text-slate-400 text-xs gap-2">
                 <QrCode className="w-8 h-8 text-slate-300 animate-pulse" />

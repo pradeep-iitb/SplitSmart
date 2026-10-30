@@ -25,10 +25,7 @@ function escapeCsvCell(value: string | number | null | undefined): string {
  * PS Point 20: Export to CSV
  * Exports all group expenses with detailed itemized and share breakdowns.
  */
-export function exportExpensesToCsv(
-  expenses: Expense[],
-  members: Member[]
-): string {
+export function exportExpensesToCsv(expenses: Expense[], members: Member[]): string {
   const memberNameMap = new Map(members.map((m) => [m.id, m.name]));
 
   const headers = [
@@ -90,11 +87,7 @@ export function exportSettlementsToCsv(
     const name = memberNameMap.get(b.memberId) ?? b.memberId;
     const amountInr = (b.balancePaise / 100).toFixed(2);
     const status =
-      b.balancePaise > 0
-        ? 'Gets back money'
-        : b.balancePaise < 0
-        ? 'Owes money'
-        : 'Settled up';
+      b.balancePaise > 0 ? 'Gets back money' : b.balancePaise < 0 ? 'Owes money' : 'Settled up';
     lines.push([escapeCsvCell(name), escapeCsvCell(amountInr), escapeCsvCell(status)].join(','));
   }
 
@@ -108,12 +101,14 @@ export function exportSettlementsToCsv(
     const toName = memberNameMap.get(s.toMemberId) ?? s.toMemberId;
     const amountInr = paiseToRupees(s.amountPaise).toFixed(2);
     const upi = memberUpiMap.get(s.toMemberId) ?? '';
-    lines.push([
-      escapeCsvCell(fromName),
-      escapeCsvCell(toName),
-      escapeCsvCell(amountInr),
-      escapeCsvCell(upi),
-    ].join(','));
+    lines.push(
+      [
+        escapeCsvCell(fromName),
+        escapeCsvCell(toName),
+        escapeCsvCell(amountInr),
+        escapeCsvCell(upi),
+      ].join(',')
+    );
   }
 
   lines.push('');
@@ -125,13 +120,15 @@ export function exportSettlementsToCsv(
     const fromName = memberNameMap.get(r.fromMemberId) ?? r.fromMemberId;
     const toName = memberNameMap.get(r.toMemberId) ?? r.toMemberId;
     const amountInr = paiseToRupees(r.amountPaise).toFixed(2);
-    lines.push([
-      escapeCsvCell(r.settledAt),
-      escapeCsvCell(fromName),
-      escapeCsvCell(toName),
-      escapeCsvCell(amountInr),
-      escapeCsvCell(r.note ?? ''),
-    ].join(','));
+    lines.push(
+      [
+        escapeCsvCell(r.settledAt),
+        escapeCsvCell(fromName),
+        escapeCsvCell(toName),
+        escapeCsvCell(amountInr),
+        escapeCsvCell(r.note ?? ''),
+      ].join(',')
+    );
   }
 
   return '\uFEFF' + lines.join('\r\n');

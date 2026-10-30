@@ -1,10 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie';
-import type {
-  Expense,
-  Group,
-  Member,
-  RecordedSettlement,
-} from '../types/domain';
+import type { Expense, Group, Member, RecordedSettlement } from '../types/domain';
 import type { RecurringExpenseTemplate } from '../features/split/types';
 
 /**

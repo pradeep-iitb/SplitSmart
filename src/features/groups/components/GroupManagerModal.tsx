@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
 import type { Group } from '../../../types/domain';
-import {
-  X,
-  Plus,
-  Trash2,
-  Edit2,
-  Check,
-  FolderOpen,
-} from 'lucide-react';
+import { X, Plus, Trash2, Edit2, Check, FolderOpen } from 'lucide-react';
 
 interface GroupManagerModalProps {
   isOpen: boolean;
@@ -74,7 +67,9 @@ export const GroupManagerModal: React.FC<GroupManagerModalProps> = ({
             </span>
             <div>
               <h2 className="text-xl font-bold text-slate-100">Switch & Manage Groups</h2>
-              <p className="text-xs text-slate-400">All groups stored permanently in local IndexedDB</p>
+              <p className="text-xs text-slate-400">
+                All groups stored permanently in local IndexedDB
+              </p>
             </div>
           </div>
           <button
@@ -198,9 +193,7 @@ export const GroupManagerModal: React.FC<GroupManagerModalProps> = ({
         </div>
         {/* Clean Data Action */}
         <div className="p-4 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between">
-          <span className="text-xs text-slate-400">
-            Reset to pristine demo data?
-          </span>
+          <span className="text-xs text-slate-400">Reset to pristine demo data?</span>
           {onResetDemoData && (
             <button
               type="button"

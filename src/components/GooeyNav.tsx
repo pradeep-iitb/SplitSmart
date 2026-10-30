@@ -7,7 +7,7 @@ import {
   useState,
   type CSSProperties,
   type MouseEvent,
-  type ReactNode
+  type ReactNode,
 } from 'react';
 
 const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
@@ -108,27 +108,46 @@ const THEMES: Record<Palette, Record<string, string>> = {
     '--gn-frame-highlight': 'rgba(255, 255, 255, 0.07)',
     '--gn-frame-shadow': '0 22px 44px -20px rgba(0, 0, 0, 0.8), 0 6px 16px -8px rgba(0, 0, 0, 0.5)',
     '--gn-ink': '#f4f4f5',
-    '--gn-muted': 'rgba(244, 244, 245, 0.62)'
+    '--gn-muted': 'rgba(244, 244, 245, 0.62)',
   },
   light: {
     '--gn-frame': 'rgba(240, 240, 243, 0.8)',
     '--gn-frame-edge': 'rgba(24, 24, 27, 0.07)',
     '--gn-frame-highlight': 'rgba(255, 255, 255, 0.95)',
-    '--gn-frame-shadow': '0 22px 44px -22px rgba(24, 24, 27, 0.3), 0 6px 16px -10px rgba(24, 24, 27, 0.16)',
+    '--gn-frame-shadow':
+      '0 22px 44px -22px rgba(24, 24, 27, 0.3), 0 6px 16px -10px rgba(24, 24, 27, 0.16)',
     '--gn-ink': '#27272a',
-    '--gn-muted': 'rgba(39, 39, 42, 0.62)'
-  }
+    '--gn-muted': 'rgba(39, 39, 42, 0.62)',
+  },
 };
 
 const PILLS: Record<Palette, { color: string; hover: string; shadow: number }> = {
   dark: { color: '#f4f4f5', hover: 'rgba(255, 255, 255, 0.08)', shadow: 0.4 },
-  light: { color: '#27272a', hover: 'rgba(24, 24, 27, 0.06)', shadow: 0.2 }
+  light: { color: '#27272a', hover: 'rgba(24, 24, 27, 0.06)', shadow: 0.2 },
 };
 
 const SIZES: Record<Size, Record<string, string>> = {
-  sm: { '--gn-pad': '5px', '--gn-gap': '2px', '--gn-font': '13px', '--gn-x': '13px', '--gn-y': '7px' },
-  md: { '--gn-pad': '6px', '--gn-gap': '4px', '--gn-font': '14px', '--gn-x': '16px', '--gn-y': '9px' },
-  lg: { '--gn-pad': '7px', '--gn-gap': '6px', '--gn-font': '16px', '--gn-x': '20px', '--gn-y': '11px' }
+  sm: {
+    '--gn-pad': '5px',
+    '--gn-gap': '2px',
+    '--gn-font': '13px',
+    '--gn-x': '13px',
+    '--gn-y': '7px',
+  },
+  md: {
+    '--gn-pad': '6px',
+    '--gn-gap': '4px',
+    '--gn-font': '14px',
+    '--gn-x': '16px',
+    '--gn-y': '9px',
+  },
+  lg: {
+    '--gn-pad': '7px',
+    '--gn-gap': '6px',
+    '--gn-font': '16px',
+    '--gn-x': '20px',
+    '--gn-y': '11px',
+  },
 };
 
 const ROOT = 'relative inline-flex max-w-full text-[length:var(--gn-font)] leading-[1.2]';
@@ -149,7 +168,7 @@ const DEFAULT_ITEMS: GooeyNavItem[] = [
   { label: 'Home', href: '#' },
   { label: 'Work', href: '#' },
   { label: 'About', href: '#' },
-  { label: 'Contact', href: '#' }
+  { label: 'Contact', href: '#' },
 ];
 
 const MAX_DROPS = 32;
@@ -245,18 +264,19 @@ void main() {
 const parse = (value: string): Rgba => {
   const match = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(value).trim());
   if (match) {
-    const hex = match[1].length === 3 ? match[1].replace(/./g, digit => digit + digit) : match[1];
-    return [0, 2, 4].map(index => parseInt(hex.slice(index, index + 2), 16) / 255).concat(1);
+    const hex = match[1].length === 3 ? match[1].replace(/./g, (digit) => digit + digit) : match[1];
+    return [0, 2, 4].map((index) => parseInt(hex.slice(index, index + 2), 16) / 255).concat(1);
   }
   const rgba = /rgba?\(([^)]+)\)/i.exec(String(value));
   if (rgba) {
-    const parts = rgba[1].split(',').map(part => parseFloat(part));
+    const parts = rgba[1].split(',').map((part) => parseFloat(part));
     return [parts[0] / 255, parts[1] / 255, parts[2] / 255, parts[3] ?? 1];
   }
   return [1, 1, 1, 1];
 };
 
-const contrastInk = (rgb: Rgba) => (0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2] > 0.55 ? '#18161d' : '#ffffff');
+const contrastInk = (rgb: Rgba) =>
+  0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2] > 0.55 ? '#18161d' : '#ffffff';
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 
@@ -295,7 +315,7 @@ const UNIFORMS = [
   'uSmooth',
   'uPill',
   'uHoverColor',
-  'uShadow'
+  'uShadow',
 ];
 
 const build = (gl: WebGL2RenderingContext): Pipeline | null => {
@@ -307,7 +327,9 @@ const build = (gl: WebGL2RenderingContext): Pipeline | null => {
     gl.deleteProgram(program);
     return null;
   }
-  const uniforms = Object.fromEntries(UNIFORMS.map(name => [name, gl.getUniformLocation(program, name)]));
+  const uniforms = Object.fromEntries(
+    UNIFORMS.map((name) => [name, gl.getUniformLocation(program, name)])
+  );
   const buffer = gl.createBuffer() as WebGLBuffer;
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
@@ -333,7 +355,7 @@ export default function GooeyNav({
   wobble = 0.5,
   hoverEffect = true,
   className = '',
-  style
+  style,
 }: GooeyNavProps) {
   const [innerIndex, setInnerIndex] = useState(initialActiveIndex);
   const current = Math.min(Math.max(0, activeIndex ?? innerIndex), Math.max(0, items.length - 1));
@@ -344,7 +366,6 @@ export default function GooeyNav({
   const fallbackRef = useRef<HTMLSpanElement>(null);
   const engineRef = useRef<{ go: (index: number) => void; refresh: () => void } | null>(null);
   const indexRef = useRef(current);
-  indexRef.current = current;
   const palette = theme === 'light' ? 'light' : 'dark';
   const pillColor = color || PILLS[palette].color;
   const pillRgb = parse(pillColor);
@@ -359,10 +380,13 @@ export default function GooeyNav({
     pillRgb,
     tints: colors.map(parse),
     hoverRgb: parse(PILLS[palette].hover),
-    shadow: PILLS[palette].shadow
+    shadow: PILLS[palette].shadow,
   };
   const settingsRef = useRef(settings);
-  settingsRef.current = settings;
+  useIsomorphicLayoutEffect(() => {
+    indexRef.current = current;
+    settingsRef.current = settings;
+  });
 
   const select = (index: number) => {
     if (index === current) return;
@@ -379,7 +403,11 @@ export default function GooeyNav({
     if (!stage || !canvas || !list || !overlay || !fallback) return;
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: true, antialias: false });
+    const gl = canvas.getContext('webgl2', {
+      alpha: true,
+      premultipliedAlpha: true,
+      antialias: false,
+    });
     const pipeline = gl ? build(gl) : null;
     fallback.style.display = pipeline ? 'none' : 'block';
     canvas.style.display = pipeline ? 'block' : 'none';
@@ -409,7 +437,7 @@ export default function GooeyNav({
         left: `${-MARGIN}px`,
         top: `${-MARGIN}px`,
         width: `${outerWidth}px`,
-        height: `${outerHeight}px`
+        height: `${outerHeight}px`,
       });
       const width = Math.max(1, Math.round(outerWidth * ratio));
       const height = Math.max(1, Math.round(outerHeight * ratio));
@@ -417,7 +445,7 @@ export default function GooeyNav({
         canvas.width = width;
         canvas.height = height;
       }
-      rects = Array.from(list.children).map(item => {
+      rects = Array.from(list.children).map((item) => {
         const rect = item.getBoundingClientRect();
         return { x: rect.left - box.left, y: rect.top - box.top, w: rect.width, h: rect.height };
       });
@@ -461,13 +489,16 @@ export default function GooeyNav({
             const cross = x - step + (step * previous) / (previous - value);
             if (value < 0) start = cross;
             else if (start !== null) {
-              parts.push(`M${start.toFixed(1)},${y}H${cross.toFixed(1)}V${y + 1}H${start.toFixed(1)}Z`);
+              parts.push(
+                `M${start.toFixed(1)},${y}H${cross.toFixed(1)}V${y + 1}H${start.toFixed(1)}Z`
+              );
               start = null;
             }
           }
           previous = value;
         }
-        if (start !== null) parts.push(`M${start.toFixed(1)},${y}H${view.width}V${y + 1}H${start.toFixed(1)}Z`);
+        if (start !== null)
+          parts.push(`M${start.toFixed(1)},${y}H${view.width}V${y + 1}H${start.toFixed(1)}Z`);
       }
       return parts.join('');
     };
@@ -511,7 +542,7 @@ export default function GooeyNav({
         ex + Math.cos(into) * swing * 1.5,
         ey + Math.sin(into) * swing * 1.5,
         ex,
-        ey
+        ey,
       ];
     };
 
@@ -523,7 +554,10 @@ export default function GooeyNav({
       const available = source.mass - source.outgoing;
       if (available <= 0.002) return;
       const room = MAX_DROPS - drops.length;
-      const count = Math.min(room, Math.max(1, Math.round(Math.max(1, s.particleCount) * available)));
+      const count = Math.min(
+        room,
+        Math.max(1, Math.round(Math.max(1, s.particleCount) * available))
+      );
       if (count <= 0) return;
       const window = Math.max(0.15, s.animationTime / 1000) * 0.16;
       for (let i = 0; i < count; i++) {
@@ -543,7 +577,7 @@ export default function GooeyNav({
           emerged: 0,
           absorbed: 0,
           state: 'waiting',
-          tint: s.tints.length ? s.tints[Math.floor(Math.random() * s.tints.length)] : null
+          tint: s.tints.length ? s.tints[Math.floor(Math.random() * s.tints.length)] : null,
         });
       }
     };
@@ -556,7 +590,13 @@ export default function GooeyNav({
       const blobs: Blob[] = [];
       for (const [index, state] of pills) {
         const box = shape(index, state.scale);
-        if (box) boxes.push({ cx: box.x + box.w / 2, cy: box.y + box.h / 2, hw: box.w / 2, hh: box.h / 2 });
+        if (box)
+          boxes.push({
+            cx: box.x + box.w / 2,
+            cy: box.y + box.h / 2,
+            hw: box.w / 2,
+            hh: box.h / 2,
+          });
       }
       for (const drop of drops) {
         if (drop.state === 'waiting') continue;
@@ -570,7 +610,7 @@ export default function GooeyNav({
           r: radius,
           tx: speed > 0.01 ? (drop.vx / speed) * length : 0,
           ty: speed > 0.01 ? (drop.vy / speed) * length : 0,
-          tint: drop.tint
+          tint: drop.tint,
         });
       }
 
@@ -638,7 +678,13 @@ export default function GooeyNav({
       gl.uniform1i(uniforms.uCount, count);
       gl.uniform1f(uniforms.uSmooth, smooth);
       gl.uniform3f(uniforms.uPill, s.pillRgb[0], s.pillRgb[1], s.pillRgb[2]);
-      gl.uniform4f(uniforms.uHoverColor, s.hoverRgb[0], s.hoverRgb[1], s.hoverRgb[2], s.hoverRgb[3] * hover.alpha);
+      gl.uniform4f(
+        uniforms.uHoverColor,
+        s.hoverRgb[0],
+        s.hoverRgb[1],
+        s.hoverRgb[2],
+        s.hoverRgb[3] * hover.alpha
+      );
       gl.uniform1f(uniforms.uShadow, s.shadow);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
@@ -677,7 +723,7 @@ export default function GooeyNav({
             drop.x,
             drop.y,
             drop.x,
-            drop.y
+            drop.y,
           ];
           const x = bezier(x0, x1, x2, x3, eased);
           const y = bezier(y0, y1, y2, y3, eased);
@@ -706,10 +752,16 @@ export default function GooeyNav({
       const h = dt / steps;
       for (const [index, state] of pills) {
         for (let n = 0; n < steps; n++) {
-          state.velocity += (omega * omega * (state.mass - state.scale) - 2 * zeta * omega * state.velocity) * h;
+          state.velocity +=
+            (omega * omega * (state.mass - state.scale) - 2 * zeta * omega * state.velocity) * h;
           state.scale += state.velocity * h;
         }
-        if (index !== target && state.mass <= 0.002 && state.outgoing <= 0.002 && Math.abs(state.scale) < 0.004) {
+        if (
+          index !== target &&
+          state.mass <= 0.002 &&
+          state.outgoing <= 0.002 &&
+          Math.abs(state.scale) < 0.004
+        ) {
           pills.delete(index);
         }
       }
@@ -737,7 +789,9 @@ export default function GooeyNav({
       const hoverRect = rects[hover.index];
       const hovering =
         Math.abs(hoverGoal - hover.alpha) > 0.003 ||
-        (hoverRect && Math.abs(hoverRect.x + hoverRect.w / 2 - hover.x) + Math.abs(hoverRect.w - hover.w) > 0.1);
+        (hoverRect &&
+          Math.abs(hoverRect.x + hoverRect.w / 2 - hover.x) + Math.abs(hoverRect.w - hover.w) >
+            0.1);
       if (!resting || hovering) raf = requestAnimationFrame(frame);
       else {
         host.mass = 1;
@@ -831,11 +885,11 @@ export default function GooeyNav({
     });
 
     engineRef.current = {
-      go: index => go(index, true),
+      go: (index) => go(index, true),
       refresh: () => {
         render();
         wake();
-      }
+      },
     };
 
     return () => {
@@ -883,7 +937,7 @@ export default function GooeyNav({
         onClick: (event: MouseEvent) => {
           if (!item.href || item.href === '#') event.preventDefault();
           select(index);
-        }
+        },
       };
       return (
         <li
@@ -914,13 +968,17 @@ export default function GooeyNav({
           ...THEMES[palette],
           '--gn-pill': pillColor,
           '--gn-active-ink': textColor,
-          ...style
+          ...style,
         } as CSSProperties
       }
     >
       {frame && <span className={RIM} />}
       <div ref={stageRef} className="relative max-w-full">
-        <canvas ref={canvasRef} className="pointer-events-none absolute left-0 top-0" aria-hidden="true" />
+        <canvas
+          ref={canvasRef}
+          className="pointer-events-none absolute left-0 top-0"
+          aria-hidden="true"
+        />
         <span
           ref={fallbackRef}
           className="pointer-events-none absolute left-0 top-0 hidden rounded-full bg-[var(--gn-pill)]"
@@ -936,4 +994,3 @@ export default function GooeyNav({
     </nav>
   );
 }
-

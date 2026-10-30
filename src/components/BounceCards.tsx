@@ -60,7 +60,7 @@ const parseTransform = (value: string | undefined): Slot | null => {
   return {
     x: translate ? Number(translate[1]) : 0,
     y: translate && translate[2] ? Number(translate[2]) : 0,
-    rotate: rotate ? Number(rotate[1]) : 0
+    rotate: rotate ? Number(rotate[1]) : 0,
   };
 };
 
@@ -88,7 +88,7 @@ export default function BounceCards({
   radius = 25,
   shadow = true,
   transformStyles,
-  onCardClick
+  onCardClick,
 }: BounceCardsProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -104,7 +104,7 @@ export default function BounceCards({
     return {
       x: offset * spread,
       y: arc * (offset / reach) ** 2,
-      rotate: rotation * PATTERN[i % PATTERN.length]
+      rotate: rotation * PATTERN[i % PATTERN.length],
     };
   });
   const settings = {
@@ -116,12 +116,14 @@ export default function BounceCards({
     enableHover,
     pushDistance,
     hoverScale: clamp(hoverScale, 0.5, 2),
-    clickable: typeof onCardClick === 'function'
+    clickable: typeof onCardClick === 'function',
   };
   const settingsRef = useRef(settings);
-  settingsRef.current = settings;
   const clickRef = useRef(onCardClick);
-  clickRef.current = onCardClick;
+  useEffect(() => {
+    settingsRef.current = settings;
+    clickRef.current = onCardClick;
+  });
 
   useEffect(() => {
     const root = rootRef.current;
@@ -131,7 +133,7 @@ export default function BounceCards({
     const bodies: Body[] = [];
     const state = { hovered: -1, time: 0, layer: -1 };
     let raf = 0;
-    let last = performance.now();
+    let last = 0;
     let alive = true;
 
     const body = (i: number): Body => {
@@ -146,7 +148,7 @@ export default function BounceCards({
           vy: 0,
           vr: 0,
           vs: 0,
-          born: state.time
+          born: state.time,
         };
       }
       return bodies[i];
@@ -168,7 +170,7 @@ export default function BounceCards({
       raf = 0;
       if (!alive) return;
       const s = settingsRef.current;
-      const dt = Math.min(1 / 30, Math.max(1 / 240, (now - last) / 1000));
+      const dt = last === 0 ? 1 / 60 : Math.min(1 / 30, Math.max(1 / 240, (now - last) / 1000));
       last = now;
       state.time += dt;
 
@@ -203,12 +205,26 @@ export default function BounceCards({
         for (let k = 0; k < substeps; k++) {
           [card.x, card.vx] = step(card.x, card.vx, targetX, moveStiffness, moveDamping, h);
           [card.y, card.vy] = step(card.y, card.vy, targetY, moveStiffness, moveDamping, h);
-          [card.rotate, card.vr] = step(card.rotate, card.vr, targetRotate, moveStiffness, moveDamping, h);
+          [card.rotate, card.vr] = step(
+            card.rotate,
+            card.vr,
+            targetRotate,
+            moveStiffness,
+            moveDamping,
+            h
+          );
           if (reduce) {
             card.scale = targetScale;
             card.vs = 0;
           } else {
-            [card.scale, card.vs] = step(card.scale, card.vs, targetScale, popStiffness, popDamping, h);
+            [card.scale, card.vs] = step(
+              card.scale,
+              card.vs,
+              targetScale,
+              popStiffness,
+              popDamping,
+              h
+            );
           }
         }
         moving +=
@@ -351,19 +367,21 @@ export default function BounceCards({
           '--bounce-cards-shadow-active': shadow
             ? '0 2px 4px rgba(0, 0, 0, 0.14), 0 22px 44px -10px rgba(0, 0, 0, 0.42)'
             : 'none',
-          ...style
+          ...style,
         } as React.CSSProperties
       }
     >
       {cards.map((card, i) => (
         <div
           key={i}
-          ref={el => {
+          ref={(el) => {
             cardRefs.current[i] = el;
           }}
           className={settings.clickable ? `${CARD} ${CLICKABLE}` : CARD}
           style={{ zIndex: i + 1 }}
-          {...(settings.clickable ? { role: 'button', tabIndex: 0, 'aria-label': card.alt || `Card ${i + 1}` } : null)}
+          {...(settings.clickable
+            ? { role: 'button', tabIndex: 0, 'aria-label': card.alt || `Card ${i + 1}` }
+            : null)}
         >
           {card.src && <img className={IMG} src={card.src} alt={card.alt} draggable={false} />}
         </div>
@@ -371,4 +389,3 @@ export default function BounceCards({
     </div>
   );
 }
-

@@ -70,12 +70,15 @@ export function calculateDetailedBalances(
   expenses: Expense[],
   payments: RecordedSettlement[]
 ): MemberBalanceBreakdown[] {
-  const breakdownMap = new Map<ID, {
-    totalPaid: Paise;
-    totalShare: Paise;
-    settlementsSent: Paise;
-    settlementsReceived: Paise;
-  }>();
+  const breakdownMap = new Map<
+    ID,
+    {
+      totalPaid: Paise;
+      totalShare: Paise;
+      settlementsSent: Paise;
+      settlementsReceived: Paise;
+    }
+  >();
 
   for (const m of members) {
     breakdownMap.set(m.id, {
@@ -118,10 +121,7 @@ export function calculateDetailedBalances(
       settlementsReceived: 0,
     };
     const netBalancePaise =
-      stats.totalPaid -
-      stats.totalShare +
-      stats.settlementsSent -
-      stats.settlementsReceived;
+      stats.totalPaid - stats.totalShare + stats.settlementsSent - stats.settlementsReceived;
 
     return {
       memberId: m.id,

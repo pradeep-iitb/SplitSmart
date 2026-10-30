@@ -1,11 +1,5 @@
 import { db, SplitSmartDatabase } from '../../db/database';
-import type {
-  Expense,
-  Group,
-  ID,
-  Member,
-  RecordedSettlement,
-} from '../../types/domain';
+import type { Expense, Group, ID, Member, RecordedSettlement } from '../../types/domain';
 import type { RecurringExpenseTemplate } from '../split/types';
 
 export interface GroupBackupPayload {
@@ -34,7 +28,10 @@ export async function exportGroupJson(
   const members = await customDb.members.where('groupId').equals(groupId).toArray();
   const expenses = await customDb.expenses.where('groupId').equals(groupId).toArray();
   const settlements = await customDb.settlements.where('groupId').equals(groupId).toArray();
-  const recurringTemplates = await customDb.recurringTemplates.where('groupId').equals(groupId).toArray();
+  const recurringTemplates = await customDb.recurringTemplates
+    .where('groupId')
+    .equals(groupId)
+    .toArray();
 
   const payload: GroupBackupPayload = {
     schemaVersion: 1,
@@ -84,13 +81,17 @@ export async function importGroupJson(
   // Invariant verification
   for (const m of members) {
     if (m.groupId !== group.id) {
-      throw new Error(`Integrity violation: Member "${m.name}" does not belong to group "${group.id}".`);
+      throw new Error(
+        `Integrity violation: Member "${m.name}" does not belong to group "${group.id}".`
+      );
     }
   }
 
   for (const exp of expenses) {
     if (exp.groupId !== group.id) {
-      throw new Error(`Integrity violation: Expense "${exp.description}" does not belong to group "${group.id}".`);
+      throw new Error(
+        `Integrity violation: Expense "${exp.description}" does not belong to group "${group.id}".`
+      );
     }
     const sharesSum = exp.memberShares.reduce((sum, s) => sum + s.amountPaise, 0);
     if (sharesSum !== exp.amountPaise) {
@@ -121,7 +122,8 @@ export async function importGroupJson(
       if (members.length > 0) await customDb.members.bulkPut(members);
       if (expenses.length > 0) await customDb.expenses.bulkPut(expenses);
       if (settlements.length > 0) await customDb.settlements.bulkPut(settlements);
-      if (recurringTemplates.length > 0) await customDb.recurringTemplates.bulkPut(recurringTemplates);
+      if (recurringTemplates.length > 0)
+        await customDb.recurringTemplates.bulkPut(recurringTemplates);
     }
   );
 
@@ -142,7 +144,8 @@ export async function encodeGroupToUrlHash(
   for (let i = 0; i < utf8Bytes.length; i++) {
     binary += String.fromCharCode(utf8Bytes[i]);
   }
-  const base64 = typeof btoa !== 'undefined' ? btoa(binary) : Buffer.from(binary, 'binary').toString('base64');
+  const base64 =
+    typeof btoa !== 'undefined' ? btoa(binary) : Buffer.from(binary, 'binary').toString('base64');
   return `share=${encodeURIComponent(base64)}`;
 }
 
@@ -158,7 +161,10 @@ export async function decodeGroupFromUrlHash(
 
   try {
     const rawBase64 = decodeURIComponent(match[1]);
-    const binary = typeof atob !== 'undefined' ? atob(rawBase64) : Buffer.from(rawBase64, 'base64').toString('binary');
+    const binary =
+      typeof atob !== 'undefined'
+        ? atob(rawBase64)
+        : Buffer.from(rawBase64, 'base64').toString('binary');
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) {
       bytes[i] = binary.charCodeAt(i);

@@ -49,7 +49,9 @@ export function createRecordedSettlement(
     groupId = 'default-group',
     note = 'Settled via SplitSmart',
     settledAt = new Date().toISOString(),
-    id = crypto.randomUUID ? crypto.randomUUID() : `settle-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    id = crypto.randomUUID
+      ? crypto.randomUUID()
+      : `settle-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
   } = options;
 
   return {

@@ -18,10 +18,7 @@ export const BalancesDashboard: React.FC<BalancesDashboardProps> = ({
   const memberMap = new Map(members.map((m) => [m.id, m]));
 
   // Invariant verification: sum of all net balances
-  const totalNetDiscrepancy = detailedBalances.reduce(
-    (sum, b) => sum + b.netBalancePaise,
-    0
-  );
+  const totalNetDiscrepancy = detailedBalances.reduce((sum, b) => sum + b.netBalancePaise, 0);
 
   const creditors = detailedBalances.filter((b) => b.netBalancePaise > 0);
   const debtors = detailedBalances.filter((b) => b.netBalancePaise < 0);
@@ -146,8 +143,8 @@ export const BalancesDashboard: React.FC<BalancesDashboardProps> = ({
                           isCreditor
                             ? 'text-emerald-400'
                             : isDebtor
-                            ? 'text-rose-400'
-                            : 'text-slate-400'
+                              ? 'text-rose-400'
+                              : 'text-slate-400'
                         }`}
                       >
                         {formatPaise(item.netBalancePaise, { showSign: true })}

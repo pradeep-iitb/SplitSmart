@@ -1,0 +1,142 @@
+.ss-settings-page {
+  max-width: 1100px;
+  margin: auto;
+  color: #f5f5f0;
+}
+.ss-settings-page h1 {
+  font-size: 32px;
+  margin: 10px 0 5px;
+}
+.ss-settings-page > p {
+  color: #a7ada5;
+  font-size: 13px;
+}
+.ss-settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 30px;
+}
+.ss-settings-grid > section {
+  background: #1a1e1a;
+  border: 1px solid #3a4139;
+  border-radius: 17px;
+  padding: 22px;
+}
+.ss-settings-grid h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+.ss-settings-grid p {
+  color: #a7ada5;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.ss-settings-heading {
+  display: flex;
+  gap: 13px;
+}
+.ss-settings-heading > span {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: #d9ff6618;
+  color: #d9ff66;
+}
+.ss-settings-warning {
+  padding: 14px;
+  border: 1px solid #6a5c35;
+  border-radius: 11px;
+  background: #ffd47813;
+  margin: 20px 0;
+}
+.ss-settings-warning p {
+  margin-top: 5px;
+}
+.ss-settings-grid > section > button:not(.ss-switch) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 42px;
+  margin-top: 9px;
+  border: 1px solid #3a4139;
+  border-radius: 10px;
+  background: #222722;
+  color: #f5f5f0;
+  font-weight: 800;
+  font-size: 13px;
+}
+.ss-settings-grid > section > button.primary {
+  background: #d9ff66;
+  color: #10120f;
+  border-color: #d9ff66;
+}
+.ss-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid #3a4139;
+  padding: 16px 0;
+}
+.ss-setting-row:first-of-type {
+  margin-top: 18px;
+}
+.ss-setting-row small {
+  display: block;
+  color: #a7ada5;
+  font-size: 11px;
+  margin-top: 4px;
+}
+.ss-setting-row > span {
+  background: #222722;
+  color: #a7ada5;
+  border-radius: 99px;
+  padding: 5px 10px;
+  font-size: 11px;
+}
+.ss-switch {
+  width: 42px;
+  height: 25px;
+  border-radius: 99px;
+  background: #3a4139;
+  padding: 3px;
+  flex: none;
+}
+.ss-switch i {
+  display: block;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: #a7ada5;
+  transition: transform 0.2s;
+}
+.ss-switch.on {
+  background: #d9ff66;
+}
+.ss-switch.on i {
+  transform: translateX(17px);
+  background: #10120f;
+}
+.ss-offline-ready {
+  display: inline-block;
+  margin-top: 18px;
+  color: #54f58c;
+  font-size: 12px;
+}
+@media (max-width: 700px) {
+  .ss-settings-page h1 {
+    font-size: 27px;
+  }
+  .ss-settings-grid {
+    grid-template-columns: 1fr;
+  }
+  .ss-settings-grid > section {
+    padding: 18px;
+  }
+}

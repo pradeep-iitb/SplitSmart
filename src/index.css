@@ -1,22 +1,25 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @font-face {
   font-family: 'Outfit';
-  src: url('/Fonts/Google_Sans,Outfit,Urbanist/Outfit/Outfit-VariableFont_wght.ttf') format('truetype');
+  src: url('/Fonts/Google_Sans,Outfit,Urbanist/Outfit/Outfit-VariableFont_wght.ttf')
+    format('truetype');
   font-weight: 100 900;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Google Sans';
-  src: url('/Fonts/Google_Sans,Outfit,Urbanist/Google_Sans/GoogleSans-VariableFont_GRAD,opsz,wght.ttf') format('truetype');
+  src: url('/Fonts/Google_Sans,Outfit,Urbanist/Google_Sans/GoogleSans-VariableFont_GRAD,opsz,wght.ttf')
+    format('truetype');
   font-weight: 100 900;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Urbanist';
-  src: url('/Fonts/Google_Sans,Outfit,Urbanist/Urbanist/Urbanist-VariableFont_wght.ttf') format('truetype');
+  src: url('/Fonts/Google_Sans,Outfit,Urbanist/Urbanist/Urbanist-VariableFont_wght.ttf')
+    format('truetype');
   font-weight: 100 900;
   font-display: swap;
 }
@@ -37,7 +40,11 @@
 
 @layer base {
   body {
-    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+    font-family:
+      'Outfit',
+      system-ui,
+      -apple-system,
+      sans-serif;
     background-color: #07090e;
     color: #f1f5f9;
     width: 100%;
@@ -54,8 +61,10 @@
     padding: 0;
     overflow-x: clip;
   }
-  
-  code, pre, .font-mono {
+
+  code,
+  pre,
+  .font-mono {
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
     font-variant-numeric: tabular-nums;
   }
@@ -63,7 +72,11 @@
 
 /* Typography Utilities leveraging downloaded fonts */
 .font-heading {
-  font-family: 'Google Sans', 'Urbanist', -apple-system, sans-serif;
+  font-family:
+    'Google Sans',
+    'Urbanist',
+    -apple-system,
+    sans-serif;
 }
 
 .font-display {
@@ -89,7 +102,7 @@
   backdrop-filter: blur(28px) saturate(200%);
   -webkit-backdrop-filter: blur(28px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 
+  box-shadow:
     0 24px 60px -10px rgba(0, 0, 0, 0.75),
     inset 0 1.5px 1.5px rgba(255, 255, 255, 0.28),
     inset 0 -1px 2px rgba(0, 0, 0, 0.5);
@@ -100,7 +113,7 @@
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 
+  box-shadow:
     0 15px 35px -5px rgba(0, 0, 0, 0.5),
     inset 0 1px 1px rgba(255, 255, 255, 0.18);
 }
@@ -111,19 +124,44 @@
   inset: -18% -22% -18% -18%;
   pointer-events: none;
   z-index: -1;
-  background: 
-    radial-gradient(ellipse 70% 60% at 32% 48%, rgba(7, 9, 14, 0.95) 0%, rgba(7, 9, 14, 0.82) 48%, rgba(7, 9, 14, 0) 78%),
-    radial-gradient(ellipse 55% 58% at 56% 52%, rgba(15, 12, 28, 0.8) 0%, rgba(7, 9, 14, 0.6) 44%, rgba(7, 9, 14, 0) 72%),
+  background:
+    radial-gradient(
+      ellipse 70% 60% at 32% 48%,
+      rgba(7, 9, 14, 0.95) 0%,
+      rgba(7, 9, 14, 0.82) 48%,
+      rgba(7, 9, 14, 0) 78%
+    ),
+    radial-gradient(
+      ellipse 55% 58% at 56% 52%,
+      rgba(15, 12, 28, 0.8) 0%,
+      rgba(7, 9, 14, 0.6) 44%,
+      rgba(7, 9, 14, 0) 72%
+    ),
     radial-gradient(circle at 18% 22%, rgba(147, 51, 234, 0.14) 0%, rgba(7, 9, 14, 0) 62%);
   filter: blur(32px);
   -webkit-filter: blur(32px);
   border-radius: 46% 54% 64% 36% / 48% 40% 60% 52%;
-  mask-image: radial-gradient(ellipse 88% 84% at 36% 48%, black 35%, rgba(0, 0, 0, 0.65) 65%, transparent 96%);
-  -webkit-mask-image: radial-gradient(ellipse 88% 84% at 36% 48%, black 35%, rgba(0, 0, 0, 0.65) 65%, transparent 96%);
+  mask-image: radial-gradient(
+    ellipse 88% 84% at 36% 48%,
+    black 35%,
+    rgba(0, 0, 0, 0.65) 65%,
+    transparent 96%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 88% 84% at 36% 48%,
+    black 35%,
+    rgba(0, 0, 0, 0.65) 65%,
+    transparent 96%
+  );
 }
 
 .text-veil {
-  background: radial-gradient(ellipse 95% 90% at 20% 50%, rgba(7, 9, 14, 0.88) 0%, rgba(7, 9, 14, 0.65) 60%, rgba(7, 9, 14, 0) 100%);
+  background: radial-gradient(
+    ellipse 95% 90% at 20% 50%,
+    rgba(7, 9, 14, 0.88) 0%,
+    rgba(7, 9, 14, 0.65) 60%,
+    rgba(7, 9, 14, 0) 100%
+  );
 }
 
 /* Moving gradient background for sections below hero */
@@ -177,13 +215,13 @@
 }
 
 /* Hide number input stepper spin buttons */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
   -webkit-appearance: none !important;
   margin: 0 !important;
 }
 
-input[type="number"] {
+input[type='number'] {
   -moz-appearance: textfield !important;
   appearance: textfield !important;
 }

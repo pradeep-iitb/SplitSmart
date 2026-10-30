@@ -1,0 +1,225 @@
+.ss-settlement-page {
+  max-width: 1100px;
+  margin: auto;
+  color: #f5f5f0;
+}
+.ss-settlement-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 10px 0 26px;
+}
+.ss-settlement-header h1 {
+  font-size: 32px;
+  margin: 9px 0 4px;
+}
+.ss-settlement-header p,
+.ss-settlement-card > p,
+.ss-settlement-card-title p {
+  color: #a7ada5;
+  font-size: 13px;
+}
+.ss-settlement-header > button,
+.ss-settlement-actions button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid #3a4139;
+  border-radius: 10px;
+  background: #222722;
+  color: #f5f5f0;
+  font-size: 12px;
+  font-weight: 800;
+}
+.ss-settlement-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 155px;
+  padding: 25px;
+  border: 1px solid #536134;
+  border-radius: 18px;
+  background: linear-gradient(120deg, #29311f, #201f25);
+  margin-bottom: 12px;
+}
+.ss-settlement-banner strong {
+  display: block;
+  font-size: 40px;
+  margin: 12px 0 5px;
+}
+.ss-settlement-banner strong.positive,
+.ss-settlement-net .positive {
+  color: #54f58c;
+}
+.ss-settlement-banner strong.negative,
+.ss-settlement-net .negative {
+  color: #e52b36;
+}
+.ss-settlement-banner p {
+  color: #a7ada5;
+  font-size: 13px;
+}
+.ss-settlement-banner > span {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #d9ff66;
+  color: #10120f;
+}
+.ss-settlement-card {
+  padding: 20px;
+  background: #1a1e1a;
+  border: 1px solid #3a4139;
+  border-radius: 16px;
+  margin-bottom: 12px;
+}
+.ss-settlement-card h2 {
+  font-size: 20px;
+}
+.ss-settlement-net {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px;
+  margin-top: 18px;
+}
+.ss-settlement-net > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 58px;
+  padding: 10px;
+  background: #222722;
+  border-radius: 11px;
+}
+.ss-settlement-net strong {
+  flex: 1;
+  font-size: 12px;
+}
+.ss-settlement-net b {
+  font-size: 12px;
+}
+.ss-settlement-avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 31px;
+  height: 31px;
+  border-radius: 50%;
+  background: #d9ff66;
+  color: #10120f;
+  font-size: 9px;
+}
+.ss-settlement-avatar.tone-1 {
+  background: #bba5ff;
+}
+.ss-settlement-avatar.tone-2 {
+  background: #54f58c;
+}
+.ss-settlement-avatar.tone-3 {
+  background: #ffc198;
+}
+.ss-settlement-card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #3a4139;
+  padding-bottom: 16px;
+}
+.ss-settlement-card-title > span {
+  padding: 6px 9px;
+  border-radius: 99px;
+  background: #222722;
+  color: #a7ada5;
+  font-size: 10px;
+}
+.ss-settlement-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #3a4139;
+  padding: 15px 0;
+}
+.ss-settlement-row > div:first-child {
+  flex: 1;
+}
+.ss-settlement-row strong,
+.ss-settlement-row small {
+  display: block;
+}
+.ss-settlement-row strong {
+  font-size: 13px;
+}
+.ss-settlement-row small {
+  color: #a7ada5;
+  font-size: 10px;
+  margin-top: 4px;
+}
+.ss-settlement-actions {
+  display: flex;
+  gap: 8px;
+}
+.ss-settlement-actions button:last-child {
+  background: #d9ff66;
+  color: #10120f;
+  border-color: #d9ff66;
+}
+.ss-settlement-trust {
+  background: #25282d;
+  color: #a7ada5;
+  font-size: 11px;
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 12px;
+}
+.ss-settlement-trust strong {
+  color: #f5f5f0;
+}
+.ss-settlement-empty {
+  color: #a7ada5;
+  padding: 20px 0;
+}
+@media (max-width: 800px) {
+  .ss-settlement-net {
+    grid-template-columns: 1fr 1fr;
+  }
+  .ss-settlement-row {
+    flex-wrap: wrap;
+  }
+  .ss-settlement-actions {
+    width: 100%;
+  }
+  .ss-settlement-actions button {
+    flex: 1;
+  }
+}
+@media (max-width: 640px) {
+  .ss-settlement-header {
+    display: block;
+  }
+  .ss-settlement-header h1 {
+    font-size: 27px;
+  }
+  .ss-settlement-header > button {
+    width: 100%;
+    margin-top: 15px;
+  }
+  .ss-settlement-banner {
+    padding: 20px;
+    min-height: 145px;
+  }
+  .ss-settlement-banner > span {
+    display: none;
+  }
+  .ss-settlement-card {
+    padding: 18px;
+  }
+  .ss-settlement-net > div {
+    display: grid;
+    grid-template-columns: auto 1fr;
+  }
+  .ss-settlement-net b {
+    grid-column: 2;
+  }
+}

@@ -20,7 +20,9 @@ export const SettlementHistoryList: React.FC<SettlementHistoryListProps> = ({
     return (
       <div className="bg-slate-800/40 border border-slate-700/40 rounded-xl p-5 text-center text-xs text-slate-400">
         <History className="w-6 h-6 text-slate-500 mx-auto mb-1.5 opacity-60" />
-        <span>No recorded settlements yet. When someone pays, click "Mark Settled" to record it.</span>
+        <span>
+          No recorded settlements yet. When someone pays, click "Mark Settled" to record it.
+        </span>
       </div>
     );
   }

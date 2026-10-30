@@ -1,10 +1,5 @@
 import { create } from 'zustand';
-import type {
-  Expense,
-  Group,
-  Member,
-  RecordedSettlement,
-} from '../types/domain';
+import type { Expense, Group, Member, RecordedSettlement } from '../types/domain';
 import type { RecurringExpenseTemplate } from '../features/split/types';
 import * as repo from '../db/repository';
 import { exportGroupJson, importGroupJson } from '../features/sharing/sharingService';
@@ -26,8 +21,12 @@ interface GroupStoreState {
   createGroup: (name: string) => Promise<Group>;
   renameGroup: (groupId: string, name: string) => Promise<void>;
   deleteGroup: (groupId: string) => Promise<void>;
-  addMember: (name: string, options?: { color?: string; avatarDataUrl?: string; upiId?: string }) => Promise<Member>;
+  addMember: (
+    name: string,
+    options?: { color?: string; avatarDataUrl?: string; upiId?: string }
+  ) => Promise<Member>;
   updateMember: (memberId: string, patch: Partial<Member>) => Promise<void>;
+  setCurrentUserMember: (memberId: string) => Promise<void>;
   removeMember: (memberId: string) => Promise<void>;
   saveExpense: (expense: Expense) => Promise<void>;
   deleteExpense: (expenseId: string) => Promise<void>;
@@ -35,7 +34,10 @@ interface GroupStoreState {
   undoSettlement: (settlementId: string) => Promise<void>;
   saveRecurringTemplate: (template: RecurringExpenseTemplate) => Promise<void>;
   deleteRecurringTemplate: (templateId: string) => Promise<void>;
-  materializeRecurringExpenses: (newExpenses: Expense[], updatedTemplates: RecurringExpenseTemplate[]) => Promise<void>;
+  materializeRecurringExpenses: (
+    newExpenses: Expense[],
+    updatedTemplates: RecurringExpenseTemplate[]
+  ) => Promise<void>;
   exportJson: () => Promise<string>;
   importJson: (jsonString: string) => Promise<string>;
   resetCleanDemoData: () => Promise<void>;
@@ -65,6 +67,7 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
       }
 
       const active = allGroups[0];
+      for (const group of allGroups) await repo.ensureCurrentUserMember(group.id);
       const members = await repo.listMembers(active.id);
       const expenses = await repo.listExpenses(active.id);
       const settlements = await repo.listSettlements(active.id);
@@ -94,6 +97,7 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
       const group = await repo.getGroup(groupId);
       if (!group) throw new Error(`Group ${groupId} not found`);
 
+      await repo.ensureCurrentUserMember(groupId);
       const members = await repo.listMembers(groupId);
       const expenses = await repo.listExpenses(groupId);
       const settlements = await repo.listSettlements(groupId);
@@ -118,6 +122,8 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
 
   createGroup: async (name: string) => {
     const newGroup = await repo.createGroup(name);
+    await repo.ensureCurrentUserMember(newGroup.id);
+    const members = await repo.listMembers(newGroup.id);
     const allGroups = await repo.listGroups();
 
     // Set new group as active
@@ -125,7 +131,7 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
       groups: allGroups,
       activeGroupId: newGroup.id,
       activeGroup: newGroup,
-      members: [],
+      members,
       expenses: [],
       settlements: [],
     });
@@ -181,6 +187,13 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
       const updatedMembers = await repo.listMembers(activeId);
       set({ members: updatedMembers });
     }
+  },
+
+  setCurrentUserMember: async (memberId: string) => {
+    const activeId = get().activeGroupId;
+    if (!activeId) throw new Error('No active group selected.');
+    await repo.setCurrentUserMember(activeId, memberId);
+    set({ members: await repo.listMembers(activeId) });
   },
 
   removeMember: async (memberId: string) => {
@@ -246,7 +259,10 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
     }
   },
 
-  materializeRecurringExpenses: async (newExpenses: Expense[], updatedTemplates: RecurringExpenseTemplate[]) => {
+  materializeRecurringExpenses: async (
+    newExpenses: Expense[],
+    updatedTemplates: RecurringExpenseTemplate[]
+  ) => {
     for (const exp of newExpenses) {
       await repo.saveExpense(exp);
     }
