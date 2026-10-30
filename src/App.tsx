@@ -39,6 +39,8 @@ import {
 import * as repo from './db/repository';
 import './components/appTheme.css';
 
+import { MobileCrashDiagnostic } from './components/MobileCrashDiagnostic';
+
 import {
   FolderOpen,
   Home,
@@ -154,12 +156,14 @@ export default function App() {
     setCurrentUserMember,
     removeMember,
     saveExpense: storeSaveExpense,
+    saveExpensesBatch: storeSaveExpensesBatch,
     deleteExpense: storeDeleteExpense,
     recordSettlement: storeRecordSettlement,
     undoSettlement: storeUndoSettlement,
     saveRecurringTemplate: storeSaveRecurringTemplate,
     deleteRecurringTemplate: storeDeleteRecurringTemplate,
     materializeRecurringExpenses: storeMaterializeRecurringExpenses,
+    refreshDueRecurringExpenses,
     resetCleanDemoData,
   } = useGroupStore();
 
@@ -185,6 +189,14 @@ export default function App() {
       await initStore();
     })();
   }, [initStore, switchGroup]);
+
+  useEffect(() => {
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') void refreshDueRecurringExpenses();
+    };
+    document.addEventListener('visibilitychange', refreshWhenVisible);
+    return () => document.removeEventListener('visibilitychange', refreshWhenVisible);
+  }, [refreshDueRecurringExpenses]);
 
   // Safe active group fallback
   const group: Group = activeGroup || {
@@ -255,6 +267,12 @@ export default function App() {
       console.error('Could not persist expense to IndexedDB:', err);
       throw err;
     }
+  };
+
+  const handleSaveExpenses = async (newExpenses: Expense[]) => {
+    await storeSaveExpensesBatch(newExpenses);
+    setSuccessToast(`${newExpenses.length} bills recorded with their individual payers.`);
+    navigateToApp('groups');
   };
 
   const handleDeleteExpense = async (expenseId: string) => {
@@ -588,6 +606,7 @@ export default function App() {
           members={members}
           groupId={group.id}
           onSaveExpense={handleSaveExpense}
+          onSaveExpenses={handleSaveExpenses}
           onAddMember={addMember}
           onOpenInSplitStudio={(draft) => {
             setSplitStudioDraft(draft);
@@ -669,6 +688,8 @@ export default function App() {
           }}
         />
       )}
+      {/* Persistent Mobile Crash & Diagnostic Monitor */}
+      <MobileCrashDiagnostic />
     </div>
   );
 }

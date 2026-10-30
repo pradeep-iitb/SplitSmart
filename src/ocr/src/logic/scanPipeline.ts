@@ -17,6 +17,7 @@ import type { RawProgress } from './ocrService';
 import { parseReceipt } from './receiptParser';
 import { validateParsed } from './receiptValidation';
 import type { ValidationResult } from './receiptValidation';
+import { recordBreadcrumb, startOperation, finishOperation } from '../../../utils/persistentLogger';
 
 export type ScanOutcome =
   | { ok: true; ocr: OcrResult; parsed: ParsedReceipt; validation: ValidationResult }
@@ -57,11 +58,25 @@ export async function scanReceipt(file: Blob, opts: ScanOptions = {}): Promise<S
   if (file.type && !/^image\/(jpeg|png|webp)$/.test(file.type))
     return fail('UNSUPPORTED_FILE', 'Please choose a JPG or PNG photo of the receipt.');
 
+  const opName = `OCR scanning receipt (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+  startOperation(opName, { size: file.size, type: file.type });
+  recordBreadcrumb(
+    'OCR',
+    `Starting scanReceipt. File size: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+  );
+
   emit({ stage: 'preparing', overall: 0.02, message: 'Preparing image…' });
   let bitmap: ImageBitmap;
   try {
     bitmap = await loadBitmap(file);
-  } catch {
+    const uncompressedMb = ((bitmap.width * bitmap.height * 4) / 1024 / 1024).toFixed(1);
+    recordBreadcrumb(
+      'OCR',
+      `ImageBitmap loaded: ${bitmap.width}x${bitmap.height} (~${uncompressedMb} MB uncompressed bitmap)`
+    );
+  } catch (err) {
+    finishOperation(opName);
+    recordBreadcrumb('ERROR', `loadBitmap failed: ${String(err)}`);
     return fail('IMAGE_DECODE_FAILED', "We couldn't read that image. Try another photo.");
   }
 
@@ -70,12 +85,14 @@ export async function scanReceipt(file: Blob, opts: ScanOptions = {}): Promise<S
     mode: PreprocessMode,
     label: string,
     stage: ScanProgress['stage']
-  ) =>
-    recognizeCanvas(
+  ) => {
+    recordBreadcrumb('OCR', `Pass: rot=${rotation}°, mode=${mode}`);
+    return recognizeCanvas(
       preprocessToCanvas(bitmap, { rotation, mode }),
       { rotation, preprocess: mode },
       (p) => emit(mapProgress(p, stage, label))
     );
+  };
 
   try {
     let best = await pass(opts.rotation ?? 0, 'raw', 'Reading receipt…', 'recognizing');
@@ -117,9 +134,13 @@ export async function scanReceipt(file: Blob, opts: ScanOptions = {}): Promise<S
     emit({ stage: 'parsing', overall: 0.97, message: 'Finding items and prices…' });
     const parsed = parseReceipt(best);
     emit({ stage: 'done', overall: 1, message: 'Done' });
+    finishOperation(opName);
+    recordBreadcrumb('OCR', `Receipt parse completed with ${parsed.items.length} items`);
     return { ok: true, ocr: best, parsed, validation: validateParsed(parsed) };
   } catch (e) {
     console.error('[scanReceipt]', e);
+    recordBreadcrumb('ERROR', `OCR Engine failed: ${String(e)}`);
+    finishOperation(opName);
     return fail(
       'OCR_ENGINE_FAILED',
       "The OCR engine couldn't start. On first use it needs an internet connection to download its data — check your connection and try again, or enter the expense manually."
@@ -138,6 +159,7 @@ export async function scanBatch(
   } = {}
 ): Promise<ScanOutcome[]> {
   const out: ScanOutcome[] = [];
+  recordBreadcrumb('OCR', `Starting batch scan of ${files.length} receipts`);
   for (let i = 0; i < files.length; i++) {
     // sequential on purpose: one engine, bounded memory on phones
     out.push(

@@ -1,6 +1,7 @@
 import { db, SplitSmartDatabase } from './database';
 import type { Expense, Group, ID, Member, RecordedSettlement } from '../types/domain';
 import type { RecurringExpenseTemplate } from '../features/split/types';
+import { materializeDueRecurringExpenses } from '../features/split/recurring';
 import mixedPayersFixture from '../test/fixtures/expenses-mixed-payers.json';
 import partialSettlementsFixture from '../test/fixtures/settlements-partial.json';
 
@@ -289,6 +290,29 @@ export async function saveExpense(
   await customDb.expenses.put(expense);
 }
 
+export async function saveExpensesBatch(
+  expenses: Expense[],
+  customDb: SplitSmartDatabase = db
+): Promise<void> {
+  if (!expenses.length) throw new Error('No expenses to save.');
+  const groupId = expenses[0].groupId;
+  if (!(await customDb.groups.get(groupId))) throw new Error('Group does not exist.');
+  for (const expense of expenses) {
+    if (expense.groupId !== groupId || expense.amountPaise <= 0) {
+      throw new Error('Batch expenses must belong to one group and have positive totals.');
+    }
+    if (
+      expense.memberShares.reduce((sum, share) => sum + share.amountPaise, 0) !==
+      expense.amountPaise
+    ) {
+      throw new Error(`Shares do not match the total for ${expense.description}.`);
+    }
+  }
+  await customDb.transaction('rw', customDb.expenses, async () => {
+    await customDb.expenses.bulkAdd(expenses);
+  });
+}
+
 /**
  * Deletes an expense by ID.
  */
@@ -339,26 +363,6 @@ export async function listSettlements(
 /**
  * Seeds initial group and expenses into IndexedDB if database is currently empty.
  */
-
-export async function cleanupDuplicateExpenses(customDb: SplitSmartDatabase = db): Promise<void> {
-  const allExpenses = await customDb.expenses.toArray();
-  const seen = new Set<string>();
-  const toDelete: string[] = [];
-
-  for (const exp of allExpenses) {
-    // Deduplicate by normalized description and amount in paise
-    const key = `${exp.description.trim().toLowerCase()}-${exp.amountPaise}`;
-    if (seen.has(key)) {
-      toDelete.push(exp.id);
-    } else {
-      seen.add(key);
-    }
-  }
-
-  if (toDelete.length > 0) {
-    await customDb.expenses.bulkDelete(toDelete);
-  }
-}
 
 export async function resetToCleanTripData(customDb: SplitSmartDatabase = db): Promise<void> {
   const defaultGroupId = 'g-mixed';
@@ -576,6 +580,31 @@ export async function listRecurringTemplates(
   customDb: SplitSmartDatabase = db
 ): Promise<RecurringExpenseTemplate[]> {
   return await customDb.recurringTemplates.where('groupId').equals(groupId).toArray();
+}
+
+/** Add due occurrences and advance their templates in one transaction. */
+export async function materializeDueRecurringForGroup(
+  groupId: ID,
+  asOfDate: string,
+  customDb: SplitSmartDatabase = db
+): Promise<number> {
+  return customDb.transaction('rw', customDb.expenses, customDb.recurringTemplates, async () => {
+    const [templates, expenses] = await Promise.all([
+      customDb.recurringTemplates.where('groupId').equals(groupId).toArray(),
+      customDb.expenses.where('groupId').equals(groupId).toArray(),
+    ]);
+    const { newExpenses, updatedTemplates } = materializeDueRecurringExpenses(
+      templates,
+      expenses,
+      asOfDate
+    );
+    if (newExpenses.length) await customDb.expenses.bulkAdd(newExpenses);
+    const changedTemplates = updatedTemplates.filter(
+      (template, index) => template.lastMaterializedDate !== templates[index].lastMaterializedDate
+    );
+    if (changedTemplates.length) await customDb.recurringTemplates.bulkPut(changedTemplates);
+    return newExpenses.length;
+  });
 }
 
 export async function saveRecurringTemplate(

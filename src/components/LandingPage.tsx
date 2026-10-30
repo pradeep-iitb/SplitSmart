@@ -412,7 +412,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               Trips, Live Balances & Spending Insights
             </h2>
             <p className="text-sm sm:text-base font-body text-slate-300 max-w-2xl mt-2 leading-relaxed">
-              Organize group expenses with smart categories, live balance sync, and visual
+              Organize group expenses with smart categories, up-to-date local balances, and visual
               analytics.
             </p>
           </div>
@@ -604,7 +604,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 Ready to calculate and settle up?
               </h3>
               <p className="text-xs sm:text-sm font-body text-slate-300 leading-relaxed">
-                Everything runs directly in your browser. Encrypted locally with Dexie IndexedDB.
+                Expenses and receipt images are processed in your browser. Group records are stored
+                locally with IndexedDB.
               </p>
             </div>
 

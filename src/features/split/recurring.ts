@@ -10,6 +10,13 @@ export function getDeterministicOccurrenceId(templateId: ID, occurrenceDate: ISO
   return `rec-${templateId}-${occurrenceDate}`;
 }
 
+export function todayLocalISO(date = new Date()): ISODate {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 /**
  * Computes all dates when an occurrence was due between the start/last-materialized date
  * and the target `asOfDate`.
@@ -36,9 +43,9 @@ export function calculateDueOccurrenceDates(
     ? Math.min(new Date(`${template.endDate}T23:59:59Z`).getTime(), targetTime)
     : targetTime;
 
-  // Safety limit to prevent infinite loops (max 366 iterations)
+  // Allow long offline gaps while keeping malformed dates from looping forever.
   let iterations = 0;
-  const maxIterations = 366;
+  const maxIterations = 36525;
 
   while (cursor.getTime() <= endTime && iterations < maxIterations) {
     iterations++;

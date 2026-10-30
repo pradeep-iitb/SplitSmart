@@ -7,6 +7,9 @@
 import { pipeline, env } from '@huggingface/transformers';
 
 env.allowLocalModels = false; // fetch weights from the HF hub; the browser cache keeps them for next time
+env.useBrowserCache = true;
+env.useWasmCache = true;
+env.cacheKey = 'splitsmart-transformers-v1';
 
 // Descriptive hypotheses work much better than bare words with an MNLI model.
 const LABELS: Record<string, string> = {

@@ -1,8 +1,8 @@
 /**
  * Auto-categorisation (PS point 13).
- *  1. Instant keyword pass (no download, covers most canteen/grocery items).
- *  2. Lazy zero-shot model (worker) for whatever the keywords can't place.
- * If the model can't load (offline, blocked), items simply stay "Other" — the user can always override.
+ *  1. Show instant keyword suggestions while the model loads.
+ *  2. Classify every item with the lazy zero-shot model and replace suggestions.
+ * If the model is unavailable, keep the keyword suggestion or Other.
  */
 import type { Category } from '../types/receipt';
 
@@ -36,7 +36,7 @@ export function keywordCategory(name: string): Category | null {
 
 export type CategorizerStatus = 'loading-model' | 'downloading' | 'ready' | 'failed';
 export interface CategorizeOptions {
-  /** Called as soon as each item is categorised (keyword hits arrive synchronously-fast, model hits later). */
+  /** May be called twice for an item: initial keyword suggestion, then model result. */
   onResult: (id: string, category: Category, source: 'keyword' | 'model') => void;
   onStatus?: (s: CategorizerStatus, progress?: number) => void;
   useModel?: boolean;
@@ -83,18 +83,18 @@ export async function categorizeItems(
   items: { id: string; name: string }[],
   opts: CategorizeOptions
 ): Promise<void> {
-  const unknown: { id: string; name: string }[] = [];
   for (const it of items) {
     const k = keywordCategory(it.name);
     if (k) opts.onResult(it.id, k, 'keyword');
-    else unknown.push(it);
   }
-  if (!unknown.length) {
+  if (!items.length) {
     opts.onStatus?.('ready');
     return;
   }
   if (opts.useModel === false) {
-    unknown.forEach((u) => opts.onResult(u.id, 'Other', 'keyword'));
+    items
+      .filter((item) => !keywordCategory(item.name))
+      .forEach((item) => opts.onResult(item.id, 'Other', 'keyword'));
     opts.onStatus?.('ready');
     return;
   }
@@ -105,20 +105,18 @@ export async function categorizeItems(
     const results = await new Promise<{ category: Category; score: number }[]>(
       (resolve, reject) => {
         waiting.set(id, { resolve, reject });
-        getWorker().postMessage({ id, texts: unknown.map((u) => u.name) });
+        getWorker().postMessage({ id, texts: items.map((item) => item.name) });
       }
     );
     results.forEach((r, i) =>
-      opts.onResult(
-        unknown[i].id,
-        r.score >= (opts.minScore ?? 0.35) ? r.category : 'Other',
-        'model'
-      )
+      opts.onResult(items[i].id, r.score >= (opts.minScore ?? 0.35) ? r.category : 'Other', 'model')
     );
     opts.onStatus?.('ready');
   } catch {
     opts.onStatus?.('failed');
-    unknown.forEach((u) => opts.onResult(u.id, 'Other', 'keyword'));
+    items
+      .filter((item) => !keywordCategory(item.name))
+      .forEach((item) => opts.onResult(item.id, 'Other', 'keyword'));
   }
 }
 

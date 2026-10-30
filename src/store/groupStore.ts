@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { Expense, Group, Member, RecordedSettlement } from '../types/domain';
 import type { RecurringExpenseTemplate } from '../features/split/types';
 import * as repo from '../db/repository';
+import { todayLocalISO } from '../features/split/recurring';
 import { exportGroupJson, importGroupJson } from '../features/sharing/sharingService';
 
 interface GroupStoreState {
@@ -29,6 +30,7 @@ interface GroupStoreState {
   setCurrentUserMember: (memberId: string) => Promise<void>;
   removeMember: (memberId: string) => Promise<void>;
   saveExpense: (expense: Expense) => Promise<void>;
+  saveExpensesBatch: (expenses: Expense[]) => Promise<void>;
   deleteExpense: (expenseId: string) => Promise<void>;
   recordSettlement: (payment: RecordedSettlement) => Promise<void>;
   undoSettlement: (settlementId: string) => Promise<void>;
@@ -38,6 +40,7 @@ interface GroupStoreState {
     newExpenses: Expense[],
     updatedTemplates: RecurringExpenseTemplate[]
   ) => Promise<void>;
+  refreshDueRecurringExpenses: () => Promise<void>;
   exportJson: () => Promise<string>;
   importJson: (jsonString: string) => Promise<string>;
   resetCleanDemoData: () => Promise<void>;
@@ -58,7 +61,6 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       await repo.seedInitialDataIfEmpty();
-      await repo.cleanupDuplicateExpenses();
 
       const allGroups = await repo.listGroups();
       if (allGroups.length === 0) {
@@ -67,7 +69,10 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
       }
 
       const active = allGroups[0];
-      for (const group of allGroups) await repo.ensureCurrentUserMember(group.id);
+      for (const group of allGroups) {
+        await repo.ensureCurrentUserMember(group.id);
+        await repo.materializeDueRecurringForGroup(group.id, todayLocalISO());
+      }
       const members = await repo.listMembers(active.id);
       const expenses = await repo.listExpenses(active.id);
       const settlements = await repo.listSettlements(active.id);
@@ -98,6 +103,7 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
       if (!group) throw new Error(`Group ${groupId} not found`);
 
       await repo.ensureCurrentUserMember(groupId);
+      await repo.materializeDueRecurringForGroup(groupId, todayLocalISO());
       const members = await repo.listMembers(groupId);
       const expenses = await repo.listExpenses(groupId);
       const settlements = await repo.listSettlements(groupId);
@@ -214,6 +220,12 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
     }
   },
 
+  saveExpensesBatch: async (expenses: Expense[]) => {
+    await repo.saveExpensesBatch(expenses);
+    const activeId = get().activeGroupId;
+    if (activeId) set({ expenses: await repo.listExpenses(activeId) });
+  },
+
   deleteExpense: async (expenseId: string) => {
     await repo.deleteExpense(expenseId);
     const activeId = get().activeGroupId;
@@ -243,10 +255,14 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
 
   saveRecurringTemplate: async (template: RecurringExpenseTemplate) => {
     await repo.saveRecurringTemplate(template);
+    if (template.active) {
+      await repo.materializeDueRecurringForGroup(template.groupId, todayLocalISO());
+    }
     const activeId = get().activeGroupId;
     if (activeId) {
       const templates = await repo.listRecurringTemplates(activeId);
-      set({ recurringTemplates: templates });
+      const expenses = await repo.listExpenses(activeId);
+      set({ recurringTemplates: templates, expenses });
     }
   },
 
@@ -275,6 +291,17 @@ export const useGroupStore = create<GroupStoreState>((set, get) => ({
       const recurringTemplates = await repo.listRecurringTemplates(activeId);
       set({ expenses, recurringTemplates });
     }
+  },
+
+  refreshDueRecurringExpenses: async () => {
+    const activeId = get().activeGroupId;
+    if (!activeId) return;
+    await repo.materializeDueRecurringForGroup(activeId, todayLocalISO());
+    const [expenses, recurringTemplates] = await Promise.all([
+      repo.listExpenses(activeId),
+      repo.listRecurringTemplates(activeId),
+    ]);
+    if (get().activeGroupId === activeId) set({ expenses, recurringTemplates });
   },
 
   exportJson: async () => {

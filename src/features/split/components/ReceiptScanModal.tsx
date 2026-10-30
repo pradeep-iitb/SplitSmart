@@ -15,6 +15,8 @@ import {
   type ReceiptPerson,
 } from '../../../ocr/src/logic/receiptPeople';
 import { calculateExpenseShares } from '../splitEngine';
+import { buildBatchExpenses } from '../batchExpense';
+import { recordBreadcrumb, startOperation, finishOperation } from '../../../utils/persistentLogger';
 import { parseReceipt } from '../../../ocr/src/logic/receiptParser';
 import { validateTotals, formatRupees } from '../../../ocr/src/logic/receiptValidation';
 import { categorizeItems, type CategorizerStatus } from '../../../ocr/src/logic/categorizer';
@@ -57,6 +59,7 @@ interface ReceiptScanModalProps {
   members: Member[];
   groupId: string;
   onSaveExpense: (expense: Expense) => void | Promise<void>;
+  onSaveExpenses: (expenses: Expense[]) => Promise<void>;
   onAddMember: (name: string) => Promise<Member>;
   onOpenInSplitStudio?: (draft: {
     description: string;
@@ -81,6 +84,7 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
   members,
   groupId,
   onSaveExpense,
+  onSaveExpenses,
   onAddMember,
   onOpenInSplitStudio,
 }) => {
@@ -125,6 +129,7 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
   const [payerId, setPayerId] = useState(
     members.find((member) => member.isCurrentUser)?.id || members[0]?.id || ''
   );
+  const [billPayerIds, setBillPayerIds] = useState<Record<string, string>>({});
   const [items, setItems] = useState<ParsedItem[]>([]);
   const [amountDrafts, setAmountDrafts] = useState<Record<string, string>>({});
   const [itemAssignments, setItemAssignments] = useState<Record<string, string[]>>({});
@@ -196,17 +201,20 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
       return;
     }
     try {
+      recordBreadcrumb('CAMERA', 'Calling getUserMedia for live camera stream');
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: { ideal: 'environment' },
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
         },
         audio: false,
       });
       streamRef.current = stream;
       setCameraActive(true);
+      recordBreadcrumb('CAMERA', 'Live camera stream active');
     } catch {
+      recordBreadcrumb('CAMERA', 'Live camera access unavailable, opening native camera picker');
       setCameraNotice(
         'Live camera access is unavailable. You can still take a photo with your phone camera or choose an image.'
       );
@@ -217,17 +225,25 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
   async function capturePhoto() {
     const video = videoRef.current;
     if (!video) return;
+    startOperation('Capturing photo from live camera');
+    recordBreadcrumb('CAMERA', `Capturing video frame: ${video.videoWidth}x${video.videoHeight}`);
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 720;
+    const scale = Math.min(1, 1600 / Math.max(video.videoWidth || 1280, video.videoHeight || 720));
+    canvas.width = Math.round((video.videoWidth || 1280) * scale);
+    canvas.height = Math.round((video.videoHeight || 720) * scale);
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    ctx.drawImage(video, 0, 0);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob(resolve, 'image/jpeg', 0.92)
+      canvas.toBlob(resolve, 'image/jpeg', 0.82)
     );
     stopCamera();
+    finishOperation('Capturing photo from live camera');
+    recordBreadcrumb(
+      'CAMERA',
+      `Photo blob created: ${blob ? (blob.size / 1024 / 1024).toFixed(2) + ' MB' : 'null'}`
+    );
     if (blob) {
       const photoFile = new File([blob], newReceiptFileName(), { type: 'image/jpeg' });
       selectFiles([...selectedFiles, photoFile], photoFile);
@@ -237,6 +253,10 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
   function handleFileInput(e: React.ChangeEvent<HTMLInputElement>, append = false) {
     const selected = Array.from(e.target.files ?? []);
     if (selected.length) {
+      recordBreadcrumb(
+        'CAMERA',
+        `User picked ${selected.length} file(s): ${selected.map((f) => f.name + ' (' + (f.size / 1024 / 1024).toFixed(2) + ' MB)').join(', ')}`
+      );
       setCameraNotice(null);
       selectFiles(append ? [...selectedFiles, ...selected] : selected);
     }
@@ -517,6 +537,18 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
       batch.find((b) => b.parsed.dateISO)?.parsed.dateISO ||
       new Date().toISOString().substring(0, 10);
     setExpenseDate(firstDate);
+    const defaultPayer = members.find((member) => member.isCurrentUser)?.id || members[0]?.id || '';
+    setBillPayerIds(
+      Object.fromEntries(
+        batch.map((bill) => {
+          const namedPayer = bill.people.find((person) => person.role === 'payer');
+          const matchingMember = members.find(
+            (member) => member.name.toLocaleLowerCase() === namedPayer?.name.toLocaleLowerCase()
+          );
+          return [bill.billId, matchingMember?.id ?? defaultPayer];
+        })
+      )
+    );
 
     // Combine line items from all bills into one unified list
     const allItems: ParsedItem[] = [];
@@ -675,11 +707,45 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
     }
 
     const newBatch = reviewBatch.filter((_, idx) => idx !== billIndexToRemove);
+    setPendingPeople((current) =>
+      current.filter((person) =>
+        newBatch.some((bill) => bill.people.some((entry) => entry.name === person.name))
+      )
+    );
+    setTaxLines((current) =>
+      current.filter((line) => !line.label.endsWith(`(${billToRemove.billName})`))
+    );
+    setServiceChargePaise((current) =>
+      Math.max(0, current - (billToRemove.parsed.serviceChargePaise || 0))
+    );
+    setDiscountPaise((current) => Math.max(0, current - (billToRemove.parsed.discountPaise || 0)));
+    setRoundOffPaise((current) => current - (billToRemove.parsed.roundOffPaise || 0));
+    setDetectedTotalPaise((current) =>
+      current === null ? null : Math.max(0, current - (billToRemove.parsed.detectedTotalPaise || 0))
+    );
+    setBillPayerIds((current) => {
+      const next = { ...current };
+      delete next[billToRemove.billId];
+      return next;
+    });
     const reindexedBatch = newBatch.map((entry, newIdx) => ({
       ...entry,
       billIndex: newIdx,
       billName: formatBillName(newIdx),
     }));
+    setTaxLines((current) =>
+      current.map((line) => {
+        const newBill = reindexedBatch.find((bill) => {
+          const oldBill = reviewBatch.find((entry) => entry.billId === bill.billId);
+          return oldBill && line.label.endsWith(`(${oldBill.billName})`);
+        });
+        if (!newBill) return line;
+        return {
+          ...line,
+          label: line.label.replace(/\(Bill No\. \d+\)$/, `(${newBill.billName})`),
+        };
+      })
+    );
 
     setItems((current) =>
       current
@@ -774,6 +840,68 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
     return billGroups.filter((g) => g.billIndex === billFilter);
   }, [billGroups, billFilter]);
 
+  const batchExpenses = useMemo(() => {
+    if (!isBatchReview || !members.length || unassignedItems.length || finalGrandTotalPaise <= 0) {
+      return [];
+    }
+    try {
+      const bills = billGroups.map((bill) => ({
+        billId:
+          reviewBatch.find((entry) => entry.billIndex === bill.billIndex)?.billId ?? bill.billName,
+        billIndex: bill.billIndex,
+        billName: bill.billName,
+        payerId:
+          billPayerIds[
+            reviewBatch.find((entry) => entry.billIndex === bill.billIndex)?.billId ?? ''
+          ] ?? payerId,
+        items: bill.items.map((item): ReceiptItem => ({
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          unitPricePaise: item.unitPricePaise,
+          lineTotalPaise: item.totalPaise,
+          assignedMemberIds: itemAssignments[item.id] ?? [],
+          category: item.category ?? 'Other',
+          billIndex: item.billIndex,
+          billName: item.billName,
+          ocrConfidence: Math.round(item.confidence * 100),
+          needsReview: item.uncertainWords?.length > 0 || item.confidence < 0.7,
+        })),
+      }));
+      return buildBatchExpenses({
+        bills,
+        groupId,
+        date: expenseDate,
+        description: merchant.trim() || 'Scanned Receipt',
+        memberIds: members.map((member) => member.id),
+        taxLines: taxIncluded ? [] : taxLines,
+        serviceChargePaise,
+        discountPaise,
+        confirmedTotalPaise: finalGrandTotalPaise,
+        batchId: 'preview-batch',
+      });
+    } catch {
+      return [];
+    }
+  }, [
+    isBatchReview,
+    members,
+    unassignedItems.length,
+    finalGrandTotalPaise,
+    billGroups,
+    reviewBatch,
+    billPayerIds,
+    payerId,
+    itemAssignments,
+    groupId,
+    expenseDate,
+    merchant,
+    taxIncluded,
+    taxLines,
+    serviceChargePaise,
+    discountPaise,
+  ]);
+
   const itemizedShares = useMemo(() => {
     if (!items.length || unassignedItems.length || !members.length || finalGrandTotalPaise <= 0)
       return [];
@@ -822,6 +950,17 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
           ? splitInputTotal > 0
           : true;
   const splitShares = useMemo(() => {
+    if (isBatchReview) {
+      return members.map((member) => ({
+        memberId: member.id,
+        amountPaise: batchExpenses.reduce(
+          (sum, expense) =>
+            sum +
+            (expense.memberShares.find((share) => share.memberId === member.id)?.amountPaise ?? 0),
+          0
+        ),
+      }));
+    }
     if (splitMode === 'itemized') return itemizedShares;
     if (!members.length || finalGrandTotalPaise <= 0 || !splitInputValid) return [];
     return calculateExpenseShares({
@@ -844,7 +983,16 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
         members.map((member) => [member.id, Number(splitInputs[member.id]) || 0])
       ),
     });
-  }, [splitMode, itemizedShares, members, finalGrandTotalPaise, splitInputValid, splitInputs]);
+  }, [
+    isBatchReview,
+    batchExpenses,
+    splitMode,
+    itemizedShares,
+    members,
+    finalGrandTotalPaise,
+    splitInputValid,
+    splitInputs,
+  ]);
 
   function moveTo(next: 'capture' | 'review' | 'assign' | 'summary') {
     setPreviousStep(step);
@@ -886,7 +1034,11 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
       return;
     }
 
-    if (!splitInputValid || !splitShares.length) {
+    if (
+      !splitInputValid ||
+      !splitShares.length ||
+      (isBatchReview && batchExpenses.length !== reviewBatch.length)
+    ) {
       setScanError('Complete the split amounts before saving.');
       return;
     }
@@ -923,7 +1075,16 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
 
     try {
       setIsSaving(true);
-      await onSaveExpense(newExpense);
+      if (isBatchReview) {
+        await onSaveExpenses(
+          batchExpenses.map((expense, index) => ({
+            ...expense,
+            id: `${newExpense.id}-${index}`,
+          }))
+        );
+      } else {
+        await onSaveExpense(newExpense);
+      }
       onClose();
     } catch (error) {
       setScanError(
@@ -940,6 +1101,22 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
       setIsAddingMember(true);
       const added = await onAddMember(name.trim());
       if (role === 'payer') setPayerId(added.id);
+      if (role === 'payer') {
+        setBillPayerIds((current) => ({
+          ...current,
+          ...Object.fromEntries(
+            reviewBatch
+              .filter((bill) =>
+                bill.people.some(
+                  (person) =>
+                    person.role === 'payer' &&
+                    person.name.toLocaleLowerCase() === name.trim().toLocaleLowerCase()
+                )
+              )
+              .map((bill) => [bill.billId, added.id])
+          ),
+        }));
+      }
       setPendingPeople((current) =>
         current.filter(
           (person) => person.name.toLocaleLowerCase() !== name.trim().toLocaleLowerCase()
@@ -957,6 +1134,22 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
   function assignExistingMemberForPerson(person: ReceiptPerson) {
     if (!replacementMemberId) return;
     if (person.role === 'payer') setPayerId(replacementMemberId);
+    if (person.role === 'payer') {
+      setBillPayerIds((current) => ({
+        ...current,
+        ...Object.fromEntries(
+          reviewBatch
+            .filter((bill) =>
+              bill.people.some(
+                (entry) =>
+                  entry.role === 'payer' &&
+                  entry.name.toLocaleLowerCase() === person.name.toLocaleLowerCase()
+              )
+            )
+            .map((bill) => [bill.billId, replacementMemberId])
+        ),
+      }));
+    }
     if (person.role !== 'payer')
       setItemAssignments((current) => ({
         ...current,
@@ -1696,23 +1889,58 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                       />
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-1">
-                      Paid By
-                    </label>
-                    <select
-                      value={payerId}
-                      onChange={(e) => setPayerId(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 cursor-pointer"
-                    >
-                      {members.map((m) => (
-                        <option key={m.id} value={m.id}>
-                          {m.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {!isBatchReview && (
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-400 mb-1">
+                        Paid By
+                      </label>
+                      <select
+                        value={payerId}
+                        onChange={(e) => setPayerId(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 cursor-pointer"
+                      >
+                        {members.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
+
+                {isBatchReview && (
+                  <div
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                    role="group"
+                    aria-label="Payer for each scanned bill"
+                  >
+                    {reviewBatch.map((bill) => (
+                      <label
+                        key={bill.billId}
+                        className="block rounded-xl border border-slate-700 bg-slate-800/60 p-3 text-xs font-semibold text-slate-200"
+                      >
+                        {bill.billName} · Paid by
+                        <select
+                          value={billPayerIds[bill.billId] ?? payerId}
+                          onChange={(event) =>
+                            setBillPayerIds((current) => ({
+                              ...current,
+                              [bill.billId]: event.target.value,
+                            }))
+                          }
+                          className="mt-2 w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-100"
+                        >
+                          {members.map((member) => (
+                            <option key={member.id} value={member.id}>
+                              {member.name}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    ))}
+                  </div>
+                )}
 
                 {/* Item/Qty Checksum Banner */}
                 {itemQtyChecksum && (
@@ -2338,22 +2566,27 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                       ['percentage', 'Percent'],
                       ['shares', 'Shares'],
                     ] as const
-                  ).map(([mode, label]) => (
-                    <button
-                      type="button"
-                      key={mode}
-                      className={splitMode === mode ? 'active' : ''}
-                      onClick={() => setSplitMode(mode)}
-                    >
-                      {label}
-                    </button>
-                  ))}
+                  )
+                    .filter(([mode]) => !isBatchReview || mode === 'itemized')
+                    .map(([mode, label]) => (
+                      <button
+                        type="button"
+                        key={mode}
+                        className={splitMode === mode ? 'active' : ''}
+                        onClick={() => setSplitMode(mode)}
+                      >
+                        {label}
+                      </button>
+                    ))}
                 </div>
                 {splitMode !== 'itemized' && (
                   <p>
                     This overrides item assignments for the final total. Switch back to Itemized to
                     use consumption based shares.
                   </p>
+                )}
+                {isBatchReview && (
+                  <p>Each bill is saved separately with its own payer and item assignments.</p>
                 )}
                 {['exact', 'percentage', 'shares'].includes(splitMode) && (
                   <div className="ss-split-inputs">
@@ -2538,13 +2771,18 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
                 )}
                 <button
                   type="button"
-                  disabled={isSaving || !splitInputValid || !splitShares.length}
+                  disabled={
+                    isSaving ||
+                    !splitInputValid ||
+                    !splitShares.length ||
+                    (isBatchReview && batchExpenses.length !== reviewBatch.length)
+                  }
                   onClick={() => void handleSaveAsExpense()}
                 >
                   {isSaving
                     ? 'Saving…'
                     : reviewBatch.length > 1
-                      ? 'Save all bills as expense'
+                      ? 'Save all bills'
                       : 'Save expense'}{' '}
                   <CheckCircle2 size={16} />
                 </button>

@@ -139,6 +139,24 @@ export function InsightsScreen({ expenses, members, onExport, onOpenExpense }: P
           </div>
         </section>
       </div>
+      <section className="ss-insights-history ss-insights-members">
+        <h2>By member</h2>
+        <p>What each person paid and their share of group expenses.</p>
+        <div className="ss-insights-member-list">
+          {analytics.memberAnalytics.map((member) => (
+            <div className="ss-insights-member" key={member.memberId}>
+              <strong>{member.memberName}</strong>
+              <span>Paid {formatPaise(member.totalPaidPaise)}</span>
+              <span>Share {formatPaise(member.totalConsumedPaise)}</span>
+              <span className={member.netBalancePaise >= 0 ? 'positive' : 'negative'}>
+                {member.netBalancePaise >= 0 ? '+' : '−'}
+                {formatPaise(Math.abs(member.netBalancePaise))}
+              </span>
+            </div>
+          ))}
+          {!analytics.memberAnalytics.length && <p>No members yet.</p>}
+        </div>
+      </section>
       <section className="ss-insights-history">
         <div className="ss-insights-history-head">
           <div>

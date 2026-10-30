@@ -98,4 +98,10 @@ describe('Recurring Expense Engine (recurring.ts)', () => {
     };
     expect(formatRecurrenceLabel(weeklyTemplate)).toBe('Weekly on Friday');
   });
+
+  it('catches up after more than one year offline', () => {
+    const dueDates = calculateDueOccurrenceDates(sampleTemplate, '2028-10-23');
+    expect(dueDates).toContain('2028-10-01');
+    expect(dueDates).toHaveLength(27);
+  });
 });

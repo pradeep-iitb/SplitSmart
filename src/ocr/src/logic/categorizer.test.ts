@@ -4,7 +4,7 @@ import { categorizeItems } from './categorizer';
 describe('receipt item categorization', () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it('uses immediate keywords and sends unmatched items to the model worker', async () => {
+  it('shows keyword suggestions then sends every item to the model worker', async () => {
     const requests: string[][] = [];
     class FakeWorker {
       onmessage: ((event: MessageEvent) => void) | null = null;
@@ -16,7 +16,10 @@ describe('receipt item categorization', () => {
             data: {
               type: 'result',
               id: message.id,
-              results: [{ category: 'Groceries', score: 0.92 }],
+              results: [
+                { category: 'Food', score: 0.96 },
+                { category: 'Groceries', score: 0.92 },
+              ],
             },
           } as MessageEvent)
         );
@@ -32,9 +35,10 @@ describe('receipt item categorization', () => {
       ],
       { onResult: (id, category, source) => results.push([id, category, source]) }
     );
-    expect(requests).toEqual([['Amaranth']]);
+    expect(requests).toEqual([['Pizza', 'Amaranth']]);
     expect(results).toEqual([
       ['pizza', 'Food', 'keyword'],
+      ['pizza', 'Food', 'model'],
       ['mystery', 'Groceries', 'model'],
     ]);
   });

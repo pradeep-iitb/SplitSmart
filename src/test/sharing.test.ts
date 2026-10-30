@@ -106,7 +106,9 @@ describe('Member 5: Serverless Sharing & JSON Import/Export Engine (sharing.test
           id: 'exp-bad',
           groupId: 'g-bad',
           description: 'Fake',
+          payerId: 'm1',
           amountPaise: 10000,
+          items: [],
           memberShares: [{ memberId: 'm1', amountPaise: 5000 }], // 5000 !== 10000!
         },
       ],
@@ -116,5 +118,17 @@ describe('Member 5: Serverless Sharing & JSON Import/Export Engine (sharing.test
     await expect(importGroupJson(JSON.stringify(corruptPayload), targetDb)).rejects.toThrowError(
       /Financial invariant violation/
     );
+  });
+
+  it('imports an existing backup as a separate copy without overwriting records', async () => {
+    const group = await repo.createGroup('Room', sourceDb);
+    const member = await repo.addMember(group.id, 'Me', {}, sourceDb);
+    const backup = await exportGroupJson(group.id, sourceDb);
+    const copyId = await importGroupJson(backup, sourceDb);
+    expect(copyId).not.toBe(group.id);
+    expect((await repo.getGroup(group.id, sourceDb))?.name).toBe('Room');
+    const copiedMembers = await repo.listMembers(copyId, true, sourceDb);
+    expect(copiedMembers).toHaveLength(1);
+    expect(copiedMembers[0].id).not.toBe(member.id);
   });
 });

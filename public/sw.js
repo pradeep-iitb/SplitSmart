@@ -7,17 +7,21 @@
  * 3. AI / ML Models (WASM, ONNX weights, Tesseract traineddata, HuggingFace Hub) -> Cache-First
  */
 
-const STATIC_CACHE = 'splitsmart-static-v1';
+const STATIC_CACHE = 'splitsmart-static-__BUILD_ID__';
 const DYNAMIC_CACHE = 'splitsmart-dynamic-v1';
 const MODEL_CACHE = 'splitsmart-models-v1';
 
 const ALL_CACHES = [STATIC_CACHE, DYNAMIC_CACHE, MODEL_CACHE];
 
 // Core static assets for pre-caching during Service Worker install
-const PRECACHE_ASSETS = [
+const REQUIRED_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
+  /* BUILD_ASSETS */
+];
+
+const OPTIONAL_ASSETS = [
   '/favicon.svg',
   '/icons.svg',
   '/Images/SplitSmart Neon Receipt Logo.png',
@@ -79,7 +83,7 @@ async function cacheFirst(request, cacheName) {
     const networkResponse = await fetch(request);
     // Cache valid responses (status 200 or opaque responses from CDNs like Google Fonts/HF)
     if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
-      cache.put(request, networkResponse.clone());
+      await cache.put(request, networkResponse.clone());
     }
     return networkResponse;
   } catch (error) {
@@ -89,6 +93,19 @@ async function cacheFirst(request, cacheName) {
       if (fallback) return fallback;
     }
     throw error;
+  }
+}
+
+async function navigationResponse(request) {
+  const cache = await caches.open(STATIC_CACHE);
+  try {
+    const response = await fetch(request);
+    if (response.ok) await cache.put('/index.html', response.clone());
+    return response;
+  } catch {
+    const fallback = await cache.match('/index.html');
+    if (fallback) return fallback;
+    return Response.error();
   }
 }
 
@@ -151,20 +168,12 @@ async function networkFirst(request, cacheName) {
 // Service Worker Installation
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches
-      .open(STATIC_CACHE)
-      .then(async (cache) => {
-        // Precache available assets gracefully
-        await Promise.all(
-          PRECACHE_ASSETS.map((asset) =>
-            cache.add(asset).catch((err) => {
-              // Ignore individual missing precache assets in development
-              console.warn(`[SW] Precache skipped for ${asset}:`, err.message);
-            })
-          )
-        );
-      })
-      .then(() => self.skipWaiting())
+    caches.open(STATIC_CACHE).then(async (cache) => {
+      // A worker is only installed when the entire app shell is ready offline.
+      await cache.addAll(REQUIRED_ASSETS);
+      await Promise.all(OPTIONAL_ASSETS.map((asset) => cache.add(asset).catch(() => undefined)));
+      await self.skipWaiting();
+    })
   );
 });
 
@@ -176,7 +185,7 @@ self.addEventListener('activate', (event) => {
       .then((cacheNames) =>
         Promise.all(
           cacheNames.map((name) => {
-            if (!ALL_CACHES.includes(name)) {
+            if (/^splitsmart-(static|dynamic|models)-/.test(name) && !ALL_CACHES.includes(name)) {
               console.log('[SW] Purging outdated cache:', name);
               return caches.delete(name);
             }
@@ -197,6 +206,15 @@ self.addEventListener('fetch', (event) => {
   }
 
   const url = new URL(request.url);
+
+  // Transformers.js manages its own model/WASM Cache API entries. Avoid storing
+  // a second copy of large Hugging Face files in this service worker cache.
+  if (url.hostname === 'huggingface.co' || url.hostname.endsWith('.huggingface.co')) return;
+
+  if (request.mode === 'navigate' && url.origin === self.location.origin) {
+    event.respondWith(navigationResponse(request));
+    return;
+  }
 
   // 1. AI/ML Models & WebAssembly (Weights, ONNX, Tesseract, HuggingFace) -> Cache-First
   if (isModelRequest(url)) {

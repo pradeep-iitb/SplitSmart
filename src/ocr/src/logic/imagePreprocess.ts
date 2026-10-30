@@ -8,7 +8,7 @@ export type PreprocessMode = 'raw' | 'gray' | 'binarized';
 export type CanvasLike = HTMLCanvasElement | OffscreenCanvas;
 type Ctx = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
 
-const TARGET_LONG_SIDE = 2000; // Tesseract is happiest around 300 DPI-equivalent text height
+const TARGET_LONG_SIDE = 1600; // limit mobile canvas and OCR worker memory
 const MIN_LONG_SIDE = 1200; // upscale small screenshots / low-res photos (max 2x)
 
 export async function loadBitmap(file: Blob): Promise<ImageBitmap> {
