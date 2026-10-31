@@ -132,9 +132,6 @@ npm run dev
 
 Open the local URL printed by Vite (typically `http://localhost:5173`).
 
-> [!NOTE]
-> **Mobile Live Camera Access**: Browsers require a secure context (HTTPS or `localhost`) to access `navigator.mediaDevices.getUserMedia`. When testing on a physical phone connected over local Wi-Fi, SplitSmart automatically falls back to the phone's native camera and file picker. To use live remote debugging, connect via USB and open `chrome://inspect/#devices`.
-
 ### 3. Run Quality & Test Suite
 
 ```bash
