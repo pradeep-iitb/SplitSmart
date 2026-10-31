@@ -5,7 +5,8 @@
 SplitSmart is a local-first Progressive Web Application (PWA) designed for roommates, group trips, shared dining, and recurring bills. Built with **React 19**, **TypeScript**, **Vite 8**, **Tailwind CSS 4**, and **Dexie.js**, SplitSmart runs **100% in the client browser** — eliminating cloud database costs, preserving total user privacy, and functioning seamlessly offline.
 
 ---
-
+Vercel Deployement :- [SplitSmart-Vercel](https://split-smart-gc.vercel.app/#) |
+Workflow Demo :- [Demo Video](https://drive.google.com/file/d/1rM9G67zfbpSk8zvxfoQB8LATzS1GdGy_/view?usp=drivesdk)
 ## 🚀 Key Differentiators & Metrics at a Glance
 
 The most impactful, quantifiable capabilities that distinguish SplitSmart from conventional bill splitters (Splitwise, Tricount, etc.):
