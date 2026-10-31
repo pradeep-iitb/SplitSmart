@@ -1,6 +1,6 @@
 .ss-group-page {
-  font-family: 'DM Sans', sans-serif;
-  color: #f5f5f0;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  color: #e7e1dd;
   max-width: 1100px;
   margin: auto;
 }
@@ -23,14 +23,16 @@
   height: 52px;
   flex: none;
   border-radius: 14px;
-  background: #d9ff66;
-  color: #10120f;
+  background: #f28c38;
+  color: #301400;
   font-weight: 800;
+  box-shadow: 0 4px 14px rgba(242, 140, 56, 0.25);
 }
 .ss-group-title h1 {
   font-size: 32px;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.04em;
   margin: 6px 0;
+  color: #e7e1dd;
 }
 .ss-group-members {
   display: flex;
@@ -44,26 +46,28 @@
   height: 25px;
   border-radius: 50%;
   margin-left: -5px;
-  background: #d9ff66;
-  color: #10120f;
+  background: #f28c38;
+  color: #301400;
   font-size: 9px;
   font-weight: 800;
+  border: 2px solid #151311;
 }
 .ss-group-members > span.tone-1,
 .ss-group-member-list span.tone-1 {
-  background: #bba5ff;
+  background: #ffb876;
 }
 .ss-group-members > span.tone-2,
 .ss-group-member-list span.tone-2 {
-  background: #54f58c;
+  background: #ffb68e;
 }
 .ss-group-members > span.tone-3,
 .ss-group-member-list span.tone-3 {
-  background: #ffc198;
+  background: #ffdcc0;
 }
 .ss-group-members small {
   margin-left: 12px;
-  color: #a7ada5;
+  color: #a38c7e;
+  font-size: 11px;
 }
 .ss-group-actions {
   display: flex;
@@ -77,17 +81,28 @@
   gap: 8px;
   min-height: 41px;
   padding: 0 16px;
-  border: 1px solid #3a4139;
+  border: 1px solid #554337;
   border-radius: 10px;
-  background: #222722;
-  color: #f5f5f0;
+  background: #211f1d;
+  color: #e7e1dd;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ss-group-actions button:hover {
+  background: #2c2927;
+  border-color: rgba(242, 140, 56, 0.4);
 }
 .ss-group-actions button:last-child {
-  background: #d9ff66;
-  color: #10120f;
-  border-color: #d9ff66;
+  background: #f28c38;
+  color: #301400;
+  border-color: #f28c38;
+  font-weight: 800;
+  box-shadow: 0 2px 10px rgba(242, 140, 56, 0.25);
+}
+.ss-group-actions button:last-child:hover {
+  filter: brightness(1.08);
 }
 .ss-group-stats {
   display: grid;
@@ -96,58 +111,77 @@
 }
 .ss-group-stats > * {
   min-height: 130px;
-  border: 1px solid #3a4139;
+  border: 1px solid #554337;
   border-radius: 16px;
-  background: #1a1e1a;
+  background: #211f1d;
   padding: 20px;
   text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ss-group-stats > *:hover {
+  border-color: rgba(242, 140, 56, 0.4);
 }
 .ss-group-stats .featured {
-  background: linear-gradient(120deg, #29311f, #201f25);
-  border-color: #536134;
+  background: linear-gradient(135deg, #372314 0%, #2c2927 50%, #211f1d 100%);
+  border-color: rgba(255, 184, 118, 0.25);
+  box-shadow: 0 16px 40px rgba(16, 14, 12, 0.6);
+  cursor: default;
 }
 .ss-group-stats small,
 .ss-group-stats span {
   display: block;
-  color: #a7ada5;
+  color: #a38c7e;
   font-size: 11px;
 }
 .ss-group-stats strong {
   display: block;
   font-size: 26px;
   margin: 10px 0;
+  color: #e7e1dd;
 }
 .ss-group-stats .positive {
-  color: #54f58c;
+  color: #ffb876;
 }
 .ss-group-stats .negative {
-  color: #e52b36;
+  color: #ffb4ab;
 }
 .ss-group-stats .link {
-  color: #d9ff66;
-  font-weight: 800;
+  color: #ffb783;
+  font-weight: 700;
 }
 .ss-group-tabs {
   display: flex;
   gap: 24px;
   overflow-x: auto;
-  border-bottom: 1px solid #3a4139;
+  border-bottom: 1px solid #554337;
   margin: 45px 0 16px;
 }
 .ss-group-tabs button {
   padding: 0 0 12px;
-  color: #a7ada5;
+  color: #a38c7e;
   white-space: nowrap;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
+}
+.ss-group-tabs button:hover {
+  color: #e7e1dd;
 }
 .ss-group-tabs button.active {
-  color: #f5f5f0;
-  border-bottom: 2px solid #d9ff66;
+  color: #ffb783;
+  border-bottom: 2px solid #f28c38;
 }
 .ss-group-panel {
-  background: #1a1e1a;
-  border: 1px solid #3a4139;
+  background: #1d1b19;
+  border: 1px solid #554337;
   border-radius: 16px;
   padding: 20px;
+  box-shadow: 0 10px 30px rgba(16, 14, 12, 0.5);
 }
 .ss-group-panel-header {
   display: flex;
@@ -155,13 +189,14 @@
   justify-content: space-between;
   gap: 12px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #3a4139;
+  border-bottom: 1px solid #373432;
 }
 .ss-group-panel-header h2 {
   font-size: 19px;
+  color: #e7e1dd;
 }
 .ss-group-panel-header p {
-  color: #a7ada5;
+  color: #a38c7e;
   font-size: 11px;
   margin-top: 4px;
 }
@@ -171,7 +206,7 @@
   gap: 13px;
   width: 100%;
   padding: 14px 0;
-  border-bottom: 1px solid #3a4139;
+  border-bottom: 1px solid #373432;
   text-align: left;
 }
 .ss-group-expense:last-child {
@@ -183,9 +218,10 @@
   flex: none;
   width: 36px;
   height: 36px;
-  background: #252b25;
-  color: #bba5ff;
+  background: #2c2927;
+  color: #ffb783;
   border-radius: 10px;
+  border: 1px solid #554337;
 }
 .ss-group-expense > span:nth-child(2) {
   flex: 1;
@@ -194,27 +230,33 @@
 .ss-group-expense small {
   display: block;
 }
+.ss-group-expense strong {
+  color: #e7e1dd;
+  font-size: 13px;
+}
 .ss-group-expense small {
-  color: #a7ada5;
+  color: #a38c7e;
   font-size: 11px;
   margin-top: 3px;
 }
 .ss-group-expense em {
   font-style: normal;
-  color: #a7ada5;
+  color: #a38c7e;
   font-size: 10px;
   border-radius: 99px;
-  background: #222722;
+  background: #211f1d;
+  border: 1px solid #554337;
   padding: 5px 8px;
 }
 .ss-group-expense b {
   white-space: nowrap;
+  color: #e7e1dd;
 }
 .ss-group-expense svg {
-  color: #a7ada5;
+  color: #a38c7e;
 }
 .ss-group-empty {
-  color: #a7ada5;
+  color: #a38c7e;
   padding: 24px 0;
 }
 .ss-group-balance-list,
@@ -229,7 +271,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #222722;
+  background: #211f1d;
+  border: 1px solid #554337;
   padding: 14px;
   border-radius: 12px;
 }
@@ -241,15 +284,18 @@
   margin: 0;
 }
 .ss-group-balance-list .positive {
-  color: #54f58c;
+  color: #ffb876;
 }
 .ss-group-balance-list .negative {
-  color: #e52b36;
+  color: #ffb4ab;
 }
 .ss-group-switch {
   margin: 16px 0;
-  color: #d9ff66;
+  color: #ffb783;
   font-weight: 700;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 @media (max-width: 700px) {
   .ss-group-hero {

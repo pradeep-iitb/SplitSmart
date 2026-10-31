@@ -1,8 +1,8 @@
 .ss-dashboard-screen {
   max-width: 1100px;
   margin: auto;
-  color: #f5f5f0;
-  font-family: 'DM Sans', sans-serif;
+  color: #e7e1dd;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 .ss-dashboard-head,
 .ss-dashboard-row {
@@ -17,12 +17,13 @@
 .ss-dashboard-head h1 {
   font-size: 32px;
   font-weight: 700;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.04em;
   margin: 10px 0 4px;
+  color: #e7e1dd;
 }
 .ss-dashboard-head p,
 .ss-dashboard-row p {
-  color: #a7ada5;
+  color: #a38c7e;
   font-size: 13px;
 }
 .ss-dashboard-actions {
@@ -32,15 +33,29 @@
 .ss-dashboard-actions button {
   min-height: 42px;
   padding: 0 18px;
-  border-radius: 11px;
-  background: #bba5ff;
-  color: #10120f;
+  border-radius: 12px;
+  background: #2c2927;
+  color: #e7e1dd;
+  border: 1px solid #554337;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ss-dashboard-actions button:hover {
+  background: #373432;
+  color: #ffb876;
 }
 .ss-dashboard-actions button:last-child {
-  background: #d9ff66;
+  background: #f28c38;
+  color: #301400;
+  border: 1px solid #f28c38;
+  font-weight: 800;
+  box-shadow: 0 2px 10px rgba(242, 140, 56, 0.25);
+}
+.ss-dashboard-actions button:last-child:hover {
+  filter: brightness(1.08);
 }
 .ss-dashboard-stats {
   display: grid;
@@ -52,45 +67,61 @@
   min-height: 150px;
   position: relative;
   padding: 20px;
-  border: 1px solid #3a4139;
+  border: 1px solid #554337;
   border-radius: 16px;
-  background: #1a1e1a;
+  background: #211f1d;
   text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ss-dashboard-stats > *:hover {
+  border-color: rgba(242, 140, 56, 0.4);
 }
 .ss-dashboard-stats .featured {
-  background: linear-gradient(120deg, #29311f, #201f25);
-  border-color: #536134;
+  background: linear-gradient(135deg, #372314 0%, #2c2927 50%, #211f1d 100%);
+  border-color: rgba(255, 184, 118, 0.25);
+  box-shadow: 0 16px 40px rgba(16, 14, 12, 0.6);
+  cursor: default;
 }
 .ss-dashboard-stats .owed {
-  border-left: 3px solid #e52b36;
+  border-left: 3px solid #ffb4ab;
 }
 .ss-dashboard-stats .owing {
-  border-left: 3px solid #54f58c;
+  border-left: 3px solid #ffb876;
 }
 .ss-dashboard-stats small,
 .ss-dashboard-stats span {
   display: block;
-  color: #a7ada5;
+  color: #a38c7e;
   font-size: 11px;
 }
 .ss-dashboard-stats strong {
   display: block;
   font-size: 25px;
   margin: 12px 0 6px;
+  color: #e7e1dd;
 }
 .ss-dashboard-stats .owed strong {
-  color: #e52b36;
+  color: #ffb4ab;
 }
 .ss-dashboard-stats .owing strong {
-  color: #54f58c;
+  color: #ffb876;
 }
 .ss-dashboard-row h2 {
   font-size: 20px;
+  color: #e7e1dd;
 }
 .ss-dashboard-row button {
-  color: #d9ff66;
+  color: #ffb783;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.ss-dashboard-row button:hover {
+  color: #ffb876;
 }
 .ss-dashboard-groups {
   display: grid;
@@ -101,13 +132,18 @@
 .ss-dashboard-groups > button {
   min-height: 175px;
   padding: 18px;
-  border: 1px solid #3a4139;
-  border-radius: 15px;
-  background: #1a1e1a;
+  border: 1px solid #554337;
+  border-radius: 16px;
+  background: #211f1d;
   text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 8px 24px rgba(16, 14, 12, 0.4);
 }
 .ss-dashboard-groups > button:hover {
-  border-color: #d9ff66;
+  border-color: #f28c38;
+  background: #2c2927;
+  transform: translateY(-2px);
 }
 .ss-dashboard-group-head {
   display: flex;
@@ -121,32 +157,37 @@
   height: 38px;
   flex: none;
   border-radius: 11px;
-  background: #d9ff66;
-  color: #10120f;
-  font-size: 10px;
+  background: #f28c38;
+  color: #301400;
+  font-size: 11px;
   font-weight: 800;
 }
 .ss-dashboard-group-head > span.tone-1 {
-  background: #bba5ff;
+  background: #ffb876;
+  color: #301400;
 }
 .ss-dashboard-group-head > span.tone-2 {
-  background: #54f58c;
+  background: #ffb68e;
+  color: #301400;
 }
 .ss-dashboard-group-head > span.tone-3 {
-  background: #ffc198;
+  background: #ffdcc0;
+  color: #301400;
 }
 .ss-dashboard-group-head strong {
   flex: 1;
-  font-size: 13px;
+  font-size: 14px;
+  color: #e7e1dd;
 }
 .ss-dashboard-group-head b {
   display: grid;
   place-items: center;
   width: 28px;
   height: 28px;
-  border: 1px solid #3a4139;
+  border: 1px solid #554337;
   border-radius: 9px;
-  color: #a7ada5;
+  color: #a38c7e;
+  font-weight: normal;
 }
 .ss-dashboard-avatars {
   display: flex;
@@ -156,51 +197,65 @@
 .ss-dashboard-avatars > span {
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
-  margin-left: -4px;
+  width: 24px;
+  height: 24px;
+  margin-left: -5px;
   border-radius: 50%;
-  background: #d9ff66;
-  color: #10120f;
-  font-size: 8px;
+  background: #f28c38;
+  color: #301400;
+  font-size: 9px;
   font-weight: 800;
+  border: 2px solid #211f1d;
+}
+.ss-dashboard-avatars > span:first-child {
+  margin-left: 0;
 }
 .ss-dashboard-avatars > span.tone-1 {
-  background: #bba5ff;
+  background: #ffb876;
+  color: #301400;
 }
 .ss-dashboard-avatars > span.tone-2 {
-  background: #54f58c;
+  background: #ffb68e;
+  color: #301400;
 }
 .ss-dashboard-avatars > span.tone-3 {
-  background: #ffc198;
+  background: #ffdcc0;
+  color: #301400;
 }
 .ss-dashboard-avatars small {
-  color: #a7ada5;
-  font-size: 10px;
-  margin-left: 8px;
+  color: #a38c7e;
+  font-size: 11px;
+  margin-left: 10px;
 }
 .ss-dashboard-group-foot {
   display: flex;
   justify-content: space-between;
   gap: 9px;
-  border-top: 1px solid #3a4139;
+  border-top: 1px solid #373432;
   padding-top: 13px;
-  font-size: 10px;
+  font-size: 11px;
 }
 .ss-dashboard-group-foot span {
-  color: #a7ada5;
+  color: #a38c7e;
+}
+.ss-dashboard-group-foot strong {
+  color: #e7e1dd;
+  font-size: 13px;
+  margin: 0;
 }
 .ss-dashboard-group-status {
   display: block;
   margin-top: 7px;
-  color: #54f58c;
-  font-size: 10px;
+  color: #ffb876;
+  font-size: 11px;
+  font-weight: 500;
 }
 .ss-dashboard-activity {
-  background: #1a1e1a;
-  border: 1px solid #3a4139;
-  border-radius: 15px;
+  background: #1d1b19;
+  border: 1px solid #554337;
+  border-radius: 16px;
   padding: 20px;
+  box-shadow: 0 10px 30px rgba(16, 14, 12, 0.5);
 }
 .ss-dashboard-activity-row {
   display: flex;
@@ -208,8 +263,17 @@
   gap: 12px;
   width: 100%;
   padding: 13px 0;
-  border-top: 1px solid #3a4139;
+  border-top: 1px solid #373432;
   text-align: left;
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ss-dashboard-activity-row:hover {
+  background: rgba(255, 183, 131, 0.04);
 }
 .ss-dashboard-activity-row:first-of-type {
   margin-top: 14px;
@@ -218,11 +282,13 @@
   display: grid;
   place-items: center;
   flex: none;
-  width: 35px;
-  height: 35px;
-  border-radius: 10px;
-  background: #222722;
-  color: #bba5ff;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #2c2927;
+  color: #ffb783;
+  border: 1px solid #554337;
+  font-size: 15px;
 }
 .ss-dashboard-activity-row .description {
   flex: 1;
@@ -233,17 +299,21 @@
 }
 .ss-dashboard-activity-row strong {
   font-size: 13px;
+  color: #e7e1dd;
 }
 .ss-dashboard-activity-row small {
-  font-size: 10px;
-  color: #a7ada5;
+  font-size: 11px;
+  color: #a38c7e;
   margin-top: 4px;
 }
 .ss-dashboard-activity-row .amount {
   text-align: right;
 }
+.ss-dashboard-activity-row .amount strong {
+  color: #e7e1dd;
+}
 .ss-dashboard-activity .empty {
-  color: #a7ada5;
+  color: #a38c7e;
   padding: 20px 0;
 }
 @media (max-width: 800px) {

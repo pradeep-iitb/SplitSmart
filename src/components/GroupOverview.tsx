@@ -218,7 +218,7 @@ export function GroupOverview({
                         style={{
                           display: 'block',
                           fontSize: '10px',
-                          color: '#a7ada5',
+                          color: '#a38c7e',
                           marginTop: '2px',
                         }}
                       >

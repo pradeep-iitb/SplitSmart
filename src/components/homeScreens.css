@@ -1,20 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 .ss-ui {
-  --p-bg: #10120f;
-  --p-surface: #1a1e1a;
-  --p-card: #222722;
-  --p-lime: #d9ff66;
-  --p-muted: #a7ada5;
-  --p-border: #3a4139;
+  --p-bg: #151311;
+  --p-surface: #1d1b19;
+  --p-card: #211f1d;
+  --p-lime: #f28c38;
+  --p-orange-soft: #ffb783;
+  --p-muted: #a38c7e;
+  --p-border: #554337;
   background: var(--p-bg);
-  color: #f5f5f0;
-  font-family: 'DM Sans', sans-serif;
+  color: #e7e1dd;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 .ss-ui h1,
 .ss-ui h2,
 .ss-ui h3,
 .ss-ui strong {
-  font-family: Manrope, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  letter-spacing: -0.025em;
 }
 .ss-ui button {
   cursor: pointer;
@@ -26,22 +29,29 @@
   min-height: 48px;
   border-radius: 12px;
   background: var(--p-lime);
-  color: #10120f;
-  padding: 0 20px;
+  color: #301400;
+  padding: 0 22px;
   font-weight: 800;
   text-decoration: none;
   border: 1px solid var(--p-lime);
+  box-shadow: 0 2px 12px rgba(242, 140, 56, 0.25);
+  transition: all 0.15s ease;
 }
 .ss-ui .ss-button.secondary {
-  background: transparent;
-  color: #f5f5f0;
+  background: #211f1d;
+  color: #e7e1dd;
   border-color: var(--p-border);
+  box-shadow: none;
 }
 .ss-ui .ss-button:hover {
   filter: brightness(1.08);
 }
+.ss-ui .ss-button.secondary:hover {
+  background: #2c2927;
+  border-color: rgba(242, 140, 56, 0.4);
+}
 .ss-ui .ss-eyebrow {
-  color: var(--p-lime);
+  color: var(--p-orange-soft);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.1em;
@@ -57,25 +67,32 @@
   justify-content: space-between;
   padding: 0 max(5vw, 24px);
   border-bottom: 1px solid var(--p-border);
+  background: rgba(21, 19, 17, 0.85);
+  backdrop-filter: blur(12px);
 }
 .ss-logo {
   font:
-    800 23px Manrope,
+    800 23px 'Plus Jakarta Sans',
     sans-serif;
-  color: #f5f5f0;
+  color: #e7e1dd;
+  background: transparent;
+  border: none;
+  letter-spacing: -0.02em;
 }
 .ss-logo > span:first-child {
   display: inline-grid;
   place-items: center;
   background: var(--p-lime);
-  color: #10120f;
+  color: #301400;
   width: 35px;
   height: 35px;
   border-radius: 10px;
   margin-right: 8px;
+  font-weight: 800;
+  box-shadow: 0 2px 10px rgba(242, 140, 56, 0.25);
 }
 .ss-logo > span:last-child {
-  color: var(--p-lime);
+  color: var(--p-orange-soft);
 }
 .ss-header nav {
   display: flex;
@@ -83,9 +100,14 @@
   gap: 30px;
 }
 .ss-header nav a {
-  color: #f5f5f0;
+  color: #e7e1dd;
   text-decoration: none;
   font-size: 14px;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+.ss-header nav a:hover {
+  color: var(--p-orange-soft);
 }
 .ss-hero {
   max-width: 1400px;
@@ -100,13 +122,14 @@
 .ss-hero-copy h1 {
   font-size: clamp(48px, 5.5vw, 78px);
   line-height: 1.09;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.05em;
   font-weight: 800;
   margin: 18px 0;
+  color: #e7e1dd;
 }
 .ss-hero-copy h1 em {
   font-style: normal;
-  color: var(--p-lime);
+  color: var(--p-orange-soft);
 }
 .ss-hero-copy p {
   color: var(--p-muted);
@@ -131,17 +154,17 @@
   position: absolute;
   inset: 4%;
   border-radius: 50%;
-  border: 1px solid #4a5744;
+  border: 1px solid var(--p-border);
   box-shadow:
-    0 0 120px #b9ed4d20,
-    inset 0 0 100px #b9ed4d15;
+    0 0 120px rgba(242, 140, 56, 0.12),
+    inset 0 0 100px rgba(242, 140, 56, 0.08);
 }
 .ss-float {
   position: absolute;
-  background: #222722;
-  border: 1px solid #3a4139;
+  background: var(--p-card);
+  border: 1px solid var(--p-border);
   border-radius: 20px;
-  box-shadow: 0 24px 80px #0005;
+  box-shadow: 0 24px 80px rgba(16, 14, 12, 0.6);
   padding: 20px;
 }
 .ss-float small,
@@ -158,11 +181,12 @@
   left: 15%;
   padding: 30px;
   transform: rotate(-5deg);
+  background: linear-gradient(135deg, #2c2927 0%, #211f1d 100%);
 }
 .ss-float.main strong {
   font-size: 34px;
   margin: 15px 0;
-  color: var(--p-lime);
+  color: var(--p-orange-soft);
 }
 .ss-bars {
   height: 90px;
@@ -174,7 +198,7 @@
 .ss-bars i {
   display: block;
   flex: 1;
-  background: linear-gradient(var(--p-lime), #78983a);
+  background: linear-gradient(var(--p-orange-soft), #944a00);
   border-radius: 8px 8px 0 0;
 }
 .ss-bars i:nth-child(1) {
@@ -201,10 +225,10 @@
 }
 .ss-float.receipt > span {
   font-size: 26px;
-  color: var(--p-lime);
+  color: var(--p-orange-soft);
 }
 .ss-float.receipt b {
-  color: #54f58c;
+  color: #ffb876;
 }
 .ss-float.people {
   bottom: 65px;
@@ -214,7 +238,7 @@
   align-items: center;
 }
 .ss-float.people > span {
-  color: #bba5ff;
+  color: var(--p-orange-soft);
 }
 .ss-section {
   max-width: 1400px;
@@ -229,8 +253,9 @@
 .ss-section h2 {
   font-size: clamp(32px, 4vw, 52px);
   line-height: 1.15;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.04em;
   margin: 12px 0;
+  color: #e7e1dd;
 }
 .ss-section p {
   color: var(--p-muted);
@@ -245,27 +270,32 @@
   border: 1px solid var(--p-border);
   border-radius: 20px;
   padding: 30px;
+  box-shadow: 0 16px 40px rgba(16, 14, 12, 0.4);
 }
 .ss-features article > span {
   display: grid;
   place-items: center;
   width: 52px;
   height: 52px;
-  background: #d9ff6618;
-  color: var(--p-lime);
+  background: rgba(242, 140, 56, 0.14);
+  color: var(--p-orange-soft);
   font-size: 25px;
   border-radius: 14px;
 }
 .ss-features h3 {
   font-size: 21px;
   margin: 28px 0 8px;
+  color: #e7e1dd;
 }
 .ss-features button,
 .ss-section-row button,
 .ss-links button {
-  color: var(--p-lime);
+  color: var(--p-orange-soft);
   font-weight: 700;
   margin-top: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 .ss-how {
   text-align: center;
@@ -290,8 +320,9 @@
   height: 38px;
   border-radius: 50%;
   background: var(--p-lime);
-  color: #10120f;
+  color: #301400;
   font-weight: 800;
+  box-shadow: 0 2px 10px rgba(242, 140, 56, 0.25);
 }
 .ss-dashboard {
   min-height: 100vh;
@@ -306,8 +337,9 @@
 }
 .ss-dash-head h1 {
   font-size: 40px;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.04em;
   margin: 8px 0;
+  color: #e7e1dd;
 }
 .ss-dash-head p,
 .ss-section-row p {
@@ -328,8 +360,9 @@
   padding: 25px;
 }
 .ss-stats .featured {
-  background: linear-gradient(120deg, #2d3922, #1a1e1a);
-  border-color: #62763c;
+  background: linear-gradient(135deg, #372314 0%, #2c2927 50%, #1d1b19 100%);
+  border-color: rgba(255, 184, 118, 0.25);
+  box-shadow: 0 16px 40px rgba(16, 14, 12, 0.6);
 }
 .ss-stats small,
 .ss-stats span {
@@ -340,15 +373,17 @@
   display: block;
   font-size: 34px;
   margin: 16px 0 8px;
+  color: #e7e1dd;
 }
 .ss-stats .negative {
-  color: #ffc198;
+  color: #ffb4ab;
 }
 .ss-stats .positive {
-  color: #54f58c;
+  color: #ffb876;
 }
 .ss-section-row h2 {
   font-size: 23px;
+  color: #e7e1dd;
 }
 .ss-groups {
   display: grid;
@@ -366,7 +401,7 @@
 }
 .ss-group:hover,
 .ss-activity-row:hover {
-  border-color: #78983a;
+  border-color: var(--p-lime);
 }
 .ss-group-head {
   display: flex;
@@ -383,18 +418,21 @@
   width: 43px;
   height: 43px;
   border-radius: 12px;
-  background: #d9ff66;
-  color: #10120f;
+  background: #f28c38;
+  color: #301400;
   font-weight: 800;
 }
 .ss-group-icon.tone-1 {
-  background: #bba5ff;
+  background: #ffb876;
+  color: #301400;
 }
 .ss-group-icon.tone-2 {
-  background: #54f58c;
+  background: #ffb68e;
+  color: #301400;
 }
 .ss-group-icon.tone-3 {
-  background: #ffc198;
+  background: #ffdcc0;
+  color: #301400;
 }
 .ss-group p {
   color: var(--p-muted);
@@ -407,7 +445,7 @@
 }
 .ss-group-foot span {
   float: right;
-  color: var(--p-lime);
+  color: var(--p-orange-soft);
   font-size: 12px;
 }
 .ss-activity {
@@ -433,8 +471,8 @@
   place-items: center;
   width: 42px;
   height: 42px;
-  background: #d9ff6618;
-  color: var(--p-lime);
+  background: rgba(242, 140, 56, 0.14);
+  color: var(--p-orange-soft);
   border-radius: 12px;
 }
 .ss-activity-row small {
@@ -444,6 +482,7 @@
 }
 .ss-activity-row b {
   margin-left: auto;
+  color: #e7e1dd;
 }
 .ss-empty {
   color: var(--p-muted);

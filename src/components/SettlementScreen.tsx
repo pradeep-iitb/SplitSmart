@@ -71,7 +71,7 @@ export function SettlementScreen({
                 ? 'You owe the group (Total net amount to pay)'
                 : 'All settled up with this group'}
           </p>
-          <small style={{ color: '#a7ada5', fontSize: '11px', marginTop: '4px', display: 'block' }}>
+          <small style={{ color: '#a38c7e', fontSize: '11px', marginTop: '4px', display: 'block' }}>
             Combines all your paid bills and consumed shares into one single number for settlement.
           </small>
         </div>
@@ -96,12 +96,13 @@ export function SettlementScreen({
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '10px 14px',
-                  background: '#222722',
+                  background: '#211f1d',
+                  border: '1px solid #554337',
                   borderRadius: '10px',
                   fontSize: '13px',
                 }}
               >
-                <strong style={{ color: '#f5f5f0' }}>{rel.otherMemberName}</strong>
+                <strong style={{ color: '#e7e1dd' }}>{rel.otherMemberName}</strong>
                 <span
                   className={
                     rel.amountPaise > 0 ? 'positive' : rel.amountPaise < 0 ? 'negative' : ''
@@ -118,7 +119,7 @@ export function SettlementScreen({
             ))}
           </div>
           <small
-            style={{ color: '#a7ada5', fontSize: '11px', marginTop: '10px', display: 'block' }}
+            style={{ color: '#a38c7e', fontSize: '11px', marginTop: '10px', display: 'block' }}
           >
             Sum of direct debts: <strong>{formatPaise(myBalance, { showSign: true })}</strong>{' '}
             (matches your group net balance).
@@ -146,7 +147,7 @@ export function SettlementScreen({
                     {memberName}
                     {isMe ? ' (You)' : ''}
                   </strong>
-                  <small style={{ display: 'block', fontSize: '10px', color: '#a7ada5' }}>
+                  <small style={{ display: 'block', fontSize: '10px', color: '#a38c7e' }}>
                     {balance.balancePaise > 0
                       ? 'Gets back from group'
                       : balance.balancePaise < 0

@@ -8,7 +8,7 @@ import {
 import { formatPaise } from '../features/settlement/balances';
 import './insightsScreen.css';
 
-const colors = ['#d9ff66', '#bba5ff', '#54f58c', '#ffc198', '#65e7ff', '#ff8f82'];
+const colors = ['#f28c38', '#ffb783', '#ffb876', '#ffdcc0', '#fb863e', '#ffb68e'];
 type Props = {
   expenses: Expense[];
   members: Member[];
@@ -120,7 +120,7 @@ export function InsightsScreen({ expenses, members, onExport, onOpenExpense }: P
           <div className="ss-insights-donut-wrap">
             <div
               className="ss-insights-donut"
-              style={{ background: gradient ? `conic-gradient(${gradient})` : '#3a4139' }}
+              style={{ background: gradient ? `conic-gradient(${gradient})` : '#554337' }}
             >
               <span>
                 {formatPaise(analytics.totalSpentPaise)}

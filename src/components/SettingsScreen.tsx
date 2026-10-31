@@ -208,12 +208,12 @@ export function SettingsScreen({
           <button
             type="button"
             onClick={handleClearData}
-            style={{ color: '#f87171', borderColor: 'rgba(239, 68, 68, 0.4)' }}
+            style={{ color: '#ffb4ab', borderColor: 'rgba(255, 180, 171, 0.4)' }}
           >
             <Trash2 size={16} /> Reset App &amp; Clear All Data
           </button>
 
-          <button type="button" onClick={handleLoadDemo} style={{ color: '#cbd5e1' }}>
+          <button type="button" onClick={handleLoadDemo} style={{ color: '#e7e1dd' }}>
             <RefreshCw size={16} /> Load Sample Trip (Demo)
           </button>
         </section>

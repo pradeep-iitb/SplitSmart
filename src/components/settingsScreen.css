@@ -1,14 +1,17 @@
 .ss-settings-page {
   max-width: 1100px;
   margin: auto;
-  color: #f5f5f0;
+  color: #e7e1dd;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 .ss-settings-page h1 {
   font-size: 32px;
   margin: 10px 0 5px;
+  letter-spacing: -0.04em;
+  color: #e7e1dd;
 }
 .ss-settings-page > p {
-  color: #a7ada5;
+  color: #a38c7e;
   font-size: 13px;
 }
 .ss-settings-grid {
@@ -18,17 +21,19 @@
   margin-top: 30px;
 }
 .ss-settings-grid > section {
-  background: #1a1e1a;
-  border: 1px solid #3a4139;
+  background: #1d1b19;
+  border: 1px solid #554337;
   border-radius: 17px;
   padding: 22px;
+  box-shadow: 0 10px 30px rgba(16, 14, 12, 0.45);
 }
 .ss-settings-grid h2 {
   font-size: 18px;
   margin-bottom: 10px;
+  color: #e7e1dd;
 }
 .ss-settings-grid p {
-  color: #a7ada5;
+  color: #a38c7e;
   font-size: 13px;
   line-height: 1.5;
 }
@@ -43,18 +48,19 @@
   width: 40px;
   height: 40px;
   border-radius: 11px;
-  background: #d9ff6618;
-  color: #d9ff66;
+  background: rgba(242, 140, 56, 0.14);
+  color: #ffb783;
 }
 .ss-settings-warning {
   padding: 14px;
-  border: 1px solid #6a5c35;
+  border: 1px solid #6b3b01;
   border-radius: 11px;
-  background: #ffd47813;
+  background: rgba(107, 59, 1, 0.2);
   margin: 20px 0;
 }
 .ss-settings-warning p {
   margin-top: 5px;
+  color: #ffb876;
 }
 .ss-settings-grid > section > button:not(.ss-switch) {
   display: flex;
@@ -64,24 +70,35 @@
   width: 100%;
   min-height: 42px;
   margin-top: 9px;
-  border: 1px solid #3a4139;
+  border: 1px solid #554337;
   border-radius: 10px;
-  background: #222722;
-  color: #f5f5f0;
-  font-weight: 800;
+  background: #211f1d;
+  color: #e7e1dd;
+  font-weight: 700;
   font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ss-settings-grid > section > button:not(.ss-switch):hover {
+  background: #2c2927;
+  border-color: rgba(242, 140, 56, 0.4);
 }
 .ss-settings-grid > section > button.primary {
-  background: #d9ff66;
-  color: #10120f;
-  border-color: #d9ff66;
+  background: #f28c38;
+  color: #301400;
+  border-color: #f28c38;
+  font-weight: 800;
+  box-shadow: 0 2px 10px rgba(242, 140, 56, 0.25);
+}
+.ss-settings-grid > section > button.primary:hover {
+  filter: brightness(1.08);
 }
 .ss-setting-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border-top: 1px solid #3a4139;
+  border-top: 1px solid #373432;
   padding: 16px 0;
 }
 .ss-setting-row:first-of-type {
@@ -89,13 +106,14 @@
 }
 .ss-setting-row small {
   display: block;
-  color: #a7ada5;
+  color: #a38c7e;
   font-size: 11px;
   margin-top: 4px;
 }
 .ss-setting-row > span {
-  background: #222722;
-  color: #a7ada5;
+  background: #211f1d;
+  border: 1px solid #554337;
+  color: #a38c7e;
   border-radius: 99px;
   padding: 5px 10px;
   font-size: 11px;
@@ -104,29 +122,31 @@
   width: 42px;
   height: 25px;
   border-radius: 99px;
-  background: #3a4139;
+  background: #373432;
   padding: 3px;
   flex: none;
+  cursor: pointer;
+  border: none;
 }
 .ss-switch i {
   display: block;
   width: 19px;
   height: 19px;
   border-radius: 50%;
-  background: #a7ada5;
+  background: #a38c7e;
   transition: transform 0.2s;
 }
 .ss-switch.on {
-  background: #d9ff66;
+  background: #f28c38;
 }
 .ss-switch.on i {
   transform: translateX(17px);
-  background: #10120f;
+  background: #301400;
 }
 .ss-offline-ready {
   display: inline-block;
   margin-top: 18px;
-  color: #54f58c;
+  color: #ffb876;
   font-size: 12px;
 }
 @media (max-width: 700px) {
@@ -143,8 +163,8 @@
 
 .ss-profile-card {
   grid-column: 1 / -1;
-  background: #182018 !important;
-  border-color: #384a38 !important;
+  background: #1d1b19 !important;
+  border-color: #554337 !important;
 }
 .ss-profile-form {
   margin-top: 18px;
@@ -160,23 +180,23 @@
 .ss-profile-field label {
   font-size: 12px;
   font-weight: 700;
-  color: #d9ff66;
+  color: #ffb783;
 }
 .ss-profile-field input {
   padding: 10px 14px;
-  background: #101410;
-  border: 1px solid #3a4139;
+  background: #211f1d;
+  border: 1px solid #554337;
   border-radius: 10px;
-  color: #f5f5f0;
+  color: #e7e1dd;
   font-size: 14px;
 }
 .ss-profile-field input:focus {
   outline: none;
-  border-color: #d9ff66;
+  border-color: #f28c38;
 }
 .ss-profile-field small {
   font-size: 11px;
-  color: #a7ada5;
+  color: #a38c7e;
 }
 .ss-profile-form button {
   grid-column: 1 / -1;

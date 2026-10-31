@@ -1,7 +1,8 @@
 .ss-insights-page {
   max-width: 1100px;
   margin: auto;
-  color: #f5f5f0;
+  color: #e7e1dd;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 .ss-insights-head {
   display: flex;
@@ -13,11 +14,13 @@
 .ss-insights-head h1 {
   font-size: 32px;
   margin: 9px 0 4px;
+  letter-spacing: -0.04em;
+  color: #e7e1dd;
 }
 .ss-insights-head p,
 .ss-insights-charts p,
 .ss-insights-history p {
-  color: #a7ada5;
+  color: #a38c7e;
   font-size: 13px;
 }
 .ss-insights-head > button,
@@ -28,11 +31,19 @@
   gap: 7px;
   min-height: 40px;
   padding: 0 14px;
-  background: #222722;
-  border: 1px solid #3a4139;
+  background: #211f1d;
+  border: 1px solid #554337;
   border-radius: 10px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
+  color: #e7e1dd;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ss-insights-head > button:hover,
+.ss-insights-history-head button:hover {
+  background: #2c2927;
+  border-color: rgba(242, 140, 56, 0.4);
 }
 .ss-insights-stats {
   display: grid;
@@ -43,24 +54,26 @@
 .ss-insights-stats > div {
   min-height: 130px;
   padding: 20px;
-  background: #1a1e1a;
-  border: 1px solid #3a4139;
+  background: #211f1d;
+  border: 1px solid #554337;
   border-radius: 16px;
 }
 .ss-insights-stats .featured {
-  background: linear-gradient(120deg, #29311f, #201f25);
-  border-color: #536134;
+  background: linear-gradient(135deg, #372314 0%, #2c2927 50%, #211f1d 100%);
+  border-color: rgba(255, 184, 118, 0.25);
+  box-shadow: 0 16px 40px rgba(16, 14, 12, 0.6);
 }
 .ss-insights-stats small,
 .ss-insights-stats span {
   display: block;
-  color: #a7ada5;
+  color: #a38c7e;
   font-size: 11px;
 }
 .ss-insights-stats strong {
   display: block;
   font-size: 25px;
   margin: 10px 0;
+  color: #e7e1dd;
 }
 .ss-insights-charts {
   display: grid;
@@ -69,14 +82,16 @@
 }
 .ss-insights-charts > section,
 .ss-insights-history {
-  background: #1a1e1a;
-  border: 1px solid #3a4139;
+  background: #1d1b19;
+  border: 1px solid #554337;
   border-radius: 16px;
   padding: 20px;
+  box-shadow: 0 10px 30px rgba(16, 14, 12, 0.45);
 }
 .ss-insights-charts h2,
 .ss-insights-history h2 {
   font-size: 19px;
+  color: #e7e1dd;
 }
 .ss-insights-bars {
   display: grid;
@@ -85,7 +100,7 @@
   gap: 10px;
   height: 200px;
   margin-top: 25px;
-  border-bottom: 1px solid #3a4139;
+  border-bottom: 1px solid #554337;
 }
 .ss-insights-bars > div {
   height: 100%;
@@ -100,12 +115,12 @@
   width: 60%;
   max-width: 36px;
   min-height: 2px;
-  background: linear-gradient(#d9ff66, #526630);
+  background: linear-gradient(#ffb783, #944a00);
   border-radius: 7px 7px 0 0;
 }
 .ss-insights-bars span {
   font-size: 10px;
-  color: #a7ada5;
+  color: #a38c7e;
 }
 .ss-insights-donut-wrap {
   display: flex;
@@ -127,13 +142,14 @@
   width: 95px;
   height: 95px;
   border-radius: 50%;
-  background: #1a1e1a;
+  background: #1d1b19;
   font-size: 15px;
   font-weight: 800;
+  color: #e7e1dd;
 }
 .ss-insights-donut small {
   display: block;
-  color: #a7ada5;
+  color: #a38c7e;
   font-size: 10px;
   font-weight: 400;
 }
@@ -145,7 +161,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  color: #a7ada5;
+  color: #a38c7e;
   font-size: 11px;
   margin: 11px 0;
 }
@@ -157,7 +173,7 @@
 }
 .ss-insights-legend strong {
   margin-left: auto;
-  color: #f5f5f0;
+  color: #e7e1dd;
 }
 .ss-insights-history {
   margin-top: 12px;
@@ -174,17 +190,17 @@
   gap: 12px;
   align-items: center;
   padding: 13px 0;
-  border-top: 1px solid #3a4139;
+  border-top: 1px solid #373432;
   font-size: 13px;
 }
 .ss-insights-member span {
-  color: #a7ada5;
+  color: #a38c7e;
 }
 .ss-insights-member .positive {
-  color: #54f58c;
+  color: #ffb876;
 }
 .ss-insights-member .negative {
-  color: #ff8f82;
+  color: #ffb4ab;
 }
 .ss-insights-history-head {
   display: flex;
@@ -203,27 +219,28 @@
   width: 100%;
   min-height: 40px;
   padding: 0 11px;
-  background: #222722;
-  border: 1px solid #3a4139;
+  background: #211f1d;
+  border: 1px solid #554337;
   border-radius: 10px;
-  color: #f5f5f0;
+  color: #e7e1dd;
   font-size: 12px;
 }
 .ss-insights-expense {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  border-top: 1px solid #3a4139;
+  border-top: 1px solid #373432;
   padding: 12px 0;
   text-align: left;
 }
 .ss-insights-expense small {
   display: block;
-  color: #a7ada5;
+  color: #a38c7e;
   font-size: 10px;
 }
 .ss-insights-empty {
   padding: 20px 0;
+  color: #a38c7e;
 }
 @media (max-width: 800px) {
   .ss-insights-charts {

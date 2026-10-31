@@ -1025,8 +1025,8 @@ const createShards = (count: number, seed: number): Shard[] => {
 };
 
 export default function AeroShards({
-  shardColor = '#896ABD',
-  accentColor = '#A855F7',
+  shardColor = '#ffb783',
+  accentColor = '#f28c38',
   backgroundColor = 'transparent',
   lightMode = false,
   placement = 'full',

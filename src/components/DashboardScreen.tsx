@@ -113,15 +113,15 @@ export function DashboardScreen({
               gridColumn: '1 / -1',
               padding: '36px 20px',
               textAlign: 'center',
-              background: '#181c18',
+              background: '#1d1b19',
               borderRadius: '16px',
-              border: '1px dashed #30372f',
+              border: '1px dashed #554337',
             }}
           >
-            <h3 style={{ margin: '0 0 6px 0', fontSize: '17px', color: '#f5f5f0' }}>
+            <h3 style={{ margin: '0 0 6px 0', fontSize: '17px', color: '#e7e1dd' }}>
               No groups yet
             </h3>
-            <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#a7ada5' }}>
+            <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#a38c7e' }}>
               SplitSmart is ready and clean. Create your first group to start splitting bills!
             </p>
             <button
@@ -129,13 +129,14 @@ export function DashboardScreen({
               onClick={onCreateGroup}
               style={{
                 padding: '10px 20px',
-                background: '#d9ff66',
-                color: '#10120f',
-                fontWeight: 700,
+                background: '#f28c38',
+                color: '#301400',
+                fontWeight: 800,
                 fontSize: '13px',
                 borderRadius: '10px',
                 border: 'none',
                 cursor: 'pointer',
+                boxShadow: '0 2px 10px rgba(242, 140, 56, 0.25)',
               }}
             >
               Create first group ＋

@@ -1255,29 +1255,29 @@ export const ReceiptScanModal: React.FC<ReceiptScanModalProps> = ({
             className="ss-workflow-progress"
             aria-label={`Step ${step === 'review' ? 1 : step === 'assign' ? 2 : 3} of 3`}
           >
-            <button
-              type="button"
-              onClick={() =>
-                moveTo(step === 'review' ? 'capture' : step === 'assign' ? 'review' : 'assign')
-              }
-            >
-              ‹{' '}
-              {step === 'review'
-                ? 'Scan receipt'
-                : step === 'assign'
-                  ? 'Review receipt'
-                  : 'Assign items'}
-            </button>
-            <div>
-              <span>
+            <div className="ss-workflow-progress-top">
+              <button
+                type="button"
+                onClick={() =>
+                  moveTo(step === 'review' ? 'capture' : step === 'assign' ? 'review' : 'assign')
+                }
+              >
+                ‹{' '}
+                {step === 'review'
+                  ? 'Scan receipt'
+                  : step === 'assign'
+                    ? 'Review receipt'
+                    : 'Assign items'}
+              </button>
+              <span className="ss-workflow-step-pill">
                 Step {step === 'review' ? 1 : step === 'assign' ? 2 : 3} of 3 ·{' '}
                 {step === 'review' ? 'Review' : step === 'assign' ? 'Assign' : 'Split'}
               </span>
-              <div className="ss-workflow-track">
-                <i
-                  className={`ss-workflow-fill step-${step === 'review' ? 1 : step === 'assign' ? 2 : 3} from-${previousStep === 'summary' ? 3 : previousStep === 'assign' ? 2 : 1}`}
-                />
-              </div>
+            </div>
+            <div className="ss-workflow-track">
+              <i
+                className={`ss-workflow-fill step-${step === 'review' ? 1 : step === 'assign' ? 2 : 3} from-${previousStep === 'summary' ? 3 : previousStep === 'assign' ? 2 : 1}`}
+              />
             </div>
           </div>
         )}

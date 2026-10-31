@@ -89,7 +89,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               onChange={handleNavChange}
               theme="dark"
               size="sm"
-              color="#896ABD"
+              color="#ffb783"
               frame={false}
               particleCount={14}
               spread={45}
@@ -238,13 +238,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* 1. Full Viewport Hero Section (100vh) WITH AeroShards BG ONLY HERE */}
       <section
         id="hero-section"
-        className="relative min-h-screen w-full flex flex-col justify-center bg-[#07090e]"
+        className="relative min-h-screen w-full flex flex-col justify-center bg-[#151311] bg-mesh-radial"
       >
         {/* Exact AeroShards Background Component - Only in Hero */}
         <div style={{ width: '100%', height: '100%', position: 'absolute', inset: 0, zIndex: 0 }}>
           <AeroShards
-            shardColor="#896ABD"
-            accentColor="#A855F7"
+            shardColor="#ffb783"
+            accentColor="#f28c38"
             placement="full"
             material="glass"
             markers="plus"
