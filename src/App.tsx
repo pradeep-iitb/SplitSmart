@@ -309,7 +309,7 @@ export default function App() {
 
   return (
     <div
-      className={`figma-engine min-h-screen bg-[#151311] text-[#e7e1dd] bg-mesh-radial flex flex-col antialiased relative selection:bg-[#f28c38] selection:text-[#301400] w-full max-w-full overflow-x-clip ${compactLayout ? 'ss-compact-layout' : ''}`}
+      className={`figma-engine min-h-screen bg-[#151311] text-[#e7e1dd] bg-mesh-radial flex flex-col antialiased relative selection:bg-primary-container selection:text-on-primary-fixed w-full max-w-full overflow-x-clip ${compactLayout ? 'ss-compact-layout' : ''}`}
     >
       {/* IMPROVED FLOATING NAVBAR: Matching Landing Page 75vw Liquid Glass with Responsive Mobile Menu */}
       {view === 'app' && (
@@ -632,13 +632,13 @@ export default function App() {
 
       {/* Toast Notification */}
       {successToast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#2c2927] text-[#e7e1dd] px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-xs sm:text-sm font-semibold animate-in slide-in-from-bottom-5 duration-200 border border-[#f28c38]/40">
+        <div className="fixed bottom-6 right-6 z-50 bg-surface-container-high text-[#e7e1dd] px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-xs sm:text-sm font-semibold animate-in slide-in-from-bottom-5 duration-200 border border-primary-container/40">
           <CheckCircle2 className="w-5 h-5 text-[#ffb783] shrink-0" />
           <span>{successToast}</span>
           <button
             type="button"
             onClick={() => setSuccessToast(null)}
-            className="ml-2 text-[#a38c7e] hover:text-[#e7e1dd] p-1 cursor-pointer"
+            className="ml-2 text-outline hover:text-[#e7e1dd] p-1 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
